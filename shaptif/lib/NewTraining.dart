@@ -21,12 +21,11 @@ class NewTraining extends StatelessWidget {
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: Text('cos'),
+              child: const Text('cos'),
             ),
           ],
         ),
       ),
-      bottomNavigationBar: BasicBottomAppBar(),
     );
   }
 }

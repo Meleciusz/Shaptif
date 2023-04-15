@@ -21,12 +21,11 @@ class BasicBottomAppBar extends StatelessWidget {
                 tooltip: 'Excercise list',
                 icon: const Icon(Icons.menu_rounded),
                 onPressed: () {
-                  Navigator.pushAndRemoveUntil(
+                  Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
                         builder: ((context) => const Exercise()),
-                      ),
-                      ModalRoute.withName("/"));
+                      ));
                 },
               ),
             ),
@@ -82,6 +81,46 @@ class BasicBottomAppBar extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class AdvancedBottomAppBar extends StatelessWidget {
+  int index = 0;
+
+  AdvancedBottomAppBar({Key? key, required int index}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return BottomNavigationBar(
+      currentIndex: index,
+      items: const [
+        BottomNavigationBarItem(
+            tooltip: 'Excercise list',
+            icon: Icon(Icons.menu_rounded),
+            label: 'Exercises',
+            backgroundColor: Colors.deepPurple),
+        BottomNavigationBarItem(
+            tooltip: 'Training list',
+            icon: Icon(Icons.sports_gymnastics_rounded),
+            label: 'Trainings',
+            backgroundColor: Colors.deepPurple),
+        BottomNavigationBarItem(
+            tooltip: 'History',
+            icon: Icon(Icons.history_rounded),
+            label: 'History',
+            backgroundColor: Colors.deepPurple),
+        BottomNavigationBarItem(
+            tooltip: 'Settings',
+            icon: Icon(Icons.settings_rounded),
+            label: 'Settings',
+            backgroundColor: Colors.deepPurple),
+        BottomNavigationBarItem(
+            tooltip: 'Share',
+            icon: Icon(Icons.share_rounded),
+            label: 'Share',
+            backgroundColor: Colors.deepPurple)
+      ],
     );
   }
 }

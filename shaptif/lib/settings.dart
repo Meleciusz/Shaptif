@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:shaptif/CustomAppBar.dart';
 
-class Exercise extends StatelessWidget {
-  const Exercise({Key? key}) : super(key: key);
+class Settings extends StatelessWidget {
+  const Settings({Key? key}) : super(key: key);
 
-  final String appBarText = 'Exercises list';
+  final String appBarText = 'Settings';
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -16,14 +16,7 @@ class Exercise extends StatelessWidget {
       ),
       body: Center(
         child: Column(
-          children: <Widget>[
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text('cos'),
-            ),
-          ],
+          children: const <Widget>[Text("Settings")],
         ),
       ),
     );
