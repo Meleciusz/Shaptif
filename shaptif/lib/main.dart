@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shaptif/CustomAppBar.dart';
 import 'package:shaptif/Exercise.dart';
 import 'package:shaptif/History.dart';
 import 'package:shaptif/NewTraining.dart';
@@ -137,7 +138,9 @@ class _MyHomePageState extends State<MyHomePage> {
         // center the children vertically; the main axis here is the vertical
         // axis because Columns are vertical (the cross axis would be
         // horizontal).
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      ),
+      bottomNavigationBar:
+          BasicBottomAppBar(), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
