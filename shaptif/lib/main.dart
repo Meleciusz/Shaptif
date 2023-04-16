@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shaptif/Exercise.dart';
 import 'package:shaptif/History.dart';
-import 'package:shaptif/NewTraining.dart';
 import 'package:shaptif/Share.dart';
 import 'package:shaptif/TrainingList.dart';
+import 'package:shaptif/settings.dart';
 
 void main() {
   runApp(const MyApp());
@@ -28,6 +28,8 @@ class MyApp extends StatelessWidget {
         // Notice that the counter didn't reset back to zero; the application
         // is not restarted.
         primarySwatch: Colors.deepPurple,
+        // colorScheme.background : Color.fromARGB(),
+        //backgroundColor: Color.fromARGB(255, 50, 50, 52),
       ),
       home: const MyHomePage(title: 'Shaptif'),
     );
@@ -53,91 +55,90 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
+  int currentBottomNavBarIndex = 0;
+  final String appBarText = 'Shaptif';
+  final screens = [
+    const Exercise(),
+    const TrainingList(),
+    const History(),
+    const Settings(),
+    const Share()
+  ];
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Center(child: Text(widget.title)),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(80),
+        child: AppBar(
+          // Here we take the value from the MyHomePage object that was created by
+          // the App.build method, and use it to set our appbar title.
+          centerTitle: true,
+          flexibleSpace: Container(
+            decoration: const BoxDecoration(
+                image: DecorationImage(
+              image: AssetImage("images/ksiazka.png"),
+              fit: BoxFit.fill,
+            )),
+          ),
+          title: Text(
+            appBarText,
+            style: const TextStyle(
+                fontFamily: 'Audiowide',
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+                fontSize: 40),
+          ),
+          backgroundColor: const Color.fromARGB(255, 58, 183, 89),
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+                  bottomRight: Radius.circular(20),
+                  bottomLeft: Radius.circular(20))),
+          automaticallyImplyLeading: false,
+        ),
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(children: <Widget>[
-          ElevatedButton(
-            onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const NewTraining()));
-            },
-            child: Text('Add new training'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const TrainingList()));
-            },
-            child: Text('Training list'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const History()));
-            },
-            child: Text('Training history'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const Exercise()));
-            },
-            child: Text('Exercises list'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const Share()));
-            },
-            child: Text('Share with your friend'),
-          ),
-        ]),
+      body: IndexedStack(
+        index: currentBottomNavBarIndex,
+        children: screens,
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+          currentIndex: currentBottomNavBarIndex,
+          onTap: (index) => setState(() => currentBottomNavBarIndex = index),
+          iconSize: 30,
+          showUnselectedLabels: false,
+          showSelectedLabels: true,
+          selectedItemColor: const Color.fromARGB(255, 183, 205, 144),
+          unselectedItemColor: Colors.grey,
+          items: const [
+            BottomNavigationBarItem(
+                tooltip: 'Excercise list',
+                icon: Icon(Icons.menu_rounded),
+                label: 'Exercises',
+                backgroundColor: Colors.black),
+            BottomNavigationBarItem(
+                tooltip: 'Training list',
+                icon: Icon(Icons.sports_gymnastics_rounded),
+                label: 'Trainings',
+                backgroundColor: Colors.black),
+            BottomNavigationBarItem(
+                tooltip: 'History',
+                icon: Icon(Icons.history_rounded),
+                label: 'History',
+                backgroundColor: Colors.black),
+            BottomNavigationBarItem(
+                tooltip: 'Settings',
+                icon: Icon(Icons.settings_rounded),
+                label: 'Settings',
+                backgroundColor: Colors.black),
+            BottomNavigationBarItem(
+                tooltip: 'Share',
+                icon: Icon(Icons.share_rounded),
+                label: 'Share',
+                backgroundColor: Colors.black)
+          ]
 
-        // Column is also a layout widget. It takes a list of children and
-        // arranges them vertically. By default, it sizes itself to fit its
-        // children horizontally, and tries to be as tall as its parent.
-        //
-        // Invoke "debug painting" (press "p" in the console, choose the
-        // "Toggle Debug Paint" action from the Flutter Inspector in Android
-        // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-        // to see the wireframe for each widget.
-        //
-        // Column has various properties to control how it sizes itself and
-        // how it positions its children. Here we use mainAxisAlignment to
-        // center the children vertically; the main axis here is the vertical
-        // axis because Columns are vertical (the cross axis would be
-        // horizontal).
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+          // This trailing comma makes auto-formatting nicer for build methods.
+          ),
     );
   }
 }

@@ -1,33 +1,24 @@
 import 'package:flutter/material.dart';
 
-class NewTraining extends StatelessWidget{
+class NewTraining extends StatelessWidget {
   const NewTraining({Key? key}) : super(key: key);
 
-
-  final String appBarText = 'Add your training';
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
-        appBar: AppBar(
-          // Here we take the value from the MyHomePage object that was created by
-          // the App.build method, and use it to set our appbar title.
-          title: Center(child: Text(appBarText)),
-          automaticallyImplyLeading: false,
-        ),
-
-      body : Center(
+      backgroundColor: const Color.fromARGB(255, 31, 31, 33),
+      body: Center(
         child: Column(
-          children: <Widget>[
-            ElevatedButton(
-              onPressed: (){Navigator.pop(context);},
-              child: Text('cos'),
+            // children: <Widget>[
+            //   ElevatedButton(
+            //     onPressed: () {
+            //       Navigator.pop(context);
+            //     },
+            //     child: const Text('cos'),
+            //   ),
+            // ],
             ),
-          ],
-        ),
-      )
-
-
+      ),
     );
   }
 }
