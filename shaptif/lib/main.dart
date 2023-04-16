@@ -30,6 +30,8 @@ class MyApp extends StatelessWidget {
         // Notice that the counter didn't reset back to zero; the application
         // is not restarted.
         primarySwatch: Colors.deepPurple,
+        // colorScheme.background : Color.fromARGB(),
+        backgroundColor: Color.fromARGB(255, 50, 50, 52),
       ),
       home: const MyHomePage(title: 'Shaptif'),
     );
@@ -71,34 +73,34 @@ class _MyHomePageState extends State<MyHomePage> {
           iconSize: 30,
           showUnselectedLabels: false,
           showSelectedLabels: true,
-          selectedItemColor: Colors.white,
-          unselectedItemColor: Colors.black,
+          selectedItemColor: Color.fromARGB(255, 183, 205, 144),
+          unselectedItemColor: Colors.grey,
           items: const [
             BottomNavigationBarItem(
                 tooltip: 'Excercise list',
                 icon: Icon(Icons.menu_rounded),
                 label: 'Exercises',
-                backgroundColor: Color.fromARGB(255, 58, 183, 89)),
+                backgroundColor: Colors.black),
             BottomNavigationBarItem(
                 tooltip: 'Training list',
                 icon: Icon(Icons.sports_gymnastics_rounded),
                 label: 'Trainings',
-                backgroundColor: Color.fromARGB(255, 60, 157, 160)),
+                backgroundColor: Colors.black),
             BottomNavigationBarItem(
                 tooltip: 'History',
                 icon: Icon(Icons.history_rounded),
                 label: 'History',
-                backgroundColor: Color.fromARGB(255, 58, 66, 183)),
+                backgroundColor: Colors.black),
             BottomNavigationBarItem(
                 tooltip: 'Settings',
                 icon: Icon(Icons.settings_rounded),
                 label: 'Settings',
-                backgroundColor: Color.fromARGB(255, 77, 40, 141)),
+                backgroundColor: Colors.black),
             BottomNavigationBarItem(
                 tooltip: 'Share',
                 icon: Icon(Icons.share_rounded),
                 label: 'Share',
-                backgroundColor: Colors.deepPurple)
+                backgroundColor: Colors.black)
           ]
 
           // This trailing comma makes auto-formatting nicer for build methods.

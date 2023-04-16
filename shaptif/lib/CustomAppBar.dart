@@ -21,11 +21,12 @@ class BasicBottomAppBar extends StatelessWidget {
                 tooltip: 'Excercise list',
                 icon: const Icon(Icons.menu_rounded),
                 onPressed: () {
-                  Navigator.pushReplacement(
+                  Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(
                         builder: ((context) => const Exercise()),
-                      ));
+                      ),
+                      ModalRoute.withName("/"));
                 },
               ),
             ),
