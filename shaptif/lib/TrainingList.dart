@@ -3,11 +3,9 @@ import 'package:flutter/material.dart';
 class TrainingList extends StatelessWidget {
   const TrainingList({Key? key}) : super(key: key);
 
-  final String appBarText = 'Shaptif';
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-        home: Scaffold(
+    return Scaffold(
       backgroundColor: const Color.fromARGB(255, 31, 31, 33),
       body: Center(
         child: Column(
@@ -35,6 +33,6 @@ class TrainingList extends StatelessWidget {
         shape: const CircleBorder(),
         child: const Icon(Icons.add),
       ),
-    ));
+    );
   }
 }

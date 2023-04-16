@@ -68,10 +68,6 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: currentBottomNavBarIndex,
-        children: screens,
-      ),
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(80),
         child: AppBar(
@@ -100,6 +96,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   bottomLeft: Radius.circular(20))),
           automaticallyImplyLeading: false,
         ),
+      ),
+      body: IndexedStack(
+        index: currentBottomNavBarIndex,
+        children: screens,
       ),
       bottomNavigationBar: BottomNavigationBar(
           currentIndex: currentBottomNavBarIndex,
