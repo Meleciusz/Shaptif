@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:shaptif/CustomAppBar.dart';
 import 'package:shaptif/Exercise.dart';
 import 'package:shaptif/History.dart';
-import 'package:shaptif/NewTraining.dart';
 import 'package:shaptif/Share.dart';
 import 'package:shaptif/TrainingList.dart';
 import 'package:shaptif/settings.dart';
@@ -31,7 +29,7 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.deepPurple,
         // colorScheme.background : Color.fromARGB(),
-        backgroundColor: Color.fromARGB(255, 50, 50, 52),
+        //backgroundColor: Color.fromARGB(255, 50, 50, 52),
       ),
       home: const MyHomePage(title: 'Shaptif'),
     );
@@ -58,7 +56,14 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int currentBottomNavBarIndex = 0;
-  final screens = [Exercise(), TrainingList(), History(), Settings(), Share()];
+  final String appBarText = 'Shaptif';
+  final screens = [
+    const Exercise(),
+    const TrainingList(),
+    const History(),
+    const Settings(),
+    const Share()
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -67,13 +72,42 @@ class _MyHomePageState extends State<MyHomePage> {
         index: currentBottomNavBarIndex,
         children: screens,
       ),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(80),
+        child: AppBar(
+          // Here we take the value from the MyHomePage object that was created by
+          // the App.build method, and use it to set our appbar title.
+          centerTitle: true,
+          flexibleSpace: Container(
+            decoration: const BoxDecoration(
+                image: DecorationImage(
+              image: AssetImage("images/ksiazka.png"),
+              fit: BoxFit.fill,
+            )),
+          ),
+          title: Text(
+            appBarText,
+            style: const TextStyle(
+                fontFamily: 'Audiowide',
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+                fontSize: 40),
+          ),
+          backgroundColor: const Color.fromARGB(255, 58, 183, 89),
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+                  bottomRight: Radius.circular(20),
+                  bottomLeft: Radius.circular(20))),
+          automaticallyImplyLeading: false,
+        ),
+      ),
       bottomNavigationBar: BottomNavigationBar(
           currentIndex: currentBottomNavBarIndex,
           onTap: (index) => setState(() => currentBottomNavBarIndex = index),
           iconSize: 30,
           showUnselectedLabels: false,
           showSelectedLabels: true,
-          selectedItemColor: Color.fromARGB(255, 183, 205, 144),
+          selectedItemColor: const Color.fromARGB(255, 183, 205, 144),
           unselectedItemColor: Colors.grey,
           items: const [
             BottomNavigationBarItem(

@@ -3,7 +3,6 @@ import 'package:shaptif/Exercise.dart';
 import 'package:shaptif/History.dart';
 import 'package:shaptif/Share.dart';
 import 'package:shaptif/TrainingList.dart';
-import 'package:shaptif/main.dart';
 
 class BasicBottomAppBar extends StatelessWidget {
   const BasicBottomAppBar({Key? key}) : super(key: key);
