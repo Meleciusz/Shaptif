@@ -23,7 +23,7 @@ class BasicBottomAppBar extends StatelessWidget {
                   Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(
-                        builder: ((context) => const Exercise()),
+                        builder: ((context) => const ExcerciseView()),
                       ),
                       ModalRoute.withName("/"));
                 },
@@ -37,7 +37,7 @@ class BasicBottomAppBar extends StatelessWidget {
                   Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(
-                        builder: ((context) => const TrainingList()),
+                        builder: ((context) => const TrainingListView()),
                       ),
                       ModalRoute.withName("/"));
                 },
@@ -51,7 +51,7 @@ class BasicBottomAppBar extends StatelessWidget {
                   Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(
-                        builder: ((context) => const History()),
+                        builder: ((context) => const HistoryView()),
                       ),
                       ModalRoute.withName("/"));
                 },
@@ -72,7 +72,7 @@ class BasicBottomAppBar extends StatelessWidget {
                   Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(
-                        builder: ((context) => const Share()),
+                        builder: ((context) => const ShareView()),
                       ),
                       ModalRoute.withName("/"));
                 },

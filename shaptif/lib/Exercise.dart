@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 
-class Exercise extends StatelessWidget {
-  const Exercise({Key? key}) : super(key: key);
+class ExcerciseView extends StatefulWidget {
+  const ExcerciseView({Key? key}) : super(key: key);
 
+  @override
+  State<StatefulWidget> createState() => ExcerciseViewState();
+}
+
+class ExcerciseViewState extends State<ExcerciseView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 
-class NewTraining extends StatelessWidget {
-  const NewTraining({Key? key}) : super(key: key);
+class NewTrainingView extends StatefulWidget {
+  const NewTrainingView({Key? key}) : super(key: key);
 
+  @override
+  State<StatefulWidget> createState() => NewTrainingViewState();
+}
+
+class NewTrainingViewState extends State<NewTrainingView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

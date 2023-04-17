@@ -58,11 +58,11 @@ class _MyHomePageState extends State<MyHomePage> {
   int currentBottomNavBarIndex = 0;
   final String appBarText = 'Shaptif';
   final screens = [
-    const Exercise(),
-    const TrainingList(),
-    const History(),
-    const Settings(),
-    const Share()
+    const ExcerciseView(),
+    const TrainingListView(),
+    const HistoryView(),
+    const SettingsView(),
+    const ShareView()
   ];
 
   @override
