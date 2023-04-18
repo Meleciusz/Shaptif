@@ -15,12 +15,11 @@ class ExcerciseViewState extends State<ExcerciseView> {
   void initState(){
     super.initState();
 
-    DatabaseManger.instance.deleteAll();
+    DatabaseManger.instance.deleteAllExcercises();
 
-    DatabaseManger.instance.create(const Excercise(name:"Płaska",description: "wiadomo"));
-    DatabaseManger.instance.create(const Excercise(name:"Podciąganie",description: "pod chwytem tylko"));
-    DatabaseManger.instance.create(const Excercise(name:"Szruksy",description: "czuje ze zyje"));
-    DatabaseManger.instance.create(const Excercise(name:"Modlitewnik",description: "+"));
+    DatabaseManger.instance.insertExcercise(const Excercise(name:"Podciąganie",description: "pod chwytem tylko"));
+    DatabaseManger.instance.insertExcercise(const Excercise(name:"Szruksy",description: "czuje ze zyje"));
+    DatabaseManger.instance.insertExcercise(const Excercise(name:"Modlitewnik",description: "+"));
 
     refreshNotes();
   }
@@ -30,7 +29,7 @@ class ExcerciseViewState extends State<ExcerciseView> {
 
   Future refreshNotes() async {
     setState(() => isLoading = true);
-    excercises = await DatabaseManger.instance.readAllNotes();
+    excercises = await DatabaseManger.instance.selectAllExcercises();
     setState(() => isLoading = false);
   }
 
@@ -49,7 +48,7 @@ class ExcerciseViewState extends State<ExcerciseView> {
             ? CircularProgressIndicator()
             : excercises.isEmpty
             ? Text(
-          'No Notes',
+          'Brak ćwiczeń',
           style: TextStyle(color: Colors.white, fontSize: 24),
         )
             : buildNotes(),

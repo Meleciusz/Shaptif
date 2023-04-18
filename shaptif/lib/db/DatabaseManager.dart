@@ -1,6 +1,5 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-//import 'package:sqflite_database_example/model/note.dart';
 import 'package:shaptif/db/Exercise.dart';
 
 class DatabaseManger {
@@ -27,8 +26,6 @@ class DatabaseManger {
   Future _createDB(Database db, int version) async {
     final idType = 'INTEGER PRIMARY KEY AUTOINCREMENT';
     final textType = 'TEXT NOT NULL';
-    //final boolType = 'BOOLEAN NOT NULL';
-    //final integerType = 'INTEGER NOT NULL';
 
     await db.execute('''
 CREATE TABLE ${ExcerciseDatabaseSetup.tableName} ( 
@@ -39,22 +36,14 @@ CREATE TABLE ${ExcerciseDatabaseSetup.tableName} (
 ''');
   }
 
-  Future<Excercise> create(Excercise excercise) async {
+  Future<Excercise> insertExcercise(Excercise excercise) async {
     final db = await instance.database;
-
-    // final json = note.toJson();
-    // final columns =
-    //     '${NoteFields.title}, ${NoteFields.description}, ${NoteFields.time}';
-    // final values =
-    //     '${json[NoteFields.title]}, ${json[NoteFields.description]}, ${json[NoteFields.time]}';
-    // final id = await db
-    //     .rawInsert('INSERT INTO table_name ($columns) VALUES ($values)');
 
     final id = await db.insert(ExcerciseDatabaseSetup.tableName, excercise.toJson());
     return excercise.copy(id: id);
   }
 
-  Future<Excercise> readNote(int id) async {
+  Future<Excercise> selectExcercise(int id) async {
     final db = await instance.database;
 
     final maps = await db.query(
@@ -71,29 +60,28 @@ CREATE TABLE ${ExcerciseDatabaseSetup.tableName} (
     }
   }
 
-  Future<List<Excercise>> readAllNotes() async {
+  Future<List<Excercise>> selectAllExcercises() async {
     final db = await instance.database;
 
     final orderBy = '${ExcerciseDatabaseSetup.name} ASC';
-
 
     final result = await db.query(ExcerciseDatabaseSetup.tableName, orderBy: orderBy);
 
     return result.map((json) => Excercise.fromJson(json)).toList();
   }
 
-  Future<int> update(Excercise note) async {
+  Future<int> updateExcercise(Excercise ex) async {
     final db = await instance.database;
 
     return db.update(
       ExcerciseDatabaseSetup.tableName,
-      note.toJson(),
+      ex.toJson(),
       where: '${ExcerciseDatabaseSetup.id} = ?',
-      whereArgs: [note.id],
+      whereArgs: [ex.id],
     );
   }
 
-  Future<int> delete(int id) async {
+  Future<int> deleteExcercise(int id) async {
     final db = await instance.database;
 
     return await db.delete(
@@ -103,10 +91,16 @@ CREATE TABLE ${ExcerciseDatabaseSetup.tableName} (
     );
   }
 
-  void deleteAll() async{
+  void deleteAllExcercises() async{
     final db = await instance.database;
 
     await db.delete(ExcerciseDatabaseSetup.tableName);
+  }
+
+  Future executeRawQuery(String query) async {
+    final db = await instance.database;
+
+    await db.execute(query);
   }
 
   Future close() async {
