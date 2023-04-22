@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:shaptif/db/Exercise.dart';
 import 'package:shaptif/db/DatabaseManager.dart';
 
+import 'NewExercise.dart';
+
 class ExcerciseView extends StatefulWidget {
   const ExcerciseView({Key? key}) : super(key: key);
 
@@ -17,6 +19,76 @@ class ExcerciseViewState extends State<ExcerciseView> {
     DatabaseManger.instance.deleteAllExcercises();
 
     DatabaseManger.instance.insertExcercise(
+        const Excercise(name: "Podciąganie", description: "pod chwytem tylko"));
+    DatabaseManger.instance.insertExcercise(
+        const Excercise(name: "Szruksy", description: "czuje ze zyje"));
+    DatabaseManger.instance.insertExcercise(
+        const Excercise(name: "Modlitewnik", description: "+")); DatabaseManger.instance.insertExcercise(
+        const Excercise(name: "Podciąganie", description: "pod chwytem tylko"));
+    DatabaseManger.instance.insertExcercise(
+        const Excercise(name: "Szruksy", description: "czuje ze zyje"));
+    DatabaseManger.instance.insertExcercise(
+        const Excercise(name: "Modlitewnik", description: "+")); DatabaseManger.instance.insertExcercise(
+        const Excercise(name: "Podciąganie", description: "pod chwytem tylko"));
+    DatabaseManger.instance.insertExcercise(
+        const Excercise(name: "Szruksy", description: "czuje ze zyje"));
+    DatabaseManger.instance.insertExcercise(
+        const Excercise(name: "Modlitewnik", description: "+")); DatabaseManger.instance.insertExcercise(
+        const Excercise(name: "Podciąganie", description: "pod chwytem tylko"));
+    DatabaseManger.instance.insertExcercise(
+        const Excercise(name: "Szruksy", description: "czuje ze zyje"));
+    DatabaseManger.instance.insertExcercise(
+        const Excercise(name: "Modlitewnik", description: "+")); DatabaseManger.instance.insertExcercise(
+        const Excercise(name: "Podciąganie", description: "pod chwytem tylko"));
+    DatabaseManger.instance.insertExcercise(
+        const Excercise(name: "Szruksy", description: "czuje ze zyje"));
+    DatabaseManger.instance.insertExcercise(
+        const Excercise(name: "Modlitewnik", description: "+")); DatabaseManger.instance.insertExcercise(
+        const Excercise(name: "Podciąganie", description: "pod chwytem tylko"));
+    DatabaseManger.instance.insertExcercise(
+        const Excercise(name: "Szruksy", description: "czuje ze zyje"));
+    DatabaseManger.instance.insertExcercise(
+        const Excercise(name: "Modlitewnik", description: "+")); DatabaseManger.instance.insertExcercise(
+        const Excercise(name: "Podciąganie", description: "pod chwytem tylko"));
+    DatabaseManger.instance.insertExcercise(
+        const Excercise(name: "Szruksy", description: "czuje ze zyje"));
+    DatabaseManger.instance.insertExcercise(
+        const Excercise(name: "Modlitewnik", description: "+")); DatabaseManger.instance.insertExcercise(
+        const Excercise(name: "Podciąganie", description: "pod chwytem tylko"));
+    DatabaseManger.instance.insertExcercise(
+        const Excercise(name: "Szruksy", description: "czuje ze zyje"));
+    DatabaseManger.instance.insertExcercise(
+        const Excercise(name: "Modlitewnik", description: "+")); DatabaseManger.instance.insertExcercise(
+        const Excercise(name: "Podciąganie", description: "pod chwytem tylko"));
+    DatabaseManger.instance.insertExcercise(
+        const Excercise(name: "Szruksy", description: "czuje ze zyje"));
+    DatabaseManger.instance.insertExcercise(
+        const Excercise(name: "Modlitewnik", description: "+")); DatabaseManger.instance.insertExcercise(
+        const Excercise(name: "Podciąganie", description: "pod chwytem tylko"));
+    DatabaseManger.instance.insertExcercise(
+        const Excercise(name: "Szruksy", description: "czuje ze zyje"));
+    DatabaseManger.instance.insertExcercise(
+        const Excercise(name: "Modlitewnik", description: "+")); DatabaseManger.instance.insertExcercise(
+        const Excercise(name: "Podciąganie", description: "pod chwytem tylko"));
+    DatabaseManger.instance.insertExcercise(
+        const Excercise(name: "Szruksy", description: "czuje ze zyje"));
+    DatabaseManger.instance.insertExcercise(
+        const Excercise(name: "Modlitewnik", description: "+")); DatabaseManger.instance.insertExcercise(
+        const Excercise(name: "Podciąganie", description: "pod chwytem tylko"));
+    DatabaseManger.instance.insertExcercise(
+        const Excercise(name: "Szruksy", description: "czuje ze zyje"));
+    DatabaseManger.instance.insertExcercise(
+        const Excercise(name: "Modlitewnik", description: "+")); DatabaseManger.instance.insertExcercise(
+        const Excercise(name: "Podciąganie", description: "pod chwytem tylko"));
+    DatabaseManger.instance.insertExcercise(
+        const Excercise(name: "Szruksy", description: "czuje ze zyje"));
+    DatabaseManger.instance.insertExcercise(
+        const Excercise(name: "Modlitewnik", description: "+")); DatabaseManger.instance.insertExcercise(
+        const Excercise(name: "Podciąganie", description: "pod chwytem tylko"));
+    DatabaseManger.instance.insertExcercise(
+        const Excercise(name: "Szruksy", description: "czuje ze zyje"));
+    DatabaseManger.instance.insertExcercise(
+        const Excercise(name: "Modlitewnik", description: "+")); DatabaseManger.instance.insertExcercise(
         const Excercise(name: "Podciąganie", description: "pod chwytem tylko"));
     DatabaseManger.instance.insertExcercise(
         const Excercise(name: "Szruksy", description: "czuje ze zyje"));
@@ -58,13 +130,10 @@ class ExcerciseViewState extends State<ExcerciseView> {
       backgroundColor: const Color.fromARGB(255, 31, 31, 33),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content: const Text("Smack me!"),
-              action: SnackBarAction(
-                  label: "Fuck",
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                  })));
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const NewExercise()),
+          );
         },
         backgroundColor: const Color.fromARGB(255, 58, 183, 89),
         shape: const CircleBorder(),
