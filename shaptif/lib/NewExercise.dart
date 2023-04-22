@@ -76,7 +76,7 @@ class NewExerciseViewState extends State<NewExercise> {
                   TextField(
                     style: TextStyle(color: Colors.white, fontSize: 20),
                     decoration: InputDecoration(
-                        labelText: 'Wpisz opis ćwiczenia',
+                        labelText: 'Opis',
                         labelStyle: TextStyle(color: Color.fromARGB(255, 92, 92, 94)),
                         enabledBorder: OutlineInputBorder(
                           //borderRadius: BorderRadius.circular(16),
