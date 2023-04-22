@@ -24,8 +24,8 @@ class DatabaseManger {
   }
 
   Future _createDB(Database db, int version) async {
-    final idType = 'INTEGER PRIMARY KEY AUTOINCREMENT';
-    final textType = 'TEXT NOT NULL';
+    const idType = 'INTEGER PRIMARY KEY AUTOINCREMENT';
+    const textType = 'TEXT NOT NULL';
 
     await db.execute('''
 CREATE TABLE ${ExcerciseDatabaseSetup.tableName} ( 
@@ -39,7 +39,8 @@ CREATE TABLE ${ExcerciseDatabaseSetup.tableName} (
   Future<Excercise> insertExcercise(Excercise excercise) async {
     final db = await instance.database;
 
-    final id = await db.insert(ExcerciseDatabaseSetup.tableName, excercise.toJson());
+    final id =
+        await db.insert(ExcerciseDatabaseSetup.tableName, excercise.toJson());
     return excercise.copy(id: id);
   }
 
@@ -65,7 +66,8 @@ CREATE TABLE ${ExcerciseDatabaseSetup.tableName} (
 
     final orderBy = '${ExcerciseDatabaseSetup.name} ASC';
 
-    final result = await db.query(ExcerciseDatabaseSetup.tableName, orderBy: orderBy);
+    final result =
+        await db.query(ExcerciseDatabaseSetup.tableName, orderBy: orderBy);
 
     return result.map((json) => Excercise.fromJson(json)).toList();
   }
@@ -91,7 +93,7 @@ CREATE TABLE ${ExcerciseDatabaseSetup.tableName} (
     );
   }
 
-  void deleteAllExcercises() async{
+  void deleteAllExcercises() async {
     final db = await instance.database;
 
     await db.delete(ExcerciseDatabaseSetup.tableName);

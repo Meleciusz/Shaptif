@@ -10,16 +10,18 @@ class ExcerciseView extends StatefulWidget {
 }
 
 class ExcerciseViewState extends State<ExcerciseView> {
-
   @override
-  void initState(){
+  void initState() {
     super.initState();
 
     DatabaseManger.instance.deleteAllExcercises();
 
-    DatabaseManger.instance.insertExcercise(const Excercise(name:"Podciąganie",description: "pod chwytem tylko"));
-    DatabaseManger.instance.insertExcercise(const Excercise(name:"Szruksy",description: "czuje ze zyje"));
-    DatabaseManger.instance.insertExcercise(const Excercise(name:"Modlitewnik",description: "+"));
+    DatabaseManger.instance.insertExcercise(
+        const Excercise(name: "Podciąganie", description: "pod chwytem tylko"));
+    DatabaseManger.instance.insertExcercise(
+        const Excercise(name: "Szruksy", description: "czuje ze zyje"));
+    DatabaseManger.instance.insertExcercise(
+        const Excercise(name: "Modlitewnik", description: "+"));
 
     refreshNotes();
   }
@@ -37,24 +39,23 @@ class ExcerciseViewState extends State<ExcerciseView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Ćwiczenia',
           style: TextStyle(fontSize: 24),
         ),
-        actions: [Icon(Icons.search), SizedBox(width: 12)],
+        actions: const [Icon(Icons.search), SizedBox(width: 12)],
       ),
       body: Center(
         child: isLoading
-            ? CircularProgressIndicator()
+            ? const CircularProgressIndicator()
             : excercises.isEmpty
-            ? Text(
-          'Brak ćwiczeń',
-          style: TextStyle(color: Colors.white, fontSize: 24),
-        )
-            : buildNotes(),
+                ? const Text(
+                    'Brak ćwiczeń',
+                    style: TextStyle(color: Colors.white, fontSize: 24),
+                  )
+                : buildNotes(),
       ),
       backgroundColor: const Color.fromARGB(255, 31, 31, 33),
-
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -71,20 +72,30 @@ class ExcerciseViewState extends State<ExcerciseView> {
       ),
     );
   }
-  Widget buildNotes() => Table(
-      border: TableBorder.all(width: 1.0, color: Colors.black),
-      children: [
-        for (var ex in excercises) TableRow(children: [
-          TableCell(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: <Widget>[
-                Text(ex.name,style: TextStyle(color: Colors.white, fontSize: 12),),
-                Text(ex.description,style: TextStyle(color: Colors.white, fontSize: 12),),
-              ],
+
+  Widget buildNotes() => ListView.builder(
+        itemCount: excercises.length,
+        itemBuilder: (context, index) {
+          final excercise = excercises[index];
+          return InkWell(
+            onTap: () => _onExcerciseTap(excercise),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Text(
+                excercise.name,
+                style: const TextStyle(
+                  fontSize: 20,
+                  color: Colors.white,
+                  decoration: TextDecoration.underline,
+                ),
+              ),
             ),
-          )
-        ])
-      ]
-  );
+          );
+        },
+      );
+
+  void _onExcerciseTap(Excercise excercise) {
+    // Handle the excercise tap event here
+    print('Tapped excercise: ${excercise.name}');
+  }
 }
