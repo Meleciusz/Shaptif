@@ -159,7 +159,7 @@ class ExcerciseViewState extends State<ExcerciseView> {
         children: <Widget>[
          buildNotes(),
          buildNotes(),
-         buildNotes(),
+         buildNotes(),//testing
         ],
         ),
     ),
