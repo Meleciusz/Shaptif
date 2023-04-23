@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+//TODO Maksymalna liczba znaków w nazwie ćwiczenia
 class NewExercise extends StatefulWidget {
   const NewExercise({Key? key}) : super(key: key);
 

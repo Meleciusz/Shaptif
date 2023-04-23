@@ -63,7 +63,7 @@ class ExcerciseViewState extends State<ExcerciseView> {
     DatabaseManger.instance.insertExcercise(
         const Excercise(name: "Szruksy", description: "czuje ze zyje"));
     DatabaseManger.instance.insertExcercise(
-        const Excercise(name: "Modlitewnik", description: "+")); DatabaseManger.instance.insertExcercise(
+        const Excercise(name: "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", description: "+")); DatabaseManger.instance.insertExcercise(
         const Excercise(name: "Podciąganie", description: "pod chwytem tylko"));
     DatabaseManger.instance.insertExcercise(
         const Excercise(name: "Szruksy", description: "czuje ze zyje"));
@@ -142,26 +142,38 @@ class ExcerciseViewState extends State<ExcerciseView> {
     );
   }
 
-  Widget buildNotes() => ListView.builder(
-        itemCount: excercises.length,
-        itemBuilder: (context, index) {
-          final excercise = excercises[index];
-          return InkWell(
-            onTap: () => _onExcerciseTap(excercise),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+  Widget buildNotes() => Scrollbar(
+    child: ListView.builder(
+      itemCount: excercises.length,
+      itemBuilder: (context, index) {
+        final excercise = excercises[index];
+        return InkWell(
+          onTap: () => _onExcerciseTap(excercise),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: Colors.grey,
+                width: 4,
+              ),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            margin: const EdgeInsets.symmetric(horizontal: 2, vertical: 4),
+            child: Center(
               child: Text(
                 excercise.name,
                 style: const TextStyle(
-                  fontSize: 20,
+                  fontFamily: 'Audiowide',
                   color: Colors.white,
-                  decoration: TextDecoration.underline,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20),
                 ),
               ),
             ),
-          );
-        },
-      );
+        );
+      },
+    ),
+  );
 
   void _onExcerciseTap(Excercise excercise) {
     // Handle the excercise tap event here

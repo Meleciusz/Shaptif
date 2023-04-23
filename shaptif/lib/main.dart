@@ -111,7 +111,7 @@ class _MyHomePageState extends State<MyHomePage> {
           unselectedItemColor: Colors.grey,
           items: const [
             BottomNavigationBarItem(
-                tooltip: 'Excercise list',
+                tooltip: 'Exercise list',
                 icon: Icon(Icons.menu_rounded),
                 label: 'Exercises',
                 backgroundColor: Colors.black),
