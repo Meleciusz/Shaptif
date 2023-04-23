@@ -4,12 +4,14 @@ import 'package:shaptif/db/DatabaseManager.dart';
 
 import 'NewExercise.dart';
 
+
 class ExcerciseView extends StatefulWidget {
   const ExcerciseView({Key? key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => ExcerciseViewState();
 }
+
 
 class ExcerciseViewState extends State<ExcerciseView> {
   @override
@@ -109,24 +111,59 @@ class ExcerciseViewState extends State<ExcerciseView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Ćwiczenia',
-          style: TextStyle(fontSize: 24),
-        ),
-        actions: const [Icon(Icons.search), SizedBox(width: 12)],
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final Color oddItemColor = colorScheme.primary.withOpacity(0.05);
+    final Color evenItemColor = colorScheme.primary.withOpacity(0.15);
+    const int tabsCount = 3;
+
+    return DefaultTabController(
+        initialIndex: 1,
+        length: tabsCount,
+        child: Scaffold(
+        appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(74),
+          child: AppBar(
+    notificationPredicate: (ScrollNotification notification) {
+    return notification.depth == 1;
+    },backgroundColor: Color.fromARGB(255, 183, 205, 144),
+    // The elevation value of the app bar when scroll view has
+    // scrolled underneath the app bar.
+    scrolledUnderElevation: 4.0,
+    shadowColor: Theme.of(context).shadowColor,
+    bottom: TabBar(
+    tabs: <Widget>[
+    Tab(
+      icon: const Icon(Icons.back_hand, color: Colors.black),
+      text: '1',
       ),
-      body: Center(
-        child: isLoading
-            ? const CircularProgressIndicator()
-            : excercises.isEmpty
-                ? const Text(
-                    'Brak ćwiczeń',
-                    style: TextStyle(color: Colors.white, fontSize: 24),
-                  )
-                : buildNotes(),
+    Tab(
+      icon: const Icon(Icons.airline_seat_legroom_reduced_rounded, color: Colors.black),
+      text: '2',
       ),
+    Tab(
+      icon: const Icon(Icons.person, color: Colors.black),
+      text: '3',
+      ),
+      ],
+      ),
+    ),),
+    body: TabBarView(
+    children: <Widget>[
+     buildNotes(),
+     buildNotes(),
+     buildNotes(),
+    ],
+    ),
+      // body: Center(
+      //   child: isLoading
+      //       ? const CircularProgressIndicator()
+      //       : excercises.isEmpty
+      //           ? const Text(
+      //               'Brak ćwiczeń',
+      //               style: TextStyle(color: Colors.white, fontSize: 24),
+      //             )
+      //           : buildNotes(),
+      // ),
       backgroundColor: const Color.fromARGB(255, 31, 31, 33),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -139,7 +176,7 @@ class ExcerciseViewState extends State<ExcerciseView> {
         shape: const CircleBorder(),
         child: const Icon(Icons.add),
       ),
-    );
+    ),);
   }
 
   Widget buildNotes() => Scrollbar(
