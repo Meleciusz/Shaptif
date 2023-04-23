@@ -149,7 +149,9 @@ class ExcerciseViewState extends State<ExcerciseView> {
     ),),
     body:Center(
       child: isLoading
-          ? const CircularProgressIndicator()
+          ? const CircularProgressIndicator(
+        valueColor: AlwaysStoppedAnimation(Color.fromARGB(255, 183, 205, 144))//Color of indicator
+      )
           : excercises.isEmpty
           ? const Text(
         'Brak ćwiczeń',
