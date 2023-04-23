@@ -125,45 +125,44 @@ class ExcerciseViewState extends State<ExcerciseView> {
           child: AppBar(
     notificationPredicate: (ScrollNotification notification) {
     return notification.depth == 1;
-    },backgroundColor: Color.fromARGB(255, 183, 205, 144),
+    },backgroundColor: const Color.fromARGB(255, 183, 205, 144),
     // The elevation value of the app bar when scroll view has
     // scrolled underneath the app bar.
     scrolledUnderElevation: 4.0,
     shadowColor: Theme.of(context).shadowColor,
-    bottom: TabBar(
+    bottom: const TabBar(
     tabs: <Widget>[
     Tab(
-      icon: const Icon(Icons.back_hand, color: Colors.black),
+      icon: Icon(Icons.back_hand, color: Colors.black),
       text: '1',
       ),
     Tab(
-      icon: const Icon(Icons.airline_seat_legroom_reduced_rounded, color: Colors.black),
+      icon: Icon(Icons.airline_seat_legroom_reduced_rounded, color: Colors.black),
       text: '2',
       ),
     Tab(
-      icon: const Icon(Icons.person, color: Colors.black),
+      icon: Icon(Icons.person, color: Colors.black),
       text: '3',
       ),
       ],
       ),
     ),),
-    body: TabBarView(
-    children: <Widget>[
-     buildNotes(),
-     buildNotes(),
-     buildNotes(),
-    ],
+    body:Center(
+      child: isLoading
+          ? const CircularProgressIndicator()
+          : excercises.isEmpty
+          ? const Text(
+        'Brak ćwiczeń',
+        style: TextStyle(color: Colors.white, fontSize: 24),
+      )
+        : TabBarView(
+        children: <Widget>[
+         buildNotes(),
+         buildNotes(),
+         buildNotes(),
+        ],
+        ),
     ),
-      // body: Center(
-      //   child: isLoading
-      //       ? const CircularProgressIndicator()
-      //       : excercises.isEmpty
-      //           ? const Text(
-      //               'Brak ćwiczeń',
-      //               style: TextStyle(color: Colors.white, fontSize: 24),
-      //             )
-      //           : buildNotes(),
-      // ),
       backgroundColor: const Color.fromARGB(255, 31, 31, 33),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
