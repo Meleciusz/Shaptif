@@ -1,6 +1,9 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:shaptif/db/Exercise.dart';
+import 'package:shaptif/db/Category.dart';
+import 'package:shaptif/db/TableObject.dart';
+import 'dart:io';
 
 class DatabaseManger {
   static final DatabaseManger instance = DatabaseManger._init();
@@ -16,73 +19,110 @@ class DatabaseManger {
     return _database!;
   }
 
+  void dropDB() async {
+    final dbPath = await getDatabasesPath();
+    final path = join(dbPath, 'Shaptif.db');
+    final file = File(path);
+    if (await file.exists()) {
+      file.deleteSync();
+    }
+  }
+
   Future<Database> _initDB(String filePath) async {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
 
-    return await openDatabase(path, version: 1, onCreate: _createDB);
+    final result = await openDatabase(path, version: 1, onCreate: _createDB);
+
+    return result;
   }
 
   Future _createDB(Database db, int version) async {
-    const idType = 'INTEGER PRIMARY KEY AUTOINCREMENT';
-    const textType = 'TEXT NOT NULL';
+    final idType = 'INTEGER PRIMARY KEY AUTOINCREMENT';
+    final textType = 'TEXT NOT NULL';
+    final intType = 'INTEGER';
+
+    await db.execute('PRAGMA foreign_keys = ON;');
 
     await db.execute('''
-CREATE TABLE ${ExcerciseDatabaseSetup.tableName} ( 
-  ${ExcerciseDatabaseSetup.id} $idType, 
-  ${ExcerciseDatabaseSetup.name} $textType,
-  ${ExcerciseDatabaseSetup.description} $textType
-  )
-''');
+    CREATE TABLE ${BodyPartDatabaseSetup.tableName} ( 
+    ${BodyPartDatabaseSetup.id} $idType, 
+    ${BodyPartDatabaseSetup.name} $textType
+    )
+    ''');
+
+    await db.execute('''
+    CREATE TABLE ${ExcerciseDatabaseSetup.tableName} ( 
+    ${ExcerciseDatabaseSetup.id} $idType, 
+    ${ExcerciseDatabaseSetup.name} $textType,
+    ${ExcerciseDatabaseSetup.description} $textType,
+    ${ExcerciseDatabaseSetup.bodyPart} $intType,
+    FOREIGN KEY(${ExcerciseDatabaseSetup.bodyPart}) REFERENCES ${BodyPartDatabaseSetup.tableName} (${BodyPartDatabaseSetup.id})
+    )
+    ''');
   }
 
-  Future<Excercise> insertExcercise(Excercise excercise) async {
+  Future<TableObject> insert(TableObject excercise) async {
     final db = await instance.database;
 
-    final id =
-        await db.insert(ExcerciseDatabaseSetup.tableName, excercise.toJson());
+    final id = await db.insert(excercise.getTableName(), excercise.toJson());
     return excercise.copy(id: id);
   }
 
   Future<Excercise> selectExcercise(int id) async {
-    final db = await instance.database;
+    final maps = await select(id, ExcerciseDatabaseSetup.tableName,
+        ExcerciseDatabaseSetup.id, ExcerciseDatabaseSetup.valuesToRead);
 
+    return Excercise.fromJson(maps);
+  }
+
+  Future<BodyPart> selectBodyPart(int id) async {
+    final maps = await select(id, BodyPartDatabaseSetup.tableName,
+        BodyPartDatabaseSetup.id, BodyPartDatabaseSetup.valuesToRead);
+
+    return BodyPart.fromJson(maps);
+  }
+
+  Future<Map<String, Object?>> select(int id, String tableName, String idName,
+      List<String> valuesToRead) async {
+    final db = await instance.database;
     final maps = await db.query(
-      ExcerciseDatabaseSetup.tableName,
-      columns: ExcerciseDatabaseSetup.valuesToRead,
-      where: '${ExcerciseDatabaseSetup.id} = ?',
+      tableName,
+      columns: valuesToRead,
+      where: '$idName = ?',
       whereArgs: [id],
     );
-
-    if (maps.isNotEmpty) {
-      return Excercise.fromJson(maps.first);
-    } else {
-      throw Exception('ID $id not found');
-    }
+    return maps.isNotEmpty ? maps.first : throw Exception('ID $id not found');
   }
 
-  Future<List<Excercise>> selectAllExcercises() async {
+  Future<List<Excercise>> selectAllExcercise() async {
     final db = await instance.database;
-
-    final orderBy = '${ExcerciseDatabaseSetup.name} ASC';
-
-    final result =
-        await db.query(ExcerciseDatabaseSetup.tableName, orderBy: orderBy);
-
-    return result.map((json) => Excercise.fromJson(json)).toList();
+    return (await db.query(ExcerciseDatabaseSetup.tableName,
+            orderBy: "${ExcerciseDatabaseSetup.name} ASC"))
+        .map((json) => Excercise.fromJson(json))
+        .toList();
   }
 
-  Future<int> updateExcercise(Excercise ex) async {
+  Future<List<BodyPart>> selectAllBodyParts() async {
+    final db = await instance.database;
+    return (await db.query(BodyPartDatabaseSetup.tableName,
+            orderBy: "${BodyPartDatabaseSetup.name} ASC"))
+        .map((json) => BodyPart.fromJson(json))
+        .toList();
+  }
+
+  Future<int> update(TableObject ex) async {
     final db = await instance.database;
 
     return db.update(
-      ExcerciseDatabaseSetup.tableName,
+      ex.getTableName(),
       ex.toJson(),
-      where: '${ExcerciseDatabaseSetup.id} = ?',
+      where: '${ex.getIdName()} = ?',
       whereArgs: [ex.id],
     );
   }
 
+//Should be delete implemented for BodyPart?
   Future<int> deleteExcercise(int id) async {
     final db = await instance.database;
 
@@ -103,6 +143,22 @@ CREATE TABLE ${ExcerciseDatabaseSetup.tableName} (
     final db = await instance.database;
 
     await db.execute(query);
+  }
+
+  Future initialData() async {
+    final db = instance;
+    await db.insert(BodyPart(name: "plecy"));
+    await db.insert(BodyPart(name: "klata"));
+    await db.insert(BodyPart(name: "barki"));
+    await db.insert(BodyPart(name: "nogi"));
+    await db.insert(BodyPart(name: "biceps"));
+
+    await db.insert(Excercise(
+        name: "Podciąganie", description: "pod chwytem tylko", category: 1));
+    await db.insert(
+        Excercise(name: "Szruksy", description: "czuje ze zyje", category: 1));
+    await db
+        .insert(Excercise(name: "Modlitewnik", description: "+", category: 5));
   }
 
   Future close() async {
