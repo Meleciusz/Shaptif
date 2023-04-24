@@ -97,9 +97,11 @@ class NewExerciseViewState extends State<NewExercise> {
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
               FloatingActionButton (
+                heroTag: "ReturnButton",
                 onPressed: () {
                   Navigator.pop(context);
                 },
+
                 backgroundColor: const Color.fromARGB(255, 166, 16, 16),
                 shape: const CircleBorder(),
                 child: const Icon(Icons.keyboard_backspace),
@@ -107,6 +109,7 @@ class NewExerciseViewState extends State<NewExercise> {
                 SizedBox(width: 40,),
 
                 FloatingActionButton (
+                  heroTag: "SaveExerciseButton",
                 onPressed: () {
 
                 },

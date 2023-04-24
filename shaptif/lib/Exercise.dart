@@ -100,6 +100,7 @@ class ExcerciseViewState extends State<ExcerciseView> {
         ),
         backgroundColor: const Color.fromARGB(255, 31, 31, 33),
         floatingActionButton: FloatingActionButton(
+          heroTag: "AddExerciseButton",
           onPressed: () {
             Navigator.push(
               context,

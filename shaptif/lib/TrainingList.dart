@@ -25,6 +25,7 @@ class TrainingListViewState extends State<TrainingListView> {
             ),
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: "AddTrainingButton",
         onPressed: () {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               content: const Text("Smack me!"),
