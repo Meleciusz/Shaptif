@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shaptif/db/Exercise.dart';
 import 'package:shaptif/db/DatabaseManager.dart';
+import 'package:shaptif/db/Category.dart';
 
 class ExcerciseView extends StatefulWidget {
   const ExcerciseView({Key? key}) : super(key: key);
@@ -15,21 +16,26 @@ class ExcerciseViewState extends State<ExcerciseView> {
   void initState(){
     super.initState();
 
-    DatabaseManger.instance.deleteAllExcercises();
-
-    DatabaseManger.instance.insertExcercise(const Excercise(name:"Podciąganie",description: "pod chwytem tylko"));
-    DatabaseManger.instance.insertExcercise(const Excercise(name:"Szruksy",description: "czuje ze zyje"));
-    DatabaseManger.instance.insertExcercise(const Excercise(name:"Modlitewnik",description: "+"));
-
-    refreshNotes();
+    refreshExcercises();
   }
+
 
   late List<Excercise> excercises;
   bool isLoading = false;
 
-  Future refreshNotes() async {
+  Future refreshExcercises() async {
     setState(() => isLoading = true);
-    excercises = await DatabaseManger.instance.selectAllExcercises();
+
+    excercises = await DatabaseManger.instance.selectAllExcercise();
+    if(excercises.isEmpty) {
+      await DatabaseManger.instance.initialData();
+      excercises = await DatabaseManger.instance.selectAllExcercise();
+    }
+    for (var ex in excercises)
+      {
+        BodyPart c = await DatabaseManger.instance.selectBodyPart( ex.category);
+        ex.categoryS = c.name;
+      }
     setState(() => isLoading = false);
   }
 
@@ -81,6 +87,7 @@ class ExcerciseViewState extends State<ExcerciseView> {
               children: <Widget>[
                 Text(ex.name,style: TextStyle(color: Colors.white, fontSize: 12),),
                 Text(ex.description,style: TextStyle(color: Colors.white, fontSize: 12),),
+                Text(ex.categoryS,style: TextStyle(color: Colors.white, fontSize: 12),),
               ],
             ),
           )
