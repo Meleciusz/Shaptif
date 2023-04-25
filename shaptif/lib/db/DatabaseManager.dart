@@ -148,17 +148,26 @@ class DatabaseManger {
   Future initialData() async {
     final db = instance;
     await db.insert(BodyPart(name: "plecy"));
-    await db.insert(BodyPart(name: "klata"));
+    await db.insert(BodyPart(name: "klatka piersiowa"));
     await db.insert(BodyPart(name: "barki"));
     await db.insert(BodyPart(name: "nogi"));
-    await db.insert(BodyPart(name: "biceps"));
+    await db.insert(BodyPart(name: "rece"));
+    await db.insert(BodyPart(name: "brzuch"));
 
     await db.insert(Excercise(
         name: "Podciąganie", description: "pod chwytem tylko", category: 1));
     await db.insert(
-        Excercise(name: "Szruksy", description: "czuje ze zyje", category: 1));
+        Excercise(name: "Wiosłowanie", description: "czuje ze zyje", category: 1));
     await db
         .insert(Excercise(name: "Modlitewnik", description: "+", category: 5));
+    await db
+        .insert(Excercise(name: "Klatka płaska", description: "+", category: 2));
+    await db
+        .insert(Excercise(name: "Szruksy", description: "+", category: 3));
+    await db
+        .insert(Excercise(name: "Przysiady", description: "+", category: 4));
+    await db
+        .insert(Excercise(name: "Allachy", description: "+", category: 6));
   }
 
   Future close() async {

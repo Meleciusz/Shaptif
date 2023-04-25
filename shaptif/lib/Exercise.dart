@@ -20,18 +20,18 @@ class ExcerciseViewState extends State<ExcerciseView> {
     refreshExcercises();
   }
 
-  late List<Excercise> excercises;
+  late List<Excercise> exercises;
   bool isLoading = false;
 
   Future refreshExcercises() async {
     setState(() => isLoading = true);
 
-    excercises = await DatabaseManger.instance.selectAllExcercise();
-    if (excercises.isEmpty) {
+    exercises = await DatabaseManger.instance.selectAllExcercise();
+    if (exercises.isEmpty) {
       await DatabaseManger.instance.initialData();
-      excercises = await DatabaseManger.instance.selectAllExcercise();
+      exercises = await DatabaseManger.instance.selectAllExcercise();
     }
-    for (var ex in excercises) {
+    for (var ex in exercises) {
       BodyPart bodypart = await DatabaseManger.instance.selectBodyPart(ex.category);
       ex.categoryS = bodypart.name;
     }
@@ -53,7 +53,7 @@ class ExcerciseViewState extends State<ExcerciseView> {
         body: Center(
           child: isLoading
               ? buildProgressIndicator(context)
-              : excercises.isEmpty
+              : exercises.isEmpty
               ? buildEmptyView(context)
               : buildTabBarContext(),
         ),
@@ -63,40 +63,48 @@ class ExcerciseViewState extends State<ExcerciseView> {
     );
   }
 
-  Widget buildNotes() => Scrollbar(
-        child: ListView.builder(
-          itemCount: excercises.length,
-          itemBuilder: (context, index) {
-            final excercise = excercises[index];
-            return InkWell(
-              onTap: () => onExcerciseTap(excercise),
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: Colors.grey,
-                    width: 4,
-                  ),
-                  borderRadius: BorderRadius.circular(20),
+  Scrollbar buildTilesFromCategory(String category) {
+    List<Excercise> exercisesInCategory = [];
+    for (var exercise in exercises)
+      {
+        if(exercise.categoryS==category)
+          exercisesInCategory.add(exercise);
+      }
+
+    return Scrollbar(
+      child: ListView.builder(
+        itemCount: exercisesInCategory.length,
+        itemBuilder: (context, index) {
+          final excercise = exercisesInCategory[index];
+          return InkWell(
+            onTap: () => onExcerciseTap(excercise),
+            child: Container(
+              padding:
+              const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: Colors.grey,
+                  width: 4,
                 ),
-                margin: const EdgeInsets.symmetric(horizontal: 2, vertical: 4),
-                child: Center(
-                  child: Text(
-                    excercise.name,
-                    style: const TextStyle(
-                        fontFamily: 'Audiowide',
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20),
-                  ),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              margin: const EdgeInsets.symmetric(horizontal: 2, vertical: 4),
+              child: Center(
+                child: Text(
+                  excercise.name,
+                  style: const TextStyle(
+                      fontFamily: 'Audiowide',
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20),
                 ),
               ),
-            );
-          },
-        ),
-      );
-
+            ),
+          );
+        },
+      ),
+    );
+  }
   PreferredSize buildAppBar(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     return PreferredSize(
@@ -135,12 +143,12 @@ class ExcerciseViewState extends State<ExcerciseView> {
   buildTabBarContext() {
     return TabBarView(
       children: <Widget>[
-        buildNotes(),
-        buildNotes(),
-        buildNotes(),
-        buildNotes(),
-        buildNotes(),
-        buildNotes(),
+        buildTilesFromCategory("rece"),
+        buildTilesFromCategory("nogi"),
+        buildTilesFromCategory("klatka piersiowa"),
+        buildTilesFromCategory("plecy"),
+        buildTilesFromCategory("brzuch"),
+        buildTilesFromCategory("barki"),
       ],
     );
   }
