@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:shaptif/db/DatabaseManager.dart';
+import 'package:shaptif/db/Category.dart';
+import 'package:shaptif/db/Exercise.dart';
 
 class NewExercise extends StatefulWidget {
   const NewExercise({Key? key}) : super(key: key);
@@ -7,8 +10,52 @@ class NewExercise extends StatefulWidget {
   State<StatefulWidget> createState() => NewExerciseViewState();
 }
 
-    const List<String> list = <String>['Klacisko', 'Plecory', 'Nygi', 'Cycochy']; String dropdownValue = list.first;
+
+//   Future refreshExcercises() async {
+//     setState(() => isLoading = true);
+//
+//     excercises = await DatabaseManger.instance.selectAllExcercise();
+//     if (excercises.isEmpty) {
+//       await DatabaseManger.instance.initialData();
+//       excercises = await DatabaseManger.instance.selectAllExcercise();
+//     }
+//     for (var ex in excercises) {
+//       BodyPart c = await DatabaseManger.instance.selectBodyPart(ex.category);
+//       ex.categoryS = c.name;
+//     }
+//     setState(() => isLoading = false);
+// }
+
+
+
+const List<String> list = <String>['Klacisko', 'Plecory', 'Nygi', 'Cycochy']; String dropdownValue = list.first;
 class NewExerciseViewState extends State<NewExercise> {
+  bool isLoading = false;
+  final  exerciseNameController = TextEditingController();
+  var  dropdownValueController = 1;
+  final  descriptionController = TextEditingController();
+
+  Future refreshExcercises() async {
+    setState(() => isLoading = true);
+    await DatabaseManger.instance.insert(Excercise(
+        name: exerciseNameController.text,
+        description: descriptionController.text,
+        category: dropdownValueController));
+
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+      content: Text("Dodano do bazy danych! Dobra robota szefie!!"),
+    ));
+    setState(() => isLoading = false);
+  }
+
+  @override
+  void dispose() {
+    // Clean up the controller when the widget is disposed.
+    exerciseNameController.dispose();
+    descriptionController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
 
@@ -52,9 +99,10 @@ class NewExerciseViewState extends State<NewExercise> {
             padding: const EdgeInsets.all(32),
                 children: <Widget>[
 
-                  const TextField(
-                    style: TextStyle(color: Colors.white, fontSize: 20),
-                    decoration: InputDecoration(
+                    TextField(
+                    controller: exerciseNameController,
+                    style: const TextStyle(color: Colors.white, fontSize: 20),
+                    decoration: const InputDecoration(
                       labelText: 'Wpisz nazwe ćwiczenia',
                         labelStyle: TextStyle(color: Color.fromARGB(255, 92, 92, 94)),
                       enabledBorder: OutlineInputBorder(
@@ -81,6 +129,7 @@ class NewExerciseViewState extends State<NewExercise> {
                     onChanged: (String? value){
                       setState(() {
                         dropdownValue = value!;
+                        dropdownValueController = list.indexOf(value!);
                       });
                     },
 
@@ -96,9 +145,10 @@ class NewExerciseViewState extends State<NewExercise> {
                       height: 50
                   ),
 
-                  const TextField(
-                    style: TextStyle(color: Colors.white, fontSize: 20),
-                    decoration: InputDecoration(
+                    TextField(
+                    controller: descriptionController,
+                    style: const TextStyle(color: Colors.white, fontSize: 20),
+                    decoration: const InputDecoration(
                         labelText: 'Opis',
                         labelStyle: TextStyle(color: Color.fromARGB(255, 92, 92, 94)),
                         enabledBorder: OutlineInputBorder(
@@ -129,12 +179,12 @@ class NewExerciseViewState extends State<NewExercise> {
                 shape: const CircleBorder(),
                 child: const Icon(Icons.keyboard_backspace),
               ),
-                SizedBox(width: 40,),
+                const SizedBox(width: 40,),
 
                 FloatingActionButton (
                   heroTag: "SaveExerciseButton",
                 onPressed: () {
-
+                  refreshExcercises();
                 },
                 backgroundColor: const Color.fromARGB(255, 95, 166, 83),
                 shape: const CircleBorder(),

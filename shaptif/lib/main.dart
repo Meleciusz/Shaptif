@@ -10,9 +10,6 @@ import 'package:shaptif/settings.dart';
 import 'package:page_transition/page_transition.dart';
 
 void main() {
-  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
-  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
-
   runApp(const MyApp());
 
   FlutterNativeSplash.remove();
