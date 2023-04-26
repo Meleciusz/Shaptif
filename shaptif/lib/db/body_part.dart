@@ -1,4 +1,5 @@
-import 'package:shaptif/db/TableObject.dart';
+import 'package:shaptif/db/table_object.dart';
+import 'package:shaptif/db/setup.dart';
 
 class BodyPart extends TableObject{
   String name="";
@@ -40,12 +41,4 @@ class BodyPart extends TableObject{
     return BodyPartDatabaseSetup.valuesToRead;
   }
 
-}
-class BodyPartDatabaseSetup
-{
-  static final String tableName = "BodyPart";
-  static final String id = "BodyPart_id";
-  static final String name = "name";
-
-  static final List<String> valuesToRead = [name];
 }

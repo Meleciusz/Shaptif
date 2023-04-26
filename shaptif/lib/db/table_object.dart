@@ -9,6 +9,8 @@ abstract class TableObject{
 
   String getTableName();
   String getIdName();
+  //It isn't used anywhere
+  //Probably will be removed
   List<String> getValuesToRead();
 }
 

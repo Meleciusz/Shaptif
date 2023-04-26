@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:shaptif/db/Exercise.dart';
-import 'package:shaptif/db/DatabaseManager.dart';
-import 'package:shaptif/db/Category.dart';
+import 'package:shaptif/db/exercise.dart';
+import 'package:shaptif/db/database_manager.dart';
+import 'package:shaptif/db/body_part.dart';
 
 import 'NewExercise.dart';
 
@@ -20,20 +20,20 @@ class ExcerciseViewState extends State<ExcerciseView> {
     refreshExcercises();
   }
 
-  late List<Excercise> exercises;
+  late List<Exercises> exercises;
   bool isLoading = false;
 
   Future refreshExcercises() async {
     setState(() => isLoading = true);
 
-    exercises = await DatabaseManger.instance.selectAllExcercise();
+    exercises = await DatabaseManger.instance.selectAllExercises();
     if (exercises.isEmpty) {
       await DatabaseManger.instance.initialData();
-      exercises = await DatabaseManger.instance.selectAllExcercise();
+      exercises = await DatabaseManger.instance.selectAllExercises();
     }
     for (var ex in exercises) {
       BodyPart bodypart = await DatabaseManger.instance.selectBodyPart(ex.category);
-      ex.categoryS = bodypart.name;
+      ex.categoryString = bodypart.name;
     }
     setState(() => isLoading = false);
   }
@@ -64,10 +64,10 @@ class ExcerciseViewState extends State<ExcerciseView> {
   }
 
   Scrollbar buildTilesFromCategory(String category) {
-    List<Excercise> exercisesInCategory = [];
+    List<Exercises> exercisesInCategory = [];
     for (var exercise in exercises)
       {
-        if(exercise.categoryS==category)
+        if(exercise.categoryString==category)
           exercisesInCategory.add(exercise);
       }
 
@@ -120,7 +120,7 @@ class ExcerciseViewState extends State<ExcerciseView> {
       ),
     );
   }
-  void onExcerciseTap(Excercise excercise) {
+  void onExcerciseTap(Exercises excercise) {
     // Handle the excercise tap event here
     print('Tapped excercise: ${excercise.name}');
   }
