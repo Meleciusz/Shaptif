@@ -1,13 +1,16 @@
 import 'package:shaptif/db/table_object.dart';
 import 'package:shaptif/db/setup.dart';
+import 'package:shaptif/db/set.dart';
+import 'package:shaptif/db/database_manager.dart';
 
 class Training extends TableObject
 {
   late String name;
   late String description;
+  List<MySet> sets = [];
 
   @override
-  Training.fromJson ({required Map<String, Object?> json})
+  Training.fromJson(Map<String, Object?> json)
   {
     {
       id= json[TrainingDatabaseSetup.id] as int?;
@@ -48,5 +51,18 @@ class Training extends TableObject
         TrainingDatabaseSetup.name: name,
         TrainingDatabaseSetup.description: description,
       };
-  
+
+  Future<List<MySet>> getSets()
+  async {
+    if(sets.isEmpty)
+    {
+      sets = (await DatabaseManger.instance.selectSetsByTraining(id!));
+      for(var s in sets) {
+        await s.getExcerciseName();
+      }
+    }
+    return sets;
+  }
+
+
 }

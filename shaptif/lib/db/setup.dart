@@ -18,7 +18,7 @@ class ExerciseDatabaseSetup
   static final List<String> valuesToRead = [name, description, bodyPart];
 }
 
-class SetDatabaseManager
+class SetDatabaseSetup
 {
   static const String tableName = "janusz";
   static const String id = "set_id";

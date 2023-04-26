@@ -20,7 +20,7 @@ class ExcerciseViewState extends State<ExcerciseView> {
     refreshExcercises();
   }
 
-  late List<Exercises> exercises;
+  late List<Exercise> exercises;
   bool isLoading = false;
 
   Future refreshExcercises() async {
@@ -64,7 +64,7 @@ class ExcerciseViewState extends State<ExcerciseView> {
   }
 
   Scrollbar buildTilesFromCategory(String category) {
-    List<Exercises> exercisesInCategory = [];
+    List<Exercise> exercisesInCategory = [];
     for (var exercise in exercises)
       {
         if(exercise.categoryString==category)
@@ -120,7 +120,7 @@ class ExcerciseViewState extends State<ExcerciseView> {
       ),
     );
   }
-  void onExcerciseTap(Exercises excercise) {
+  void onExcerciseTap(Exercise excercise) {
     // Handle the excercise tap event here
     print('Tapped excercise: ${excercise.name}');
   }

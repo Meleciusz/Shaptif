@@ -74,14 +74,14 @@ class DatabaseManger {
     ''');
 
     await db.execute('''
-    CREATE TABLE ${SetDatabaseManager.tableName} ( 
-    ${SetDatabaseManager.id} $idType, 
-    ${SetDatabaseManager.trainingID} $intType,
-    ${SetDatabaseManager.exerciseID} $intType,
-    ${SetDatabaseManager.repetitions} $intType,
-    ${SetDatabaseManager.weight} $doubleType,
-    FOREIGN KEY(${SetDatabaseManager.trainingID}) REFERENCES ${TrainingDatabaseSetup.tableName} (${TrainingDatabaseSetup.id}),
-    FOREIGN KEY(${SetDatabaseManager.exerciseID}) REFERENCES ${ExerciseDatabaseSetup.tableName} (${ExerciseDatabaseSetup.id})
+    CREATE TABLE ${SetDatabaseSetup.tableName} ( 
+    ${SetDatabaseSetup.id} $idType, 
+    ${SetDatabaseSetup.trainingID} $intType,
+    ${SetDatabaseSetup.exerciseID} $intType,
+    ${SetDatabaseSetup.repetitions} $intType,
+    ${SetDatabaseSetup.weight} $doubleType,
+    FOREIGN KEY(${SetDatabaseSetup.trainingID}) REFERENCES ${TrainingDatabaseSetup.tableName} (${TrainingDatabaseSetup.id}),
+    FOREIGN KEY(${SetDatabaseSetup.exerciseID}) REFERENCES ${ExerciseDatabaseSetup.tableName} (${ExerciseDatabaseSetup.id})
     )
     ''');
   }
@@ -93,11 +93,11 @@ class DatabaseManger {
     return object.copy(id: id);
   }
 
-  Future<Exercises> selectExercises(int id) async {
+  Future<Exercise> selectExercise(int id) async {
     final row = await select(id, ExerciseDatabaseSetup.tableName,
         ExerciseDatabaseSetup.id, ExerciseDatabaseSetup.valuesToRead);
 
-    return Exercises.fromJson(row);
+    return Exercise.fromJson(row);
   }
 
   Future<BodyPart> selectBodyPart(int id) async {
@@ -105,6 +105,33 @@ class DatabaseManger {
         BodyPartDatabaseSetup.id, BodyPartDatabaseSetup.valuesToRead);
 
     return BodyPart.fromJson(row);
+  }
+
+  Future<Training> selectTraining(int id) async {
+    final row = await select(id, TrainingDatabaseSetup.tableName,
+        TrainingDatabaseSetup.id, TrainingDatabaseSetup.valuesToRead);
+
+    return Training.fromJson(row);
+  }
+
+  Future<MySet> selectSet(int id) async {
+    final row = await select(id, SetDatabaseSetup.tableName,
+        SetDatabaseSetup.id, SetDatabaseSetup.valuesToRead);
+
+    return MySet.fromJson(row);
+  }
+
+  Future<List<MySet>> selectSetsByTraining(int id) async {
+    final row = await select(id, SetDatabaseSetup.tableName,
+        SetDatabaseSetup.id, SetDatabaseSetup.valuesToRead);
+
+    final db = await instance.database;
+    return (await db.query(SetDatabaseSetup.tableName,
+        where: '${SetDatabaseSetup.trainingID} = ?',
+        whereArgs: [id],
+        orderBy: "${SetDatabaseSetup.id} ASC"))
+        .map((json) => MySet.fromJson(json))
+        .toList();
   }
 
   Future<Map<String, Object?>> select(int id, String tableName, String idName,
@@ -120,11 +147,11 @@ class DatabaseManger {
     return maps.isNotEmpty ? maps.first : throw Exception('ID $id not found');
   }
 
-  Future<List<Exercises>> selectAllExercises() async {
+  Future<List<Exercise>> selectAllExercises() async {
     final db = await instance.database;
     return (await db.query(ExerciseDatabaseSetup.tableName,
             orderBy: "${ExerciseDatabaseSetup.name} ASC"))
-        .map((json) => Exercises.fromJson(json))
+        .map((json) => Exercise.fromJson(json))
         .toList();
   }
 
@@ -133,6 +160,14 @@ class DatabaseManger {
     return (await db.query(BodyPartDatabaseSetup.tableName,
             orderBy: "${BodyPartDatabaseSetup.name} ASC"))
         .map((json) => BodyPart.fromJson(json))
+        .toList();
+  }
+
+  Future<List<Training>> selectAllTrainings() async {
+    final db = await instance.database;
+    return (await db.query(TrainingDatabaseSetup.tableName,
+        orderBy: "${TrainingDatabaseSetup.name} ASC"))
+        .map((json) => Training.fromJson(json))
         .toList();
   }
 
@@ -188,38 +223,38 @@ class DatabaseManger {
     await db.insert(BodyPart(name: "rece"));
     await db.insert(BodyPart(name: "brzuch"));
 
-    await db.insert(Exercises(
+    await db.insert(Exercise(
         name: "Podciąganie", description: "pod chwytem tylko", category: 1));
     await db.insert(
-        Exercises(name: "Wiosłowanie", description: "czuje ze zyje", category: 1));
+        Exercise(name: "Wiosłowanie", description: "czuje ze zyje", category: 1));
     await db
-        .insert(Exercises(name: "Modlitewnik", description: "+", category: 5));
+        .insert(Exercise(name: "Modlitewnik", description: "+", category: 5));
     await db
-        .insert(Exercises(name: "Klatka płaska", description: "+", category: 2));
+        .insert(Exercise(name: "Klatka płaska", description: "+", category: 2));
     await db
-        .insert(Exercises(name: "Szruksy", description: "+", category: 3));
+        .insert(Exercise(name: "Szruksy", description: "+", category: 3));
     await db
-        .insert(Exercises(name: "Przysiady", description: "+", category: 4));
+        .insert(Exercise(name: "Przysiady", description: "+", category: 4));
     await db
-        .insert(Exercises(name: "Allachy", description: "+", category: 6));
+        .insert(Exercise(name: "Allachy", description: "+", category: 6));
 
     await db.insert(Training(name: "Trening nóg", description: "jak ja go kurde nienawidze"));
     await db.insert(Training(name: "Trening street", description: "lorem imsum"));
     await db.insert(Training(name: "Trening pleców", description: "lorem imsum dolore"));
 
-    await db.insert(Set(trainingID: 2, exerciseID: 1, repetitions: 10, weight: 0.0));
-    await db.insert(Set(trainingID: 2, exerciseID: 1, repetitions: 12, weight: 0.0));
-    await db.insert(Set(trainingID: 2, exerciseID: 1, repetitions: 8, weight: 0.0));
+    await db.insert(MySet(trainingID: 2, exerciseID: 1, repetitions: 10, weight: 0.0));
+    await db.insert(MySet(trainingID: 2, exerciseID: 1, repetitions: 12, weight: 0.0));
+    await db.insert(MySet(trainingID: 2, exerciseID: 1, repetitions: 8, weight: 0.0));
 
-    await db.insert(Set(trainingID: 2, exerciseID: 2, repetitions: 10, weight: 70.0));
-    await db.insert(Set(trainingID: 2, exerciseID: 2, repetitions: 10, weight: 70.0));
-    await db.insert(Set(trainingID: 2, exerciseID: 2, repetitions: 10, weight: 80.0));
-    await db.insert(Set(trainingID: 2, exerciseID: 2, repetitions: 8, weight: 80.0));
+    await db.insert(MySet(trainingID: 2, exerciseID: 2, repetitions: 10, weight: 70.0));
+    await db.insert(MySet(trainingID: 2, exerciseID: 2, repetitions: 10, weight: 70.0));
+    await db.insert(MySet(trainingID: 2, exerciseID: 2, repetitions: 10, weight: 80.0));
+    await db.insert(MySet(trainingID: 2, exerciseID: 2, repetitions: 8, weight: 80.0));
 
-    await db.insert(Set(trainingID: 1, exerciseID: 6, repetitions: 12, weight: 50.0));
-    await db.insert(Set(trainingID: 1, exerciseID: 6, repetitions: 10, weight: 60.0));
-    await db.insert(Set(trainingID: 1, exerciseID: 6, repetitions: 10, weight: 70.0));
-    await db.insert(Set(trainingID: 1, exerciseID: 6, repetitions: 8, weight: 80.0));
+    await db.insert(MySet(trainingID: 1, exerciseID: 6, repetitions: 12, weight: 50.0));
+    await db.insert(MySet(trainingID: 1, exerciseID: 6, repetitions: 10, weight: 60.0));
+    await db.insert(MySet(trainingID: 1, exerciseID: 6, repetitions: 10, weight: 70.0));
+    await db.insert(MySet(trainingID: 1, exerciseID: 6, repetitions: 8, weight: 80.0));
 
   }
 

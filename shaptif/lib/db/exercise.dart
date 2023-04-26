@@ -2,7 +2,7 @@ import 'package:shaptif/db/table_object.dart';
 import 'package:shaptif/db/database_manager.dart';
 import 'package:shaptif/db/setup.dart';
 
-class Exercises extends TableObject{
+class Exercise extends TableObject{
 
   late String name;
   late String description;
@@ -10,10 +10,10 @@ class Exercises extends TableObject{
   String? categoryString;
 
   @override
-  Exercises({id, required this.name, required this.description, required this.category});
+  Exercise({id, required this.name, required this.description, required this.category});
 
   @override
-  Exercises.fromJson(Map<String, Object?> json)
+  Exercise.fromJson(Map<String, Object?> json)
   {
       id= json[ExerciseDatabaseSetup.id] as int?;
       name= json[ExerciseDatabaseSetup.name] as String;
@@ -37,8 +37,8 @@ class Exercises extends TableObject{
       };
 
   @override
-  Exercises copy({int? id}) =>
-      Exercises(id: id ?? id,
+  Exercise copy({int? id}) =>
+      Exercise(id: id ?? id,
           name: name,
           description: description,
           category: category
