@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-//TODO Maksymalna liczba znaków w nazwie ćwiczenia
+
 class NewExercise extends StatefulWidget {
   const NewExercise({Key? key}) : super(key: key);
 
@@ -7,6 +7,7 @@ class NewExercise extends StatefulWidget {
   State<StatefulWidget> createState() => NewExerciseViewState();
 }
 
+    const List<String> list = <String>['Klacisko', 'Plecory', 'Nygi', 'Cycochy']; String dropdownValue = list.first;
 class NewExerciseViewState extends State<NewExercise> {
   @override
   Widget build(BuildContext context) {
@@ -49,9 +50,9 @@ class NewExerciseViewState extends State<NewExercise> {
       body: Center(
           child: ListView(
             padding: const EdgeInsets.all(32),
-                children: const <Widget>[
+                children: <Widget>[
 
-                  TextField(
+                  const TextField(
                     style: TextStyle(color: Colors.white, fontSize: 20),
                     decoration: InputDecoration(
                       labelText: 'Wpisz nazwe ćwiczenia',
@@ -69,11 +70,33 @@ class NewExerciseViewState extends State<NewExercise> {
                     maxLines: 1,
                   ),
 
-                  SizedBox(
+                  const SizedBox(
                       height: 50
                   ),
 
-                  TextField(
+                  DropdownButton<String>(
+                    icon: const Icon(Icons.arrow_downward),
+                    value: dropdownValue,
+
+                    onChanged: (String? value){
+                      setState(() {
+                        dropdownValue = value!;
+                      });
+                    },
+
+                    items: list.map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                  ),
+
+                  const SizedBox(
+                      height: 50
+                  ),
+
+                  const TextField(
                     style: TextStyle(color: Colors.white, fontSize: 20),
                     decoration: InputDecoration(
                         labelText: 'Opis',

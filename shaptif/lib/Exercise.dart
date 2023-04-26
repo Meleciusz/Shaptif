@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:shaptif/db/Exercise.dart';
 import 'package:shaptif/db/DatabaseManager.dart';
 import 'package:shaptif/db/Category.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 import 'NewExercise.dart';
+
 
 class ExcerciseView extends StatefulWidget {
   const ExcerciseView({Key? key}) : super(key: key);
@@ -40,7 +42,9 @@ class ExcerciseViewState extends State<ExcerciseView> {
 
   @override
   Widget build(BuildContext context) {
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final ColorScheme colorScheme = Theme
+        .of(context)
+        .colorScheme;
     final Color oddItemColor = colorScheme.primary.withOpacity(0.05);
     final Color evenItemColor = colorScheme.primary.withOpacity(0.15);
     const int tabsCount = 3;
@@ -59,7 +63,9 @@ class ExcerciseViewState extends State<ExcerciseView> {
             // The elevation value of the app bar when scroll view has
             // scrolled underneath the app bar.
             scrolledUnderElevation: 4.0,
-            shadowColor: Theme.of(context).shadowColor,
+            shadowColor: Theme
+                .of(context)
+                .shadowColor,
             bottom: const TabBar(
               tabs: <Widget>[
                 Tab(
@@ -82,23 +88,23 @@ class ExcerciseViewState extends State<ExcerciseView> {
         body: Center(
           child: isLoading
               ? const CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation(
-                      Color.fromARGB(255, 183, 205, 144)) //Color of indicator
-                  )
+              valueColor: AlwaysStoppedAnimation(
+                  Color.fromARGB(255, 183, 205, 144)) //Color of indicator
+          )
               : excercises.isEmpty
-                  ? const Text(
-                      'Brak ćwiczeń',
-                      style: TextStyle(color: Colors.white, fontSize: 24),
-                    )
-                  : TabBarView(
-                      children: <Widget>[
-                        buildNotes(),
-                        buildNotes(),
-                        buildNotes(), //testing
-                      ],
-                    ),
+              ? const Text(
+            'Brak ćwiczeń',
+            style: TextStyle(color: Colors.white, fontSize: 24),
+          )
+              : TabBarView(
+            children: <Widget>[
+              buildNotes(),
+              buildNotes(),
+              buildNotes(), //testing
+            ],
+          ),
         ),
-        backgroundColor: const Color.fromARGB(255, 31, 31, 33),
+        //backgroundColor: const Color.fromARGB(255, 31, 31, 33),
         floatingActionButton: FloatingActionButton(
           heroTag: "AddExerciseButton",
           onPressed: () {
@@ -154,3 +160,7 @@ class ExcerciseViewState extends State<ExcerciseView> {
     print('Tapped excercise: ${excercise.name}');
   }
 }
+
+
+
+
