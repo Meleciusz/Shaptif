@@ -1,13 +1,20 @@
+import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:shaptif/Exercise.dart';
 import 'package:shaptif/History.dart';
 import 'package:shaptif/Share.dart';
 import 'package:shaptif/TrainingList.dart';
 import 'package:shaptif/settings.dart';
+import 'package:page_transition/page_transition.dart';
 
 void main() {
   runApp(const MyApp());
+
+  FlutterNativeSplash.remove();
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -16,11 +23,86 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      themeMode: ThemeMode.dark,
+      darkTheme: ThemeData.dark(),
       title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: Colors.deepPurple,
       ),
-      home: const MyHomePage(title: 'Shaptif'),
+      home: SplashScreen(),
+    );
+  }
+}
+
+
+class SplashScreen extends StatelessWidget{
+  const SplashScreen({Key? key}) : super(key: key);
+  @override
+  Widget build(BuildContext context){
+    return AnimatedSplashScreen(
+        splash: Align(
+          child: Row(
+            children: const [
+              Text(
+                'S',
+                style: TextStyle(
+                    fontFamily: 'Audiowide',
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 120),
+              ),
+              Text(
+                'H',
+                style: TextStyle(
+                    fontFamily: 'Audiowide',
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 30),
+              ),Text(
+                'A',
+                style: TextStyle(
+                    fontFamily: 'Audiowide',
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 30),
+              ),Text(
+                'P',
+                style: TextStyle(
+                    fontFamily: 'Audiowide',
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 30),
+              ),Text(
+                'T',
+                style: TextStyle(
+                    fontFamily: 'Audiowide',
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 30),
+              ),Text(
+                'I',
+                style: TextStyle(
+                    fontFamily: 'Audiowide',
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 30),
+              ),Text(
+                'F',
+                style: TextStyle(
+                    fontFamily: 'Audiowide',
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 30),
+              ),
+            ]
+          ),
+        ),
+
+        nextScreen: const MyHomePage(title: 'Shaptif'),
+        splashTransition: SplashTransition.slideTransition,
+      backgroundColor: Colors.black,
+      splashIconSize: 250,
+      pageTransitionType: PageTransitionType.topToBottom,
     );
   }
 }
@@ -34,6 +116,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  bool isLoading = false;
   int currentBottomNavBarIndex = 0;
   final String appBarText = 'Shaptif';
   final screens = [
@@ -54,9 +137,9 @@ class _MyHomePageState extends State<MyHomePage> {
           flexibleSpace: Container(
             decoration: const BoxDecoration(
                 image: DecorationImage(
-              image: AssetImage("images/ksiazka.png"),
-              fit: BoxFit.fill,
-            )),
+                  image: AssetImage("images/ksiazka.png"),
+                  fit: BoxFit.fill,
+                )),
           ),
           title: Text(
             appBarText,
@@ -66,11 +149,11 @@ class _MyHomePageState extends State<MyHomePage> {
                 fontWeight: FontWeight.bold,
                 fontSize: 40),
           ),
-          backgroundColor: const Color.fromARGB(255, 58, 183, 89),
-          shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.only(
-                  bottomRight: Radius.circular(20),
-                  bottomLeft: Radius.circular(20))),
+          backgroundColor: const Color.fromARGB(255, 183, 205, 144),
+          // shape: const RoundedRectangleBorder(
+          //     borderRadius: BorderRadius.only(
+          //         bottomRight: Radius.circular(20),
+          //         bottomLeft: Radius.circular(20))),
           automaticallyImplyLeading: false,
         ),
       ),
@@ -114,8 +197,25 @@ class _MyHomePageState extends State<MyHomePage> {
                 backgroundColor: Colors.black)
           ]
 
-          // This trailing comma makes auto-formatting nicer for build methods.
-          ),
+        // This trailing comma makes auto-formatting nicer for build methods.
+      ),
     );
   }
 }
+
+class LoadingPage extends StatelessWidget{
+  const LoadingPage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      backgroundColor: Colors.blueAccent,
+      body: Center(
+        child: CircularProgressIndicator(
+          color: Colors.white,
+        ),
+      ),
+    );
+  }
+}
+

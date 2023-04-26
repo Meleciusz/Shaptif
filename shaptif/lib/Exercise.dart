@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:shaptif/db/Exercise.dart';
 import 'package:shaptif/db/DatabaseManager.dart';
 import 'package:shaptif/db/Category.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 import 'NewExercise.dart';
+
 
 class ExcerciseView extends StatefulWidget {
   const ExcerciseView({Key? key}) : super(key: key);
@@ -40,7 +42,9 @@ class ExcerciseViewState extends State<ExcerciseView> {
 
   @override
   Widget build(BuildContext context) {
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final ColorScheme colorScheme = Theme
+        .of(context)
+        .colorScheme;
     final Color oddItemColor = colorScheme.primary.withOpacity(0.05);
     final Color evenItemColor = colorScheme.primary.withOpacity(0.15);
     const int tabsCount = 6;
@@ -188,3 +192,7 @@ class ExcerciseViewState extends State<ExcerciseView> {
   }
 
 }
+
+
+
+
