@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:shaptif/db/Exercise.dart';
 import 'package:shaptif/db/DatabaseManager.dart';
 import 'package:shaptif/db/Category.dart';
-import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 import 'NewExercise.dart';
 
