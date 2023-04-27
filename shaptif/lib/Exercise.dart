@@ -31,10 +31,10 @@ class ExcerciseViewState extends State<ExcerciseView> {
       await DatabaseManger.instance.initialData();
       exercises = await DatabaseManger.instance.selectAllExercises();
     }
-    for (var ex in exercises) {
-      BodyPart bodypart = await DatabaseManger.instance.selectBodyPart(ex.category);
-      ex.categoryString = bodypart.name;
-    }
+    // for (var ex in exercises) {
+    //   BodyPart bodypart = await DatabaseManger.instance.selectBodyPart(ex.bodyPart);
+    //   ex.categoryString = bodypart.name;
+    // }
     setState(() => isLoading = false);
   }
 
@@ -67,7 +67,7 @@ class ExcerciseViewState extends State<ExcerciseView> {
     List<Exercise> exercisesInCategory = [];
     for (var exercise in exercises)
       {
-        if(exercise.categoryString==category)
+        if(exercise.bodyPartString==category)
           exercisesInCategory.add(exercise);
       }
 

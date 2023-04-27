@@ -25,7 +25,7 @@ class TrainingListViewState extends State<TrainingListView> {
     trainings = await DatabaseManger.instance.selectAllTrainings();
     for(var el in trainings)
     {
-      await el.getSets();
+      await el.initExerciseMap();
       // for(var s in el.sets)
       //   {
       //     await s.getExcerciseName();
@@ -61,28 +61,37 @@ class TrainingListViewState extends State<TrainingListView> {
   {
     return ListView.builder(
       itemCount: trainings.length,
-      itemBuilder: (context, index) {
-        final training = trainings[index];
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            ListTile(
-              title: Text(training.name),
-              subtitle: Text(training.description),
+      itemBuilder: (BuildContext context, int index) {
+        Map<String, List<MySet>> mapa = trainings[index].exercisesMap;
+        return Container(
+          decoration: BoxDecoration(
+            color: Colors.grey[200],
+          ),
+          margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+          child: Card(
+            child: ListTile(
+              title: Text(trainings[index].name, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: 8),
+                  Text(trainings[index].description, style: TextStyle(fontSize: 16)),
+                  SizedBox(height: 8),
+                  for (String klucz in mapa.keys)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: 8),
+                        Text(klucz, style: TextStyle(fontWeight: FontWeight.bold)),
+                        for (MySet singleSet in mapa[klucz]!)
+                          Text("Powtórzenia: ${singleSet.repetitions}" + " Ciężar: ${singleSet.weight}"),
+                        SizedBox(height: 8),
+                      ],
+                    ),
+                ],
+              ),
             ),
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: training.sets.length,
-              itemBuilder: (context, index) {
-                final set = training.sets[index];
-                return ListTile(
-                  title: Text('ćwiczonko ${ set.excerciseName}'),
-                  subtitle: Text('Reps: ${(set).repetitions}, Weight: ${(set).weight}'),
-                );
-              },
-            ),
-          ],
+          ),
         );
       },
     );

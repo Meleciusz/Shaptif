@@ -14,6 +14,19 @@ class ExerciseDatabaseSetup
   static const String name = "name";
   static const String description = "description";
   static const String bodyPart = "bodyPart";
+  static const String bodyPartString = "bodyPartString";
+
+  static const String selectString = '''
+    SELECT 
+    ${ExerciseDatabaseSetup.tableName}.${ExerciseDatabaseSetup.id} AS ${ExerciseDatabaseSetup.id},
+    ${ExerciseDatabaseSetup.tableName}.${ExerciseDatabaseSetup.name} AS ${ExerciseDatabaseSetup.name},
+    ${ExerciseDatabaseSetup.tableName}.${ExerciseDatabaseSetup.description} AS ${ExerciseDatabaseSetup.description}, 
+    ${ExerciseDatabaseSetup.tableName}.${ExerciseDatabaseSetup.bodyPart} AS ${ExerciseDatabaseSetup.bodyPart},
+    ${BodyPartDatabaseSetup.tableName}.${BodyPartDatabaseSetup.name} AS ${ExerciseDatabaseSetup.bodyPartString}
+    FROM ${ExerciseDatabaseSetup.tableName}
+    JOIN ${BodyPartDatabaseSetup.tableName}
+    ON ${ExerciseDatabaseSetup.tableName}.${ExerciseDatabaseSetup.bodyPart} == ${BodyPartDatabaseSetup.tableName}.${BodyPartDatabaseSetup.id}
+    ''';
 
   static final List<String> valuesToRead = [name, description, bodyPart];
 }
@@ -26,6 +39,19 @@ class SetDatabaseSetup
   static const String exerciseID = ExerciseDatabaseSetup.id;
   static const String repetitions = "repetitions";
   static const String weight = "weight";
+  static const String exerciseName = "exerciseName";
+  static const String selectString = '''
+    SELECT 
+    ${SetDatabaseSetup.tableName}.${SetDatabaseSetup.id} AS ${SetDatabaseSetup.id},
+    ${SetDatabaseSetup.tableName}.${SetDatabaseSetup.trainingID} AS ${SetDatabaseSetup.trainingID},
+    ${SetDatabaseSetup.tableName}.${SetDatabaseSetup.exerciseID} AS ${SetDatabaseSetup.exerciseID}, 
+    ${SetDatabaseSetup.tableName}.${SetDatabaseSetup.repetitions} AS ${SetDatabaseSetup.repetitions},
+    ${SetDatabaseSetup.tableName}.${SetDatabaseSetup.weight} AS ${SetDatabaseSetup.weight},
+    ${ExerciseDatabaseSetup.tableName}.${ExerciseDatabaseSetup.name} AS ${SetDatabaseSetup.exerciseName}
+    FROM ${SetDatabaseSetup.tableName}
+    JOIN ${ExerciseDatabaseSetup.tableName}
+    ON ${SetDatabaseSetup.tableName}.${SetDatabaseSetup.exerciseID} == ${ExerciseDatabaseSetup.tableName}.${ExerciseDatabaseSetup.id}
+    ''';
 
   static final List<String> valuesToRead = [trainingID,exerciseID,repetitions,weight];
 }

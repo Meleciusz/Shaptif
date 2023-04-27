@@ -8,6 +8,23 @@ class Training extends TableObject
   late String name;
   late String description;
   List<MySet> sets = [];
+  Map <String, List<MySet>> exercisesMap = <String, List<MySet>>{};
+
+  Future initExerciseMap() async
+  {
+    sets = (await DatabaseManger.instance.selectSetsByTraining(id!));
+    for(var s in sets) {
+      if(!exercisesMap.containsKey(s.exerciseName))
+      {
+        List<MySet> temp = [s];
+        exercisesMap[s.exerciseName!] = temp;
+      }
+      else
+      {
+        exercisesMap[s.exerciseName!]!.add(s);
+      }
+    }
+  }
 
   @override
   Training.fromJson(Map<String, Object?> json)
@@ -58,7 +75,7 @@ class Training extends TableObject
     {
       sets = (await DatabaseManger.instance.selectSetsByTraining(id!));
       for(var s in sets) {
-        await s.getExcerciseName();
+        await s.getExerciseName();
       }
     }
     return sets;

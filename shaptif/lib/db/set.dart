@@ -8,16 +8,12 @@ class MySet extends TableObject
   late int exerciseID;
   late int repetitions;
   late double weight;
-  String excerciseName="a";
+  String? exerciseName;
 
-  Future<String> getExcerciseName()
+  Future<String> getExerciseName()
   async
   {
-    if(excerciseName=="a") {
-      excerciseName = (await DatabaseManger.instance.selectExercise( exerciseID)).name;
-    }
-
-    return excerciseName;
+    return exerciseName ??= (await DatabaseManger.instance.selectExercise( id! )).name;
   }
 
   @override
@@ -29,6 +25,7 @@ class MySet extends TableObject
       exerciseID= json[SetDatabaseSetup.exerciseID] as int;
       repetitions= json[SetDatabaseSetup.repetitions] as int;
       weight= json[SetDatabaseSetup.weight] as double;
+      exerciseName = json[SetDatabaseSetup.exerciseName] as String ?? "";
     }
   }
 

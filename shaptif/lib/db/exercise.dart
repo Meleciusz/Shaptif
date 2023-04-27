@@ -6,11 +6,11 @@ class Exercise extends TableObject{
 
   late String name;
   late String description;
-  late int category;
-  String? categoryString;
+  late int bodyPart;
+  String? bodyPartString;
 
   @override
-  Exercise({id, required this.name, required this.description, required this.category});
+  Exercise({id, required this.name, required this.description, required this.bodyPart});
 
   @override
   Exercise.fromJson(Map<String, Object?> json)
@@ -18,13 +18,14 @@ class Exercise extends TableObject{
       id= json[ExerciseDatabaseSetup.id] as int?;
       name= json[ExerciseDatabaseSetup.name] as String;
       description= json[ExerciseDatabaseSetup.description] as String;
-      category= json[ExerciseDatabaseSetup.bodyPart] as int;
+      bodyPart= json[ExerciseDatabaseSetup.bodyPart] as int;
+      bodyPartString= json[ExerciseDatabaseSetup.bodyPartString] as String;
   }
 
   Future<String> getCategoryString()
   async
   {
-    return categoryString ??= (await DatabaseManger.instance.selectBodyPart( category)).name;
+    return bodyPartString ??= (await DatabaseManger.instance.selectBodyPart( bodyPart)).name;
   }
 
   @override
@@ -33,7 +34,7 @@ class Exercise extends TableObject{
         ExerciseDatabaseSetup.id: id,
         ExerciseDatabaseSetup.name: name,
         ExerciseDatabaseSetup.description: description,
-        ExerciseDatabaseSetup.bodyPart: category,
+        ExerciseDatabaseSetup.bodyPart: bodyPart,
       };
 
   @override
@@ -41,7 +42,7 @@ class Exercise extends TableObject{
       Exercise(id: id ?? id,
           name: name,
           description: description,
-          category: category
+          bodyPart: bodyPart
       );
 
   @override
