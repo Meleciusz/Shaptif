@@ -1,32 +1,69 @@
 import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:provider/provider.dart';
 import 'package:shaptif/Exercise.dart';
 import 'package:shaptif/History.dart';
 import 'package:shaptif/Share.dart';
+import 'package:shaptif/Styles.dart';
 import 'package:shaptif/TrainingList.dart';
 import 'package:shaptif/settings.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'DarkThemeProvider.dart';
+import 'SharedPreferences.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
+  //SharedPreferences.setMockInitialValues({});
 }
 
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
 
+class _MyAppState extends State<MyApp> {
   // This widget is the root of your application.
+
+  DarkThemeProvider themeChangeProvider = DarkThemeProvider();
+
+  @override
+  void initState() {
+    super.initState();
+    getCurrentAppTheme();
+  }
+
+  void getCurrentAppTheme() async {
+    themeChangeProvider.darkTheme =
+      await themeChangeProvider.darkThemePreference.getTheme();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      themeMode: ThemeMode.dark,
-      darkTheme: ThemeData.dark(),
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.deepPurple,
+    return ChangeNotifierProvider(
+        create: (_) {
+      return themeChangeProvider;
+    },
+    child: Consumer<DarkThemeProvider>(
+      builder: (BuildContext context, value, Widget? child){
+          return MaterialApp(
+              //debugShowCheckedModeBanner: false,
+              title: 'Flutter Demo',
+              theme: Styles.themeData(themeChangeProvider.darkTheme, context),
+            home: SplashScreen(),
+
+            // routes: <String, WidgetBuilder>{
+            //     AGENDA
+            //},
+
+            );
+          },
+
       ),
-      home: SplashScreen(),
     );
   }
 }
@@ -199,20 +236,3 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
-
-class LoadingPage extends StatelessWidget{
-  const LoadingPage({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      backgroundColor: Colors.blueAccent,
-      body: Center(
-        child: CircularProgressIndicator(
-          color: Colors.white,
-        ),
-      ),
-    );
-  }
-}
-

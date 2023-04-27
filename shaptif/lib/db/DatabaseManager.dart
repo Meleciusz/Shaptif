@@ -98,7 +98,7 @@ class DatabaseManger {
   Future<List<Excercise>> selectAllExcercise() async {
     final db = await instance.database;
     return (await db.query(ExcerciseDatabaseSetup.tableName,
-            orderBy: "${ExcerciseDatabaseSetup.name} ASC"))
+        orderBy: "${ExcerciseDatabaseSetup.name} ASC"))
         .map((json) => Excercise.fromJson(json))
         .toList();
   }
@@ -106,7 +106,7 @@ class DatabaseManger {
   Future<List<BodyPart>> selectAllBodyParts() async {
     final db = await instance.database;
     return (await db.query(BodyPartDatabaseSetup.tableName,
-            orderBy: "${BodyPartDatabaseSetup.name} ASC"))
+        orderBy: "${BodyPartDatabaseSetup.name} ASC"))
         .map((json) => BodyPart.fromJson(json))
         .toList();
   }

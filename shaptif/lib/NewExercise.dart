@@ -10,24 +10,6 @@ class NewExercise extends StatefulWidget {
   State<StatefulWidget> createState() => NewExerciseViewState();
 }
 
-
-//   Future refreshExcercises() async {
-//     setState(() => isLoading = true);
-//
-//     excercises = await DatabaseManger.instance.selectAllExcercise();
-//     if (excercises.isEmpty) {
-//       await DatabaseManger.instance.initialData();
-//       excercises = await DatabaseManger.instance.selectAllExcercise();
-//     }
-//     for (var ex in excercises) {
-//       BodyPart c = await DatabaseManger.instance.selectBodyPart(ex.category);
-//       ex.categoryS = c.name;
-//     }
-//     setState(() => isLoading = false);
-// }
-
-
-
 const List<String> list = <String>['Klacisko', 'Plecory', 'Nygi', 'Cycochy']; String dropdownValue = list.first;
 class NewExerciseViewState extends State<NewExercise> {
   bool isLoading = false;
@@ -35,7 +17,14 @@ class NewExerciseViewState extends State<NewExercise> {
   var  dropdownValueController = 1;
   final  descriptionController = TextEditingController();
 
-  Future refreshExcercises() async {
+  // @override
+  // void initState() {
+  //   super.initState();
+  //
+  //   loadButtonList();
+  // }
+
+  Future loadToDataBase() async {
     setState(() => isLoading = true);
     await DatabaseManger.instance.insert(Excercise(
         name: exerciseNameController.text,
@@ -47,6 +36,19 @@ class NewExerciseViewState extends State<NewExercise> {
     ));
     setState(() => isLoading = false);
   }
+
+  late List<BodyPart> exercises;
+
+  // Future loadButtonList() async {
+  //     setState(() => isLoading = true);
+  //
+  //     exercises = await DatabaseManger.instance.selectAllBodyParts();
+  //
+  //     for(String length : exercises.toString().length){
+  //
+  //   }
+  //     setState(() => isLoading = false);
+  // }
 
   @override
   void dispose() {
@@ -64,7 +66,6 @@ class NewExerciseViewState extends State<NewExercise> {
     String appBarText = 'Nowe ćwiczenie';
 
     return Scaffold(
-        backgroundColor: const Color.fromARGB(255, 31, 31, 33),
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(60),
           child: AppBar(
@@ -124,7 +125,7 @@ class NewExerciseViewState extends State<NewExercise> {
 
               DropdownButton<String>(
                 icon: const Icon(Icons.arrow_downward),
-                value: dropdownValue,
+                value: list.first,
 
                 onChanged: (String? value){
                   setState(() {
@@ -184,7 +185,7 @@ class NewExerciseViewState extends State<NewExercise> {
               FloatingActionButton (
                 heroTag: "SaveExerciseButton",
                 onPressed: () {
-                  refreshExcercises();
+                  loadToDataBase();
                 },
                 backgroundColor: const Color.fromARGB(255, 95, 166, 83),
                 shape: const CircleBorder(),

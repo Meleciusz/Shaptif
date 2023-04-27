@@ -3,6 +3,8 @@ import 'package:shaptif/db/Exercise.dart';
 import 'package:shaptif/db/DatabaseManager.dart';
 import 'package:shaptif/db/Category.dart';
 
+import 'DarkThemeProvider.dart';
+import 'Description.dart';
 import 'NewExercise.dart';
 
 
@@ -14,11 +16,17 @@ class ExcerciseView extends StatefulWidget {
 }
 
 class ExcerciseViewState extends State<ExcerciseView> {
+  DarkThemeProvider themeChangeProvider = DarkThemeProvider();
   @override
   void initState() {
     super.initState();
-
+    getCurrentAppTheme();
     refreshExcercises();
+  }
+
+  void getCurrentAppTheme() async {
+    themeChangeProvider.darkTheme =
+    await themeChangeProvider.darkThemePreference.getTheme();
   }
 
   late List<Excercise> exercises;
@@ -60,7 +68,6 @@ class ExcerciseViewState extends State<ExcerciseView> {
               ? buildEmptyView(context)
               : buildTabBarContext(),
         ),
-        backgroundColor: const Color.fromARGB(255, 31, 31, 33),
         floatingActionButton: buildFloatingActionButton(context),
       ),
     );
@@ -80,7 +87,12 @@ class ExcerciseViewState extends State<ExcerciseView> {
         itemBuilder: (context, index) {
           final excercise = exercisesInCategory[index];
           return InkWell(
-            onTap: () => onExcerciseTap(excercise),
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const Description()),
+              );
+            },
             child: Container(
               padding:
               const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
@@ -97,7 +109,7 @@ class ExcerciseViewState extends State<ExcerciseView> {
                   excercise.name,
                   style: const TextStyle(
                       fontFamily: 'Audiowide',
-                      color: Colors.white,
+                      //color: Colors.white,
                       fontWeight: FontWeight.bold,
                       fontSize: 20),
                 ),
@@ -122,10 +134,6 @@ class ExcerciseViewState extends State<ExcerciseView> {
         bottom: buildBottomTabBar(),
       ),
     );
-  }
-  void onExcerciseTap(Excercise excercise) {
-    // Handle the excercise tap event here
-    print('Tapped excercise: ${excercise.name}');
   }
 
   FloatingActionButton buildFloatingActionButton(BuildContext context) {
