@@ -7,8 +7,8 @@ class Training extends TableObject
 {
   late String name;
   late String description;
-  List<MySet> sets = [];
-  Map <String, List<MySet>> exercisesMap = <String, List<MySet>>{};
+  List sets = [];
+  Map <String, List> exercisesMap = <String, List>{};
 
   Future initExerciseMap() async
   {
@@ -16,7 +16,7 @@ class Training extends TableObject
     for(var s in sets) {
       if(!exercisesMap.containsKey(s.exerciseName))
       {
-        List<MySet> tempList = [s];
+        List tempList = [s];
         exercisesMap[s.exerciseName!] = tempList;
       }
       else
@@ -69,7 +69,7 @@ class Training extends TableObject
         TrainingDatabaseSetup.description: description,
       };
 
-  Future<List<MySet>> getSets()
+  Future<List> getSets()
   async {
     if(sets.isEmpty)
     {

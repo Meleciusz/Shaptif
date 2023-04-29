@@ -25,7 +25,7 @@ class MySet extends TableObject
       exerciseID= json[SetDatabaseSetup.exerciseID] as int;
       repetitions= json[SetDatabaseSetup.repetitions] as int;
       weight= json[SetDatabaseSetup.weight] as double;
-      exerciseName = json[SetDatabaseSetup.exerciseName] as String ?? "";
+      exerciseName = json[SetDatabaseSetup.exerciseName] as String;
     }
   }
 

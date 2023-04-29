@@ -1,4 +1,5 @@
 import 'package:path/path.dart';
+import 'package:shaptif/db/finished_training.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:shaptif/db/exercise.dart';
 import 'package:shaptif/db/body_part.dart';
@@ -7,6 +8,8 @@ import 'package:shaptif/db/table_object.dart';
 import 'package:shaptif/db/set.dart';
 import 'package:shaptif/db/setup.dart';
 import 'dart:io';
+
+import 'history.dart';
 
 class DatabaseManger {
   static final DatabaseManger instance = DatabaseManger._init();
@@ -84,6 +87,27 @@ class DatabaseManger {
     FOREIGN KEY(${SetDatabaseSetup.exerciseID}) REFERENCES ${ExerciseDatabaseSetup.tableName} (${ExerciseDatabaseSetup.id})
     )
     ''');
+
+    await db.execute('''
+    CREATE TABLE ${FinishedTrainingDatabaseSetup.tableName} ( 
+    ${FinishedTrainingDatabaseSetup.id} $idType, 
+    ${FinishedTrainingDatabaseSetup.name} $textType,
+    ${FinishedTrainingDatabaseSetup.description} $textType,
+    ${FinishedTrainingDatabaseSetup.finishedDateTime} $textType
+    )
+    ''');
+
+    await db.execute('''
+    CREATE TABLE ${HistoryDatabaseSetup.tableName} ( 
+    ${HistoryDatabaseSetup.id} $idType, 
+    ${HistoryDatabaseSetup.trainingID} $intType,
+    ${HistoryDatabaseSetup.exerciseID} $intType,
+    ${HistoryDatabaseSetup.repetitions} $intType,
+    ${HistoryDatabaseSetup.weight} $doubleType,
+    FOREIGN KEY(${HistoryDatabaseSetup.trainingID}) REFERENCES ${TrainingDatabaseSetup.tableName} (${TrainingDatabaseSetup.id}),
+    FOREIGN KEY(${HistoryDatabaseSetup.exerciseID}) REFERENCES ${ExerciseDatabaseSetup.tableName} (${ExerciseDatabaseSetup.id})
+    )
+    ''');
   }
 
   Future<TableObject> insert(TableObject object) async {
@@ -113,13 +137,16 @@ class DatabaseManger {
     return Training.fromJson(row);
   }
 
-  Future<MySet> selectSet(int id) async {
-    final db = await instance.database;
-
-    final rows = await db.rawQuery("${SetDatabaseSetup.selectString} WHERE ${SetDatabaseSetup.tableName}.${SetDatabaseSetup.id} == $id");
-
-    return MySet.fromJson(rows.first);
-  }
+  // Future<MySet> selectSet(int id, {bool finished = false}) async {
+  //   final db = await instance.database;
+  //
+  //   final rows = !finished ?
+  //   await db.rawQuery("${SetDatabaseSetup.selectString} WHERE ${SetDatabaseSetup.tableName}.${SetDatabaseSetup.id} == $id")
+  //   : await db.rawQuery("${HistoryDatabaseSetup.selectString} WHERE ${HistoryDatabaseSetup.tableName}.${HistoryDatabaseSetup.id} == $id")
+  //   ;
+  //
+  //   return MySet.fromJson(rows.first);
+  // }
 
   Future<List<MySet>> selectSetsByTraining(int id) async {
     final db = await instance.database;
@@ -127,6 +154,14 @@ class DatabaseManger {
     final rows = await db.rawQuery("${SetDatabaseSetup.selectString} WHERE ${SetDatabaseSetup.tableName}.${SetDatabaseSetup.trainingID} == $id");
 
     return rows.map((json) => MySet.fromJson(json)).toList();
+  }
+
+  Future<List<History>> selectHistoryByTraining(int id) async {
+    final db = await instance.database;
+
+    final rows = await db.rawQuery("${HistoryDatabaseSetup.selectString} WHERE ${HistoryDatabaseSetup.tableName}.${HistoryDatabaseSetup.trainingID} == $id");
+
+    return rows.map((json) => History.fromJson(json)).toList();
   }
 
   Future<Map<String, Object?>> select(int id, String tableName, String idName,
@@ -161,6 +196,14 @@ class DatabaseManger {
     return (await db.query(TrainingDatabaseSetup.tableName,
         orderBy: "${TrainingDatabaseSetup.name} ASC"))
         .map((json) => Training.fromJson(json))
+        .toList();
+  }
+
+  Future<List<FinishedTraining>> selectAllFinishedTrainings() async {
+    final db = await instance.database;
+    return (await db.query(FinishedTrainingDatabaseSetup.tableName,
+        orderBy: "${FinishedTrainingDatabaseSetup.finishedDateTime} DESC"))
+        .map((json) => FinishedTraining.fromJson(json))
         .toList();
   }
 
@@ -247,6 +290,28 @@ class DatabaseManger {
     await db.insert(MySet(trainingID: 1, exerciseID: 6, repetitions: 10, weight: 60.0));
     await db.insert(MySet(trainingID: 1, exerciseID: 6, repetitions: 10, weight: 70.0));
     await db.insert(MySet(trainingID: 1, exerciseID: 6, repetitions: 8, weight: 80.0));
+
+    await db.insert(FinishedTraining(name: "Historyczny", description: "Bardzo dawny trening", finishedDateTime: DateTime(2023, 2, 30, 12, 30, 0)));
+    await db.insert(FinishedTraining(name: "Aktualny", description: "Trening zrobiony podczas budowania bazy", finishedDateTime: DateTime.now()));
+
+    await db.insert(History(trainingID: 2, exerciseID: 1, repetitions: 10, weight: 0.0));
+    await db.insert(History(trainingID: 2, exerciseID: 1, repetitions: 12, weight: 0.0));
+    await db.insert(History(trainingID: 2, exerciseID: 1, repetitions: 8, weight: 0.0));
+
+    await db.insert(History(trainingID: 2, exerciseID: 2, repetitions: 10, weight: 70.0));
+    await db.insert(History(trainingID: 2, exerciseID: 2, repetitions: 10, weight: 70.0));
+    await db.insert(History(trainingID: 2, exerciseID: 2, repetitions: 10, weight: 80.0));
+    await db.insert(History(trainingID: 2, exerciseID: 2, repetitions: 8, weight: 80.0));
+
+    await db.insert(History(trainingID: 1, exerciseID: 6, repetitions: 12, weight: 50.0));
+    await db.insert(History(trainingID: 1, exerciseID: 6, repetitions: 10, weight: 60.0));
+    await db.insert(History(trainingID: 1, exerciseID: 6, repetitions: 10, weight: 70.0));
+    await db.insert(History(trainingID: 1, exerciseID: 6, repetitions: 8, weight: 80.0));
+
+    await db.insert(History(trainingID: 1, exerciseID: 3, repetitions: 12, weight: 20.0));
+    await db.insert(History(trainingID: 1, exerciseID: 3, repetitions: 10, weight: 25.0));
+    await db.insert(History(trainingID: 1, exerciseID: 3, repetitions: 10, weight: 30.0));
+    await db.insert(History(trainingID: 1, exerciseID: 3, repetitions: 8, weight: 35.0));
 
   }
 

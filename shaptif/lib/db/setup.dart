@@ -65,3 +65,39 @@ class TrainingDatabaseSetup
 
   static final List<String> valuesToRead = [name, description];
 }
+
+class FinishedTrainingDatabaseSetup
+{
+  static const String tableName = "Finished_Training";
+  static const String id = "finished_training_id";
+  static const String name = "name";
+  static const String description = "description";
+  static const String finishedDateTime = "finishedDateTime";
+
+  static final List<String> valuesToRead = [name, description, finishedDateTime];
+}
+
+class HistoryDatabaseSetup
+{
+  static const String tableName = "History";
+  static const String id = "history_id";
+  static const String trainingID = FinishedTrainingDatabaseSetup.id;
+  static const String exerciseID = ExerciseDatabaseSetup.id;
+  static const String repetitions = "repetitions";
+  static const String weight = "weight";
+  static const String exerciseName = "exerciseName";
+  static const String selectString = '''
+    SELECT 
+    ${HistoryDatabaseSetup.tableName}.${HistoryDatabaseSetup.id} AS ${HistoryDatabaseSetup.id},
+    ${HistoryDatabaseSetup.tableName}.${HistoryDatabaseSetup.trainingID} AS ${HistoryDatabaseSetup.trainingID},
+    ${HistoryDatabaseSetup.tableName}.${HistoryDatabaseSetup.exerciseID} AS ${HistoryDatabaseSetup.exerciseID}, 
+    ${HistoryDatabaseSetup.tableName}.${HistoryDatabaseSetup.repetitions} AS ${HistoryDatabaseSetup.repetitions},
+    ${HistoryDatabaseSetup.tableName}.${HistoryDatabaseSetup.weight} AS ${HistoryDatabaseSetup.weight},
+    ${ExerciseDatabaseSetup.tableName}.${ExerciseDatabaseSetup.name} AS ${HistoryDatabaseSetup.exerciseName}
+    FROM ${HistoryDatabaseSetup.tableName}
+    JOIN ${ExerciseDatabaseSetup.tableName}
+    ON ${HistoryDatabaseSetup.tableName}.${HistoryDatabaseSetup.exerciseID} == ${ExerciseDatabaseSetup.tableName}.${ExerciseDatabaseSetup.id}
+    ''';
+
+  static final List<String> valuesToRead = [trainingID,exerciseID,repetitions,weight];
+}

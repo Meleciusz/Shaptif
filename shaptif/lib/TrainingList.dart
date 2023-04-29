@@ -23,7 +23,7 @@ class TrainingListViewState extends State<TrainingListView> {
   Future _getData() async {
     setState(() => isLoading = true);
     trainings = await DatabaseManger.instance.selectAllTrainings();
-    for(var el in trainings)
+    for(Training el in trainings)
     {
       await el.initExerciseMap();
     }
@@ -58,7 +58,7 @@ class TrainingListViewState extends State<TrainingListView> {
     return ListView.builder(
       itemCount: trainings.length,
       itemBuilder: (BuildContext context, int index) {
-        Map<String, List<MySet>> mapa = trainings[index].exercisesMap;
+        Map<String, List> mapa = trainings[index].exercisesMap;
         return Card(
           margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
           elevation: 4,
