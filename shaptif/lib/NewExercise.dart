@@ -10,19 +10,19 @@ class NewExercise extends StatefulWidget {
   State<StatefulWidget> createState() => NewExerciseViewState();
 }
 
-const List<String> list = <String>['Klacisko', 'Plecory', 'Nygi', 'Cycochy']; String dropdownValue = list.first;
+List<String> list = <String>["pies"]; String dropdownValue = list.first;
 class NewExerciseViewState extends State<NewExercise> {
   bool isLoading = false;
   final  exerciseNameController = TextEditingController();
   var  dropdownValueController = 1;
   final  descriptionController = TextEditingController();
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //
-  //   loadButtonList();
-  // }
+  @override
+  void initState() {
+    super.initState();
+
+    loadButtonList();
+  }
 
   Future loadToDataBase() async {
     setState(() => isLoading = true);
@@ -37,18 +37,42 @@ class NewExerciseViewState extends State<NewExercise> {
     setState(() => isLoading = false);
   }
 
-  late List<BodyPart> exercises;
+  late List<BodyPart> bodyParts;
 
-  // Future loadButtonList() async {
-  //     setState(() => isLoading = true);
-  //
-  //     exercises = await DatabaseManger.instance.selectAllBodyParts();
-  //
-  //     for(String length : exercises.toString().length){
-  //
-  //   }
-  //     setState(() => isLoading = false);
-  // }
+  Future loadButtonList() async {
+      setState(() => isLoading = true);
+
+      bodyParts = await DatabaseManger.instance.selectAllBodyParts();
+
+
+    //   for(var i=0; i<exercises.length; ++i){
+    //     list.add(exercises.iterator.current.name);
+    // }
+      list.clear();
+      for(var bodyP in bodyParts){
+        list.add(bodyP.name);
+      }
+      //list.add(bodyParts.first.name);
+
+      setState(() => isLoading = false);
+  }
+
+  late List<Excercise> exercises;
+
+  Future refreshExcercises() async {
+    setState(() => isLoading = true);
+
+    exercises = await DatabaseManger.instance.selectAllExcercise();
+    if (exercises.isEmpty) {
+      await DatabaseManger.instance.initialData();
+      exercises = await DatabaseManger.instance.selectAllExcercise();
+    }
+    for (var ex in exercises) {
+      BodyPart bodypart = await DatabaseManger.instance.selectBodyPart(ex.category);
+      ex.categoryS = bodypart.name;
+    }
+    setState(() => isLoading = false);
+  }
 
   @override
   void dispose() {
@@ -123,7 +147,7 @@ class NewExerciseViewState extends State<NewExercise> {
                   height: 50
               ),
 
-              DropdownButton<String>(
+              isLoading ?  buildProgressIndicator(context) : DropdownButton<String>(
                 icon: const Icon(Icons.arrow_downward),
                 value: dropdownValue,
 
@@ -185,7 +209,7 @@ class NewExerciseViewState extends State<NewExercise> {
               FloatingActionButton (
                 heroTag: "SaveExerciseButton",
                 onPressed: () {
-                  //loadToDataBase();
+                  loadToDataBase(); refreshExcercises();
                 },
                 backgroundColor: const Color.fromARGB(255, 95, 166, 83),
                 shape: const CircleBorder(),
@@ -193,5 +217,11 @@ class NewExerciseViewState extends State<NewExercise> {
               ),
             ]));
 
+  }
+  Widget buildProgressIndicator(BuildContext context) {
+    return const CircularProgressIndicator(
+        valueColor: AlwaysStoppedAnimation(
+          Colors.black,) //Color of indicator
+    );
   }
 }

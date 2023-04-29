@@ -69,6 +69,7 @@ class ExcerciseViewState extends State<ExcerciseView> {
               : buildTabBarContext(),
         ),
         floatingActionButton: buildFloatingActionButton(context),
+
       ),
     );
   }
@@ -145,10 +146,13 @@ class ExcerciseViewState extends State<ExcerciseView> {
           context,
           MaterialPageRoute(builder: (context) => const NewExercise()),
         );
+
+        isLoading ? buildProgressIndicator(context) : refreshExcercises();
       },
       backgroundColor: const Color.fromARGB(255, 41, 201, 175),
       shape: const CircleBorder(),
       child: const Icon(Icons.add),
+
     );
   }
 
