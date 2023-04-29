@@ -26,10 +26,6 @@ class TrainingListViewState extends State<TrainingListView> {
     for(var el in trainings)
     {
       await el.initExerciseMap();
-      // for(var s in el.sets)
-      //   {
-      //     await s.getExcerciseName();
-      //   }
     }
     setState(() => isLoading = false);
   }
@@ -37,7 +33,7 @@ class TrainingListViewState extends State<TrainingListView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 171, 171, 222),
+      backgroundColor: const Color.fromARGB(255, 31, 31, 33),
       body: isLoading ? notLoaded() :
       loaded(),
       floatingActionButton: FloatingActionButton(
@@ -63,33 +59,36 @@ class TrainingListViewState extends State<TrainingListView> {
       itemCount: trainings.length,
       itemBuilder: (BuildContext context, int index) {
         Map<String, List<MySet>> mapa = trainings[index].exercisesMap;
-        return Container(
-          decoration: BoxDecoration(
-            color: Colors.grey[200],
-          ),
+        return Card(
           margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-          child: Card(
-            child: ListTile(
-              title: Text(trainings[index].name, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(height: 8),
-                  Text(trainings[index].description, style: TextStyle(fontSize: 16)),
-                  SizedBox(height: 8),
-                  for (String klucz in mapa.keys)
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(height: 8),
-                        Text(klucz, style: TextStyle(fontWeight: FontWeight.bold)),
-                        for (MySet singleSet in mapa[klucz]!)
-                          Text("Powtórzenia: ${singleSet.repetitions}" + " Ciężar: ${singleSet.weight}"),
-                        SizedBox(height: 8),
-                      ],
-                    ),
-                ],
-              ),
+          elevation: 4,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(trainings[index].name, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+                SizedBox(height: 8),
+                Text(trainings[index].description, style: TextStyle(fontSize: 16)),
+                SizedBox(height: 16),
+                for (String klucz in mapa.keys)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(klucz, style: TextStyle(fontWeight: FontWeight.bold)),
+                      SizedBox(height: 8),
+                      for (MySet singleSet in mapa[klucz]!)
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text("Powtórzenia: ${singleSet.repetitions}", style: TextStyle(fontSize: 16)),
+                            Text("Ciężar: ${singleSet.weight}", style: TextStyle(fontSize: 16)),
+                          ],
+                        ),
+                      SizedBox(height: 16),
+                    ],
+                  ),
+              ],
             ),
           ),
         );

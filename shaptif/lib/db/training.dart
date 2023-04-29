@@ -12,16 +12,16 @@ class Training extends TableObject
 
   Future initExerciseMap() async
   {
-    sets = (await DatabaseManger.instance.selectSetsByTraining(id!));
+    sets = await getSets();
     for(var s in sets) {
       if(!exercisesMap.containsKey(s.exerciseName))
       {
-        List<MySet> temp = [s];
-        exercisesMap[s.exerciseName!] = temp;
+        List<MySet> tempList = [s];
+        exercisesMap[s.exerciseName!] = tempList;
       }
       else
       {
-        exercisesMap[s.exerciseName!]!.add(s);
+        exercisesMap[s.exerciseName]!.add(s);
       }
     }
   }
@@ -74,9 +74,6 @@ class Training extends TableObject
     if(sets.isEmpty)
     {
       sets = (await DatabaseManger.instance.selectSetsByTraining(id!));
-      for(var s in sets) {
-        await s.getExerciseName();
-      }
     }
     return sets;
   }

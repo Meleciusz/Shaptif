@@ -2,7 +2,7 @@ import 'package:shaptif/db/table_object.dart';
 import 'package:shaptif/db/setup.dart';
 
 class BodyPart extends TableObject{
-  String name="";
+  late String name;
 
   BodyPart({id, required this.name});
 

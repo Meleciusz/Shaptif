@@ -15,11 +15,11 @@ class Exercise extends TableObject{
   @override
   Exercise.fromJson(Map<String, Object?> json)
   {
-      id= json[ExerciseDatabaseSetup.id] as int?;
-      name= json[ExerciseDatabaseSetup.name] as String;
-      description= json[ExerciseDatabaseSetup.description] as String;
-      bodyPart= json[ExerciseDatabaseSetup.bodyPart] as int;
-      bodyPartString= json[ExerciseDatabaseSetup.bodyPartString] as String;
+      id = json[ExerciseDatabaseSetup.id] as int?;
+      name = json[ExerciseDatabaseSetup.name] as String;
+      description = json[ExerciseDatabaseSetup.description] as String;
+      bodyPart = json[ExerciseDatabaseSetup.bodyPart] as int;
+      bodyPartString = json[ExerciseDatabaseSetup.bodyPartString] as String;
   }
 
   Future<String> getCategoryString()

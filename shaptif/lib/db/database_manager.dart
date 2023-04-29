@@ -102,15 +102,13 @@ class DatabaseManger {
   }
 
   Future<BodyPart> selectBodyPart(int id) async {
-    final row = await select(id, BodyPartDatabaseSetup.tableName,
-        BodyPartDatabaseSetup.id, BodyPartDatabaseSetup.valuesToRead);
+    final row = await select(id, BodyPartDatabaseSetup.tableName, BodyPartDatabaseSetup.id, BodyPartDatabaseSetup.valuesToRead);
 
     return BodyPart.fromJson(row);
   }
 
   Future<Training> selectTraining(int id) async {
-    final row = await select(id, TrainingDatabaseSetup.tableName,
-        TrainingDatabaseSetup.id, TrainingDatabaseSetup.valuesToRead);
+    final row = await select(id, TrainingDatabaseSetup.tableName, TrainingDatabaseSetup.id, TrainingDatabaseSetup.valuesToRead);
 
     return Training.fromJson(row);
   }
@@ -187,21 +185,21 @@ class DatabaseManger {
     );
   }
 
-  Future<int> deleteExercise(int id) async {
-    final db = await instance.database;
-
-    return await db.delete(
-      ExerciseDatabaseSetup.tableName,
-      where: '${ExerciseDatabaseSetup.id} = ?',
-      whereArgs: [id],
-    );
-  }
-
-  Future<int> deleteAllExercises() async {
-    final db = await instance.database;
-
-    return await db.delete(ExerciseDatabaseSetup.tableName);
-  }
+  // Future<int> deleteExercise(int id) async {
+  //   final db = await instance.database;
+  //
+  //   return await db.delete(
+  //     ExerciseDatabaseSetup.tableName,
+  //     where: '${ExerciseDatabaseSetup.id} = ?',
+  //     whereArgs: [id],
+  //   );
+  // }
+  //
+  // Future<int> deleteAllExercises() async {
+  //   final db = await instance.database;
+  //
+  //   return await db.delete(ExerciseDatabaseSetup.tableName);
+  // }
 
   Future executeRawQuery(String query) async {
     final db = await instance.database;
