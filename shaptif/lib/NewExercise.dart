@@ -125,12 +125,12 @@ class NewExerciseViewState extends State<NewExercise> {
 
               DropdownButton<String>(
                 icon: const Icon(Icons.arrow_downward),
-                value: list.first,
+                value: dropdownValue,
 
                 onChanged: (String? value){
                   setState(() {
                     dropdownValue = value!;
-                    dropdownValueController = list.indexOf(value!);
+                    //dropdownValueController = list.indexOf(value!);
                   });
                 },
 
@@ -185,7 +185,7 @@ class NewExerciseViewState extends State<NewExercise> {
               FloatingActionButton (
                 heroTag: "SaveExerciseButton",
                 onPressed: () {
-                  loadToDataBase();
+                  //loadToDataBase();
                 },
                 backgroundColor: const Color.fromARGB(255, 95, 166, 83),
                 shape: const CircleBorder(),

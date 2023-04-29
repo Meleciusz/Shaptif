@@ -167,23 +167,32 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(80),
         child: AppBar(
-          centerTitle: true,
-          flexibleSpace: Container(
-            decoration: const BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage("images/ksiazka.png"),
-                  fit: BoxFit.fill,
-                )),
-          ),
-          title: Text(
-            appBarText,
-            style: const TextStyle(
-                fontFamily: 'Audiowide',
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-                fontSize: 40),
-          ),
-          backgroundColor: const Color.fromARGB(255, 183, 205, 144),
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+            Image.asset(
+            "images/ksiazka.png",
+            fit: BoxFit.contain,
+            height: 110,
+          ),],),
+          // centerTitle: true,
+          // title: Image.asset("images/ksiazka.png"),
+          // flexibleSpace: Container(
+          //   decoration: const BoxDecoration(
+          //       image: DecorationImage(
+          //         image: AssetImage("images/ksiazka.png"),
+          //         fit: BoxFit.fill,
+          //       )),
+          // ),
+          // title: Text(
+          //   appBarText,
+          //   style: const TextStyle(
+          //       fontFamily: 'Audiowide',
+          //       color: Colors.black,
+          //       fontWeight: FontWeight.bold,
+          //       fontSize: 40),
+          // ),
+          backgroundColor: Colors.black,
           // shape: const RoundedRectangleBorder(
           //     borderRadius: BorderRadius.only(
           //         bottomRight: Radius.circular(20),
@@ -201,7 +210,7 @@ class _MyHomePageState extends State<MyHomePage> {
           iconSize: 30,
           showUnselectedLabels: false,
           showSelectedLabels: true,
-          selectedItemColor: const Color.fromARGB(255, 183, 205, 144),
+          selectedItemColor: const Color.fromARGB(255, 172, 111, 199),
           unselectedItemColor: Colors.grey,
           items: const [
             BottomNavigationBarItem(

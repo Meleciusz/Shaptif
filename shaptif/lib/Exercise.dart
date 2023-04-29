@@ -128,10 +128,11 @@ class ExcerciseViewState extends State<ExcerciseView> {
         notificationPredicate: (ScrollNotification notification) {
           return notification.depth == 1;
         },
-        backgroundColor: const Color.fromARGB(255, 183, 205, 144),
+        //backgroundColor: Colors.black,
         scrolledUnderElevation: 4.0,
         shadowColor: Theme.of(context).shadowColor,
         bottom: buildBottomTabBar(),
+
       ),
     );
   }
@@ -145,7 +146,7 @@ class ExcerciseViewState extends State<ExcerciseView> {
           MaterialPageRoute(builder: (context) => const NewExercise()),
         );
       },
-      backgroundColor: const Color.fromARGB(255, 58, 183, 89),
+      backgroundColor: const Color.fromARGB(255, 41, 201, 175),
       shape: const CircleBorder(),
       child: const Icon(Icons.add),
     );
@@ -179,15 +180,16 @@ class ExcerciseViewState extends State<ExcerciseView> {
 
   Tab buildTab(IconData icon, String text) {
     return Tab(
-      icon: Icon(icon, color: Colors.black),
+      icon: Icon(icon),
       text: text,
+
     );
   }
 
   Widget buildProgressIndicator(BuildContext context) {
     return const CircularProgressIndicator(
       valueColor: AlwaysStoppedAnimation(
-          Color.fromARGB(255, 183, 205, 144)), //Color of indicator
+          Colors.black,) //Color of indicator
     );
   }
 
