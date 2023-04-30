@@ -91,7 +91,7 @@ class ExcerciseViewState extends State<ExcerciseView> {
             onTap: () {
               Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const Description()),
+                  MaterialPageRoute(builder: (context) => Description(exercise: excercise)),
               );
             },
             child: Container(
