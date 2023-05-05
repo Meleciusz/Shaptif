@@ -60,7 +60,7 @@ class DescriptionViewState extends State<Description>{
                     textAlign: TextAlign.left,
                       ),
                   Text(
-                    widget.exercise.getCategoryString().toString(),
+                    widget.exercise.bodyPartString!,
                     style: TextStyle(fontSize: 24),
                     textAlign: TextAlign.right,
                   ),

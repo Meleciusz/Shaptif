@@ -64,11 +64,11 @@ class ExcerciseViewState extends State<ExcerciseView> {
     );
   }
 
-  Future<Scrollbar> buildTilesFromCategory(String category) async {
+  Scrollbar buildTilesFromCategory(String category)  {
     List<Exercise> exercisesInCategory = [];
 
     for (Exercise exercise in exercises) {
-      if (await exercise.getCategoryString() == category)
+      if (exercise.bodyPartString! == category)
           exercisesInCategory.add(exercise);
     }
 
@@ -148,28 +148,16 @@ class ExcerciseViewState extends State<ExcerciseView> {
     );
   }
 
-  Widget buildTabBarContext() {
-    return FutureBuilder(
-      future: Future.wait([
+  buildTabBarContext() {
+    return TabBarView(
+      children: <Widget>[
         buildTilesFromCategory("rece"),
         buildTilesFromCategory("nogi"),
         buildTilesFromCategory("klatka piersiowa"),
         buildTilesFromCategory("plecy"),
         buildTilesFromCategory("brzuch"),
         buildTilesFromCategory("barki"),
-      ]),
-      builder: (BuildContext context, AsyncSnapshot<List<Scrollbar>> snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
-        } else {
-          final List<Scrollbar> scrollbars = snapshot.data!;
-          return TabBarView(
-            children: scrollbars,
-          );
-        }
-      },
+      ],
     );
   }
 
