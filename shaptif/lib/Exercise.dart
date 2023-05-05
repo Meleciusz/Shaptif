@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shaptif/db/exercise.dart';
 import 'package:shaptif/db/database_manager.dart';
-import 'package:shaptif/db/body_part.dart';
-
 import 'DarkThemeProvider.dart';
 import 'Description.dart';
 import 'NewExercise.dart';
@@ -28,7 +26,7 @@ class ExcerciseViewState extends State<ExcerciseView> {
         await themeChangeProvider.darkThemePreference.getTheme();
   }
 
-  late List<Excercise> exercises;
+  late List<Exercise> exercises;
   bool isLoading = false;
 
   Future refreshExcercises() async {
@@ -39,10 +37,6 @@ class ExcerciseViewState extends State<ExcerciseView> {
       await DatabaseManger.instance.initialData();
       exercises = await DatabaseManger.instance.selectAllExercises();
     }
-    // for (var ex in exercises) {
-    //   BodyPart bodypart = await DatabaseManger.instance.selectBodyPart(ex.bodyPart);
-    //   ex.categoryString = bodypart.name;
-    // }
     setState(() => isLoading = false);
   }
 
@@ -70,52 +64,56 @@ class ExcerciseViewState extends State<ExcerciseView> {
     );
   }
 
-  Scrollbar buildTilesFromCategory(String category) {
+  Future<Scrollbar> buildTilesFromCategory(String category) async {
     List<Exercise> exercisesInCategory = [];
-    for (var exercise in exercises) {
-      if (exercise.bodyPartString == category)
-        exercisesInCategory.add(exercise);
+
+    for (Exercise exercise in exercises) {
+      if (await exercise.getCategoryString() == category)
+          exercisesInCategory.add(exercise);
     }
 
-    return Scrollbar(
-      child: ListView.builder(
-        itemCount: exercisesInCategory.length,
-        itemBuilder: (context, index) {
-          final excercise = exercisesInCategory[index];
-          return InkWell(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => Description(exercise: excercise)),
-              );
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: Colors.grey,
-                  width: 4,
+
+      return Scrollbar(
+        child: ListView.builder(
+          itemCount: exercisesInCategory.length,
+          itemBuilder: (context, index) {
+            var exercise = exercisesInCategory[index];
+            return InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => Description(exercise: exercise)),
+                );
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 18, vertical: 12),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Colors.grey,
+                    width: 4,
+                  ),
+                  borderRadius: BorderRadius.circular(20),
                 ),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              margin: const EdgeInsets.symmetric(horizontal: 2, vertical: 4),
-              child: Center(
-                child: Text(
-                  excercise.name,
-                  style: const TextStyle(
-                      fontFamily: 'Audiowide',
-                      //color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20),
+                margin: const EdgeInsets.symmetric(horizontal: 2, vertical: 4),
+                child: Center(
+                  child: Text(
+                    exercise.name,
+                    style: const TextStyle(
+                        fontFamily: 'Audiowide',
+                        //color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20),
+                  ),
                 ),
               ),
-            ),
-          );
-        },
-      ),
-    );
-  }
+            );
+          },
+        ),
+      );
+    }
+
 
   PreferredSize buildAppBar(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
@@ -150,16 +148,28 @@ class ExcerciseViewState extends State<ExcerciseView> {
     );
   }
 
-  buildTabBarContext() {
-    return TabBarView(
-      children: <Widget>[
+  Widget buildTabBarContext() {
+    return FutureBuilder(
+      future: Future.wait([
         buildTilesFromCategory("rece"),
         buildTilesFromCategory("nogi"),
         buildTilesFromCategory("klatka piersiowa"),
         buildTilesFromCategory("plecy"),
         buildTilesFromCategory("brzuch"),
         buildTilesFromCategory("barki"),
-      ],
+      ]),
+      builder: (BuildContext context, AsyncSnapshot<List<Scrollbar>> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else {
+          final List<Scrollbar> scrollbars = snapshot.data!;
+          return TabBarView(
+            children: scrollbars,
+          );
+        }
+      },
     );
   }
 

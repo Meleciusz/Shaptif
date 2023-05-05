@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:shaptif/db/DatabaseManager.dart';
-import 'package:shaptif/db/Category.dart';
-import 'package:shaptif/db/Exercise.dart';
+import 'package:shaptif/db/database_manager.dart';
+import 'package:shaptif/db/exercise.dart';
 
 class Description extends StatefulWidget {
-  final Excercise exercise;
+  final Exercise exercise;
   const Description({Key? key, required this.exercise}) : super(key: key);
 
   @override
@@ -12,7 +11,7 @@ class Description extends StatefulWidget {
 }
 
 
-class DescriptionViewState extends State<Description> {
+class DescriptionViewState extends State<Description>{
   @override
   Widget build(BuildContext context) {
 
@@ -61,7 +60,7 @@ class DescriptionViewState extends State<Description> {
                     textAlign: TextAlign.left,
                       ),
                   Text(
-                    widget.exercise.categoryS,
+                    widget.exercise.getCategoryString().toString(),
                     style: TextStyle(fontSize: 24),
                     textAlign: TextAlign.right,
                   ),

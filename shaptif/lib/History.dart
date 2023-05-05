@@ -36,7 +36,7 @@ class HistoryViewState extends State<HistoryView> {
       backgroundColor: const Color.fromARGB(255, 31, 31, 33),
       body: isLoading ? notLoaded() : loaded(),
       floatingActionButton: FloatingActionButton(
-        heroTag: "AddTrainingButton",
+        heroTag: "AddHistoryButton",
         onPressed: () {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               content: const Text("Smack me!"),

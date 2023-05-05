@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:shaptif/db/DatabaseManager.dart';
-import 'package:shaptif/db/Category.dart';
-import 'package:shaptif/db/Exercise.dart';
+import 'package:shaptif/db/body_part.dart';
+import 'package:shaptif/db/database_manager.dart';
+import 'package:shaptif/db/exercise.dart';
 
 class NewExercise extends StatefulWidget {
   const NewExercise({Key? key}) : super(key: key);
@@ -26,10 +26,10 @@ class NewExerciseViewState extends State<NewExercise> {
 
   Future loadToDataBase() async {
     setState(() => isLoading = true);
-    await DatabaseManger.instance.insert(Excercise(
+    await DatabaseManger.instance.insert(Exercise(
         name: exerciseNameController.text,
         description: descriptionController.text,
-        category: dropdownValueController));
+        bodyPart: dropdownValueController));
 
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
       content: Text("Dodano do bazy danych! Dobra robota szefie!!"),
@@ -57,19 +57,18 @@ class NewExerciseViewState extends State<NewExercise> {
       setState(() => isLoading = false);
   }
 
-  late List<Excercise> exercises;
+  late List<Exercise> exercises;
 
   Future refreshExcercises() async {
     setState(() => isLoading = true);
 
-    exercises = await DatabaseManger.instance.selectAllExcercise();
+    exercises = await DatabaseManger.instance.selectAllExercises();
     if (exercises.isEmpty) {
       await DatabaseManger.instance.initialData();
-      exercises = await DatabaseManger.instance.selectAllExcercise();
+      exercises = await DatabaseManger.instance.selectAllExercises();
     }
     for (var ex in exercises) {
-      BodyPart bodypart = await DatabaseManger.instance.selectBodyPart(ex.category);
-      ex.categoryS = bodypart.name;
+      ex.getCategoryString();
     }
     setState(() => isLoading = false);
   }
