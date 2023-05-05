@@ -87,8 +87,9 @@ class ExcerciseViewState extends State<ExcerciseView> {
                 );
               },
               child: Container(
+                height: 60,
                 padding: const EdgeInsets.symmetric(
-                    horizontal: 18, vertical: 12),
+                    horizontal: 18, vertical: 2),
                 decoration: BoxDecoration(
                   border: Border.all(
                     color: Colors.grey,
@@ -98,13 +99,35 @@ class ExcerciseViewState extends State<ExcerciseView> {
                 ),
                 margin: const EdgeInsets.symmetric(horizontal: 2, vertical: 4),
                 child: Center(
-                  child: Text(
-                    exercise.name,
-                    style: const TextStyle(
-                        fontFamily: 'Audiowide',
-                        //color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20),
+                  child: Stack(
+                    children: [
+                      Center(
+                        child: Text(
+                          exercise.name,
+                          style: const TextStyle(
+                              fontFamily: 'Audiowide',
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20),
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.redAccent,
+
+                          ),
+                          child: IconButton(
+                            icon: Icon(Icons.delete),
+                            color: Colors.black,
+                            onPressed: () {
+                              print("delete stuff");
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
