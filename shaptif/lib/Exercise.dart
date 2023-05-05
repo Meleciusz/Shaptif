@@ -3,6 +3,8 @@ import 'package:shaptif/db/exercise.dart';
 import 'package:shaptif/db/database_manager.dart';
 import 'package:shaptif/db/body_part.dart';
 
+import 'DarkThemeProvider.dart';
+import 'Description.dart';
 import 'NewExercise.dart';
 
 class ExcerciseView extends StatefulWidget {
@@ -13,14 +15,20 @@ class ExcerciseView extends StatefulWidget {
 }
 
 class ExcerciseViewState extends State<ExcerciseView> {
+  DarkThemeProvider themeChangeProvider = DarkThemeProvider();
   @override
   void initState() {
     super.initState();
-
+    getCurrentAppTheme();
     refreshExcercises();
   }
 
-  late List<Exercise> exercises;
+  void getCurrentAppTheme() async {
+    themeChangeProvider.darkTheme =
+        await themeChangeProvider.darkThemePreference.getTheme();
+  }
+
+  late List<Excercise> exercises;
   bool isLoading = false;
 
   Future refreshExcercises() async {
@@ -54,10 +62,9 @@ class ExcerciseViewState extends State<ExcerciseView> {
           child: isLoading
               ? buildProgressIndicator(context)
               : exercises.isEmpty
-              ? buildEmptyView(context)
-              : buildTabBarContext(),
+                  ? buildEmptyView(context)
+                  : buildTabBarContext(),
         ),
-        backgroundColor: const Color.fromARGB(255, 31, 31, 33),
         floatingActionButton: buildFloatingActionButton(context),
       ),
     );
@@ -65,11 +72,10 @@ class ExcerciseViewState extends State<ExcerciseView> {
 
   Scrollbar buildTilesFromCategory(String category) {
     List<Exercise> exercisesInCategory = [];
-    for (var exercise in exercises)
-      {
-        if(exercise.bodyPartString==category)
-          exercisesInCategory.add(exercise);
-      }
+    for (var exercise in exercises) {
+      if (exercise.bodyPartString == category)
+        exercisesInCategory.add(exercise);
+    }
 
     return Scrollbar(
       child: ListView.builder(
@@ -77,10 +83,15 @@ class ExcerciseViewState extends State<ExcerciseView> {
         itemBuilder: (context, index) {
           final excercise = exercisesInCategory[index];
           return InkWell(
-            onTap: () => onExcerciseTap(excercise),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => Description(exercise: excercise)),
+              );
+            },
             child: Container(
-              padding:
-              const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
               decoration: BoxDecoration(
                 border: Border.all(
                   color: Colors.grey,
@@ -94,7 +105,7 @@ class ExcerciseViewState extends State<ExcerciseView> {
                   excercise.name,
                   style: const TextStyle(
                       fontFamily: 'Audiowide',
-                      color: Colors.white,
+                      //color: Colors.white,
                       fontWeight: FontWeight.bold,
                       fontSize: 20),
                 ),
@@ -105,6 +116,7 @@ class ExcerciseViewState extends State<ExcerciseView> {
       ),
     );
   }
+
   PreferredSize buildAppBar(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     return PreferredSize(
@@ -113,28 +125,26 @@ class ExcerciseViewState extends State<ExcerciseView> {
         notificationPredicate: (ScrollNotification notification) {
           return notification.depth == 1;
         },
-        backgroundColor: const Color.fromARGB(255, 183, 205, 144),
+        //backgroundColor: Colors.black,
         scrolledUnderElevation: 4.0,
         shadowColor: Theme.of(context).shadowColor,
         bottom: buildBottomTabBar(),
       ),
     );
   }
-  void onExcerciseTap(Exercise excercise) {
-    // Handle the excercise tap event here
-    print('Tapped excercise: ${excercise.name}');
-  }
 
   FloatingActionButton buildFloatingActionButton(BuildContext context) {
-   return FloatingActionButton(
+    return FloatingActionButton(
       heroTag: "AddExerciseButton",
       onPressed: () {
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const NewExercise()),
         );
+
+        isLoading ? buildProgressIndicator(context) : refreshExcercises();
       },
-      backgroundColor: const Color.fromARGB(255, 58, 183, 89),
+      backgroundColor: const Color.fromARGB(255, 41, 201, 175),
       shape: const CircleBorder(),
       child: const Icon(Icons.add),
     );
@@ -168,16 +178,17 @@ class ExcerciseViewState extends State<ExcerciseView> {
 
   Tab buildTab(IconData icon, String text) {
     return Tab(
-      icon: Icon(icon, color: Colors.black),
+      icon: Icon(icon),
       text: text,
     );
   }
 
   Widget buildProgressIndicator(BuildContext context) {
     return const CircularProgressIndicator(
-      valueColor: AlwaysStoppedAnimation(
-          Color.fromARGB(255, 183, 205, 144)), //Color of indicator
-    );
+        valueColor: AlwaysStoppedAnimation(
+      Colors.black,
+    ) //Color of indicator
+        );
   }
 
   Widget buildEmptyView(BuildContext context) {
@@ -186,5 +197,4 @@ class ExcerciseViewState extends State<ExcerciseView> {
       style: TextStyle(color: Colors.white, fontSize: 24),
     );
   }
-
 }

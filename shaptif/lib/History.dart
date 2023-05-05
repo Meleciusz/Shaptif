@@ -12,7 +12,6 @@ class HistoryView extends StatefulWidget {
 }
 
 class HistoryViewState extends State<HistoryView> {
-
   late List<FinishedTraining> trainings;
   bool isLoading = false;
 
@@ -21,11 +20,11 @@ class HistoryViewState extends State<HistoryView> {
     super.initState();
     _getData();
   }
+
   Future _getData() async {
     setState(() => isLoading = true);
     trainings = await DatabaseManger.instance.selectAllFinishedTrainings();
-    for(FinishedTraining el in trainings)
-    {
+    for (FinishedTraining el in trainings) {
       await el.initExerciseMap();
     }
     setState(() => isLoading = false);
@@ -35,8 +34,7 @@ class HistoryViewState extends State<HistoryView> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 31, 31, 33),
-      body: isLoading ? notLoaded() :
-      loaded(),
+      body: isLoading ? notLoaded() : loaded(),
       floatingActionButton: FloatingActionButton(
         heroTag: "AddTrainingButton",
         onPressed: () {
@@ -54,8 +52,8 @@ class HistoryViewState extends State<HistoryView> {
       ),
     );
   }
-  ListView loaded()
-  {
+
+  ListView loaded() {
     return ListView.builder(
       itemCount: trainings.length,
       itemBuilder: (BuildContext context, int index) {
@@ -68,24 +66,32 @@ class HistoryViewState extends State<HistoryView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(trainings[index].name, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+                Text(trainings[index].name,
+                    style:
+                        TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
                 SizedBox(height: 8),
-                Text(trainings[index].finishedDateTime.toString(), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+                Text(trainings[index].finishedDateTime.toString(),
+                    style:
+                        TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
                 SizedBox(height: 8),
-                Text(trainings[index].description, style: TextStyle(fontSize: 16)),
+                Text(trainings[index].description,
+                    style: TextStyle(fontSize: 16)),
                 SizedBox(height: 16),
                 for (String klucz in mapa.keys)
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(klucz, style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text(klucz,
+                          style: TextStyle(fontWeight: FontWeight.bold)),
                       SizedBox(height: 8),
                       for (History singleSet in mapa[klucz]!)
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text("Powtórzenia: ${singleSet.repetitions}", style: TextStyle(fontSize: 16)),
-                            Text("Ciężar: ${singleSet.weight}", style: TextStyle(fontSize: 16)),
+                            Text("Powtórzenia: ${singleSet.repetitions}",
+                                style: TextStyle(fontSize: 16)),
+                            Text("Ciężar: ${singleSet.weight}",
+                                style: TextStyle(fontSize: 16)),
                           ],
                         ),
                       SizedBox(height: 16),
@@ -98,9 +104,10 @@ class HistoryViewState extends State<HistoryView> {
       },
     );
   }
-  Text notLoaded()
-  {
-    return const Text("ładuje sie",
+
+  Text notLoaded() {
+    return const Text(
+      "ładuje sie",
       style: TextStyle(
           fontFamily: 'Audiowide',
           color: Colors.white,

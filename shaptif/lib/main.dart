@@ -1,26 +1,142 @@
+import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:page_transition/page_transition.dart';
+import 'package:provider/provider.dart';
 import 'package:shaptif/Exercise.dart';
 import 'package:shaptif/History.dart';
 import 'package:shaptif/Share.dart';
+import 'package:shaptif/Styles.dart';
 import 'package:shaptif/TrainingList.dart';
 import 'package:shaptif/settings.dart';
+import 'package:page_transition/page_transition.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'DarkThemeProvider.dart';
+import 'SharedPreferences.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
+  //SharedPreferences.setMockInitialValues({});
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
 
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
   // This widget is the root of your application.
+
+  DarkThemeProvider themeChangeProvider = DarkThemeProvider();
+
+  @override
+  void initState() {
+    super.initState();
+    getCurrentAppTheme();
+  }
+
+  void getCurrentAppTheme() async {
+    themeChangeProvider.darkTheme =
+      await themeChangeProvider.darkThemePreference.getTheme();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.deepPurple,
+    return ChangeNotifierProvider(
+        create: (_) {
+      return themeChangeProvider;
+    },
+    child: Consumer<DarkThemeProvider>(
+      builder: (BuildContext context, value, Widget? child){
+          return MaterialApp(
+              //debugShowCheckedModeBanner: false,
+              title: 'Flutter Demo',
+              theme: Styles.themeData(themeChangeProvider.darkTheme, context),
+            home: SplashScreen(),
+
+            // routes: <String, WidgetBuilder>{
+            //     AGENDA
+            //},
+
+            );
+          },
+
       ),
-      home: const MyHomePage(title: 'Shaptif'),
+    );
+  }
+}
+
+
+class SplashScreen extends StatelessWidget{
+  const SplashScreen({Key? key}) : super(key: key);
+  @override
+  Widget build(BuildContext context){
+    return AnimatedSplashScreen(
+        splash: Align(
+          child: Row(
+            children: const [
+              Text(
+                'S',
+                style: TextStyle(
+                    fontFamily: 'Audiowide',
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 120),
+              ),
+              Text(
+                'H',
+                style: TextStyle(
+                    fontFamily: 'Audiowide',
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 30),
+              ),Text(
+                'A',
+                style: TextStyle(
+                    fontFamily: 'Audiowide',
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 30),
+              ),Text(
+                'P',
+                style: TextStyle(
+                    fontFamily: 'Audiowide',
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 30),
+              ),Text(
+                'T',
+                style: TextStyle(
+                    fontFamily: 'Audiowide',
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 30),
+              ),Text(
+                'I',
+                style: TextStyle(
+                    fontFamily: 'Audiowide',
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 30),
+              ),Text(
+                'F',
+                style: TextStyle(
+                    fontFamily: 'Audiowide',
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 30),
+              ),
+            ]
+          ),
+        ),
+
+        nextScreen: const MyHomePage(title: 'Shaptif'),
+        splashTransition: SplashTransition.slideTransition,
+      backgroundColor: Colors.black,
+      splashIconSize: 250,
+      pageTransitionType: PageTransitionType.topToBottom,
     );
   }
 }
@@ -34,6 +150,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  bool isLoading = false;
   int currentBottomNavBarIndex = 0;
   final String appBarText = 'Shaptif';
   final screens = [
@@ -50,27 +167,36 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(80),
         child: AppBar(
-          centerTitle: true,
-          flexibleSpace: Container(
-            decoration: const BoxDecoration(
-                image: DecorationImage(
-              image: AssetImage("images/ksiazka.png"),
-              fit: BoxFit.fill,
-            )),
-          ),
-          title: Text(
-            appBarText,
-            style: const TextStyle(
-                fontFamily: 'Audiowide',
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-                fontSize: 40),
-          ),
-          backgroundColor: const Color.fromARGB(255, 58, 183, 89),
-          shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.only(
-                  bottomRight: Radius.circular(20),
-                  bottomLeft: Radius.circular(20))),
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+            Image.asset(
+            "images/ksiazka.png",
+            fit: BoxFit.contain,
+            height: 110,
+          ),],),
+          // centerTitle: true,
+          // title: Image.asset("images/ksiazka.png"),
+          // flexibleSpace: Container(
+          //   decoration: const BoxDecoration(
+          //       image: DecorationImage(
+          //         image: AssetImage("images/ksiazka.png"),
+          //         fit: BoxFit.fill,
+          //       )),
+          // ),
+          // title: Text(
+          //   appBarText,
+          //   style: const TextStyle(
+          //       fontFamily: 'Audiowide',
+          //       color: Colors.black,
+          //       fontWeight: FontWeight.bold,
+          //       fontSize: 40),
+          // ),
+          backgroundColor: Colors.black,
+          // shape: const RoundedRectangleBorder(
+          //     borderRadius: BorderRadius.only(
+          //         bottomRight: Radius.circular(20),
+          //         bottomLeft: Radius.circular(20))),
           automaticallyImplyLeading: false,
         ),
       ),
@@ -84,7 +210,7 @@ class _MyHomePageState extends State<MyHomePage> {
           iconSize: 30,
           showUnselectedLabels: false,
           showSelectedLabels: true,
-          selectedItemColor: const Color.fromARGB(255, 183, 205, 144),
+          selectedItemColor: const Color.fromARGB(255, 172, 111, 199),
           unselectedItemColor: Colors.grey,
           items: const [
             BottomNavigationBarItem(
@@ -114,8 +240,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 backgroundColor: Colors.black)
           ]
 
-          // This trailing comma makes auto-formatting nicer for build methods.
-          ),
+        // This trailing comma makes auto-formatting nicer for build methods.
+      ),
     );
   }
 }

@@ -11,7 +11,6 @@ class TrainingListView extends StatefulWidget {
 }
 
 class TrainingListViewState extends State<TrainingListView> {
-
   late List<Training> trainings;
   bool isLoading = false;
 
@@ -20,11 +19,11 @@ class TrainingListViewState extends State<TrainingListView> {
     super.initState();
     _getData();
   }
+
   Future _getData() async {
     setState(() => isLoading = true);
     trainings = await DatabaseManger.instance.selectAllTrainings();
-    for(Training el in trainings)
-    {
+    for (Training el in trainings) {
       await el.initExerciseMap();
     }
     setState(() => isLoading = false);
@@ -34,8 +33,7 @@ class TrainingListViewState extends State<TrainingListView> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 31, 31, 33),
-      body: isLoading ? notLoaded() :
-      loaded(),
+      body: isLoading ? notLoaded() : loaded(),
       floatingActionButton: FloatingActionButton(
         heroTag: "AddTrainingButton",
         onPressed: () {
@@ -53,8 +51,8 @@ class TrainingListViewState extends State<TrainingListView> {
       ),
     );
   }
-  ListView loaded()
-  {
+
+  ListView loaded() {
     return ListView.builder(
       itemCount: trainings.length,
       itemBuilder: (BuildContext context, int index) {
@@ -67,22 +65,28 @@ class TrainingListViewState extends State<TrainingListView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(trainings[index].name, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+                Text(trainings[index].name,
+                    style:
+                        TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
                 SizedBox(height: 8),
-                Text(trainings[index].description, style: TextStyle(fontSize: 16)),
+                Text(trainings[index].description,
+                    style: TextStyle(fontSize: 16)),
                 SizedBox(height: 16),
                 for (String klucz in mapa.keys)
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(klucz, style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text(klucz,
+                          style: TextStyle(fontWeight: FontWeight.bold)),
                       SizedBox(height: 8),
                       for (MySet singleSet in mapa[klucz]!)
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text("Powtórzenia: ${singleSet.repetitions}", style: TextStyle(fontSize: 16)),
-                            Text("Ciężar: ${singleSet.weight}", style: TextStyle(fontSize: 16)),
+                            Text("Powtórzenia: ${singleSet.repetitions}",
+                                style: TextStyle(fontSize: 16)),
+                            Text("Ciężar: ${singleSet.weight}",
+                                style: TextStyle(fontSize: 16)),
                           ],
                         ),
                       SizedBox(height: 16),
@@ -95,9 +99,10 @@ class TrainingListViewState extends State<TrainingListView> {
       },
     );
   }
-  Text notLoaded()
-  {
-    return const Text("ładuje sie",
+
+  Text notLoaded() {
+    return const Text(
+      "ładuje sie",
       style: TextStyle(
           fontFamily: 'Audiowide',
           color: Colors.white,
@@ -106,4 +111,3 @@ class TrainingListViewState extends State<TrainingListView> {
     );
   }
 }
-
