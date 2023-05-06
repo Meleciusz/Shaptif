@@ -4,7 +4,7 @@ class BodyPartDatabaseSetup
   static const String id = "body_part_id";
   static const String name = "name";
 
-  static final List<String> valuesToRead = [name];
+  static final List<String> valuesToRead = [id, name];
 }
 
 class ExerciseDatabaseSetup
@@ -28,7 +28,7 @@ class ExerciseDatabaseSetup
     ON ${ExerciseDatabaseSetup.tableName}.${ExerciseDatabaseSetup.bodyPart} == ${BodyPartDatabaseSetup.tableName}.${BodyPartDatabaseSetup.id}
     ''';
 
-  static final List<String> valuesToRead = [name, description, bodyPart];
+  static final List<String> valuesToRead = [id, name, description, bodyPart];
 }
 
 class SetDatabaseSetup
@@ -53,7 +53,7 @@ class SetDatabaseSetup
     ON ${SetDatabaseSetup.tableName}.${SetDatabaseSetup.exerciseID} == ${ExerciseDatabaseSetup.tableName}.${ExerciseDatabaseSetup.id}
     ''';
 
-  static final List<String> valuesToRead = [trainingID,exerciseID,repetitions,weight];
+  static final List<String> valuesToRead = [id, trainingID,exerciseID,repetitions,weight];
 }
 
 class TrainingDatabaseSetup
@@ -63,7 +63,7 @@ class TrainingDatabaseSetup
   static const String name = "name";
   static const String description = "description";
 
-  static final List<String> valuesToRead = [name, description];
+  static final List<String> valuesToRead = [id, name, description];
 }
 
 class FinishedTrainingDatabaseSetup
@@ -74,7 +74,7 @@ class FinishedTrainingDatabaseSetup
   static const String description = "description";
   static const String finishedDateTime = "finishedDateTime";
 
-  static final List<String> valuesToRead = [name, description, finishedDateTime];
+  static final List<String> valuesToRead = [id, name, description, finishedDateTime];
 }
 
 class HistoryDatabaseSetup
@@ -99,5 +99,5 @@ class HistoryDatabaseSetup
     ON ${HistoryDatabaseSetup.tableName}.${HistoryDatabaseSetup.exerciseID} == ${ExerciseDatabaseSetup.tableName}.${ExerciseDatabaseSetup.id}
     ''';
 
-  static final List<String> valuesToRead = [trainingID,exerciseID,repetitions,weight];
+  static final List<String> valuesToRead = [id, trainingID,exerciseID,repetitions,weight];
 }
