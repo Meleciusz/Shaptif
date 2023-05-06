@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shaptif/db/training.dart';
 import 'package:shaptif/db/database_manager.dart';
-import 'package:shaptif/db/set.dart';
+import 'package:shaptif/db/exercise_set.dart';
 
 class TrainingListView extends StatefulWidget {
   const TrainingListView({Key? key}) : super(key: key);
@@ -79,7 +79,7 @@ class TrainingListViewState extends State<TrainingListView> {
                       Text(klucz,
                           style: TextStyle(fontWeight: FontWeight.bold)),
                       SizedBox(height: 8),
-                      for (MySet singleSet in mapa[klucz]!)
+                      for (ExerciseSet singleSet in mapa[klucz]!)
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:shaptif/db/exercise.dart';
 import 'package:shaptif/db/database_manager.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'DarkThemeProvider.dart';
 import 'Description.dart';
 import 'NewExercise.dart';
+import 'SharedPreferences.dart';
 
 class ExcerciseView extends StatefulWidget {
   const ExcerciseView({Key? key}) : super(key: key);
@@ -18,7 +20,7 @@ class ExcerciseViewState extends State<ExcerciseView> {
   void initState() {
     super.initState();
     getCurrentAppTheme();
-    refreshExcercises();
+    refreshExercises();
   }
 
   void getCurrentAppTheme() async {
@@ -29,13 +31,17 @@ class ExcerciseViewState extends State<ExcerciseView> {
   late List<Exercise> exercises;
   bool isLoading = false;
 
-  Future refreshExcercises() async {
+  Future refreshExercises() async {
     setState(() => isLoading = true);
 
     exercises = await DatabaseManger.instance.selectAllExercises();
     if (exercises.isEmpty) {
-      await DatabaseManger.instance.initialData();
-      exercises = await DatabaseManger.instance.selectAllExercises();
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      if(prefs.getBool(ShowEmbeddedPreference.EMBEDDED_STATUS) ?? true)
+        {
+          await DatabaseManger.instance.initialData();
+          exercises = await DatabaseManger.instance.selectAllExercises();
+        }
     }
     setState(() => isLoading = false);
   }
@@ -163,7 +169,7 @@ class ExcerciseViewState extends State<ExcerciseView> {
           MaterialPageRoute(builder: (context) => const NewExercise()),
         );
 
-        isLoading ? buildProgressIndicator(context) : refreshExcercises();
+        isLoading ? buildProgressIndicator(context) : refreshExercises();
       },
       backgroundColor: const Color.fromARGB(255, 41, 201, 175),
       shape: const CircleBorder(),
@@ -215,7 +221,7 @@ class ExcerciseViewState extends State<ExcerciseView> {
   Widget buildEmptyView(BuildContext context) {
     return const Text(
       'Brak ćwiczeń',
-      style: TextStyle(color: Colors.white, fontSize: 24),
+      style: TextStyle(color: Colors.redAccent, fontSize: 24),
     );
   }
 }

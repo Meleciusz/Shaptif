@@ -1,11 +1,13 @@
 import 'package:path/path.dart';
+import 'package:shaptif/SharedPreferences.dart';
 import 'package:shaptif/db/finished_training.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:shaptif/db/exercise.dart';
 import 'package:shaptif/db/body_part.dart';
 import 'package:shaptif/db/training.dart';
 import 'package:shaptif/db/table_object.dart';
-import 'package:shaptif/db/set.dart';
+import 'package:shaptif/db/exercise_set.dart';
 import 'package:shaptif/db/setup.dart';
 import 'dart:io';
 
@@ -48,6 +50,7 @@ class DatabaseManger {
     const textType = 'TEXT NOT NULL';
     const intType = 'INTEGER NOT NULL';
     const doubleType = 'REAL NOT NULL';
+    const booleanType = 'BOOLEAN NOT NULL';
 
     await db.execute('PRAGMA foreign_keys = ON;');
 
@@ -64,6 +67,7 @@ class DatabaseManger {
     ${ExerciseDatabaseSetup.name} $textType,
     ${ExerciseDatabaseSetup.description} $textType,
     ${ExerciseDatabaseSetup.bodyPart} $intType,
+    ${ExerciseDatabaseSetup.isEmbedded} $booleanType,
     FOREIGN KEY(${ExerciseDatabaseSetup.bodyPart}) REFERENCES ${BodyPartDatabaseSetup.tableName} (${BodyPartDatabaseSetup.id})
     )
     ''');
@@ -72,19 +76,20 @@ class DatabaseManger {
     CREATE TABLE ${TrainingDatabaseSetup.tableName} ( 
     ${TrainingDatabaseSetup.id} $idType, 
     ${TrainingDatabaseSetup.name} $textType,
-    ${TrainingDatabaseSetup.description} $textType
+    ${TrainingDatabaseSetup.description} $textType,
+    ${TrainingDatabaseSetup.isEmbedded} $booleanType
     )
     ''');
 
     await db.execute('''
-    CREATE TABLE ${SetDatabaseSetup.tableName} ( 
-    ${SetDatabaseSetup.id} $idType, 
-    ${SetDatabaseSetup.trainingID} $intType,
-    ${SetDatabaseSetup.exerciseID} $intType,
-    ${SetDatabaseSetup.repetitions} $intType,
-    ${SetDatabaseSetup.weight} $doubleType,
-    FOREIGN KEY(${SetDatabaseSetup.trainingID}) REFERENCES ${TrainingDatabaseSetup.tableName} (${TrainingDatabaseSetup.id}),
-    FOREIGN KEY(${SetDatabaseSetup.exerciseID}) REFERENCES ${ExerciseDatabaseSetup.tableName} (${ExerciseDatabaseSetup.id})
+    CREATE TABLE ${ExerciseSetDatabaseSetup.tableName} ( 
+    ${ExerciseSetDatabaseSetup.id} $idType, 
+    ${ExerciseSetDatabaseSetup.trainingID} $intType,
+    ${ExerciseSetDatabaseSetup.exerciseID} $intType,
+    ${ExerciseSetDatabaseSetup.repetitions} $intType,
+    ${ExerciseSetDatabaseSetup.weight} $doubleType,
+    FOREIGN KEY(${ExerciseSetDatabaseSetup.trainingID}) REFERENCES ${TrainingDatabaseSetup.tableName} (${TrainingDatabaseSetup.id}),
+    FOREIGN KEY(${ExerciseSetDatabaseSetup.exerciseID}) REFERENCES ${ExerciseDatabaseSetup.tableName} (${ExerciseDatabaseSetup.id})
     )
     ''');
 
@@ -148,12 +153,12 @@ class DatabaseManger {
   //   return MySet.fromJson(rows.first);
   // }
 
-  Future<List<MySet>> selectSetsByTraining(int id) async {
+  Future<List<ExerciseSet>> selectSetsByTraining(int id) async {
     final db = await instance.database;
 
-    final rows = await db.rawQuery("${SetDatabaseSetup.selectString} WHERE ${SetDatabaseSetup.tableName}.${SetDatabaseSetup.trainingID} == $id");
+    final rows = await db.rawQuery("${ExerciseSetDatabaseSetup.selectString} WHERE ${ExerciseSetDatabaseSetup.tableName}.${ExerciseSetDatabaseSetup.trainingID} == $id");
 
-    return rows.map((json) => MySet.fromJson(json)).toList();
+    return rows.map((json) => ExerciseSet.fromJson(json)).toList();
   }
 
   Future<List<History>> selectHistoryByTraining(int id) async {
@@ -180,7 +185,10 @@ class DatabaseManger {
   Future<List<Exercise>> selectAllExercises() async {
     final db = await instance.database;
 
-    return (await db.rawQuery(ExerciseDatabaseSetup.selectString)).map((json) => Exercise.fromJson(json)).toList();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool showEmbedded = prefs.getBool(ShowEmbeddedPreference.EMBEDDED_STATUS) ?? true;
+
+    return (await db.rawQuery(ExerciseDatabaseSetup.selectString + (showEmbedded ? "" : "WHERE ${ExerciseDatabaseSetup.tableName}.${ExerciseDatabaseSetup.isEmbedded} == false"))).map((json) => Exercise.fromJson(json)).toList();
   }
 
   Future<List<BodyPart>> selectAllBodyParts() async {
@@ -193,7 +201,18 @@ class DatabaseManger {
 
   Future<List<Training>> selectAllTrainings() async {
     final db = await instance.database;
-    return (await db.query(TrainingDatabaseSetup.tableName,
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool showEmbedded = prefs.getBool(ShowEmbeddedPreference.EMBEDDED_STATUS) ?? true;
+
+    return showEmbedded ?
+    (await db.query(TrainingDatabaseSetup.tableName,
+        orderBy: "${TrainingDatabaseSetup.name} ASC"))
+        .map((json) => Training.fromJson(json))
+        .toList():
+    (await db.query(TrainingDatabaseSetup.tableName,
+        where: '${TrainingDatabaseSetup.isEmbedded} = ?',
+        whereArgs: [false],
         orderBy: "${TrainingDatabaseSetup.name} ASC"))
         .map((json) => Training.fromJson(json))
         .toList();
@@ -260,36 +279,36 @@ class DatabaseManger {
     await db.insert(BodyPart(name: "brzuch"));
 
     await db.insert(Exercise(
-        name: "Podciąganie", description: "pod chwytem tylko", bodyPart: 1));
+        name: "Podciąganie", description: "pod chwytem tylko", bodyPart: 1, isEmbedded: true));
     await db.insert(
-        Exercise(name: "Wiosłowanie", description: "czuje ze zyje", bodyPart: 1));
+        Exercise(name: "Wiosłowanie", description: "czuje ze zyje", bodyPart: 1, isEmbedded: true));
     await db
-        .insert(Exercise(name: "Modlitewnik", description: "+", bodyPart: 5));
+        .insert(Exercise(name: "Modlitewnik", description: "+", bodyPart: 5, isEmbedded: true));
     await db
-        .insert(Exercise(name: "Klatka płaska", description: "+", bodyPart: 2));
+        .insert(Exercise(name: "Klatka płaska", description: "+", bodyPart: 2, isEmbedded: true));
     await db
-        .insert(Exercise(name: "Szruksy", description: "+", bodyPart: 3));
+        .insert(Exercise(name: "Szruksy", description: "+", bodyPart: 3, isEmbedded: true));
     await db
-        .insert(Exercise(name: "Przysiady", description: "+", bodyPart: 4));
+        .insert(Exercise(name: "Przysiady", description: "+", bodyPart: 4, isEmbedded: true));
     await db
-        .insert(Exercise(name: "Allachy", description: "+", bodyPart: 6));
+        .insert(Exercise(name: "Allachy", description: "+", bodyPart: 6, isEmbedded: true));
 
-    await db.insert(Training(name: "Trening nóg", description: "jak ja go kurde nienawidze"));
-    await db.insert(Training(name: "Trening pleców", description: "ten już lepszy"));
+    await db.insert(Training(name: "Trening nóg", description: "jak ja go kurde nienawidze", isEmbedded: true));
+    await db.insert(Training(name: "Trening pleców", description: "ten już lepszy", isEmbedded: false));
 
-    await db.insert(MySet(trainingID: 2, exerciseID: 1, repetitions: 10, weight: 0.0));
-    await db.insert(MySet(trainingID: 2, exerciseID: 1, repetitions: 12, weight: 0.0));
-    await db.insert(MySet(trainingID: 2, exerciseID: 1, repetitions: 8, weight: 0.0));
+    await db.insert(ExerciseSet(trainingID: 2, exerciseID: 1, repetitions: 10, weight: 0.0));
+    await db.insert(ExerciseSet(trainingID: 2, exerciseID: 1, repetitions: 12, weight: 0.0));
+    await db.insert(ExerciseSet(trainingID: 2, exerciseID: 1, repetitions: 8, weight: 0.0));
 
-    await db.insert(MySet(trainingID: 2, exerciseID: 2, repetitions: 10, weight: 70.0));
-    await db.insert(MySet(trainingID: 2, exerciseID: 2, repetitions: 10, weight: 70.0));
-    await db.insert(MySet(trainingID: 2, exerciseID: 2, repetitions: 10, weight: 80.0));
-    await db.insert(MySet(trainingID: 2, exerciseID: 2, repetitions: 8, weight: 80.0));
+    await db.insert(ExerciseSet(trainingID: 2, exerciseID: 2, repetitions: 10, weight: 70.0));
+    await db.insert(ExerciseSet(trainingID: 2, exerciseID: 2, repetitions: 10, weight: 70.0));
+    await db.insert(ExerciseSet(trainingID: 2, exerciseID: 2, repetitions: 10, weight: 80.0));
+    await db.insert(ExerciseSet(trainingID: 2, exerciseID: 2, repetitions: 8, weight: 80.0));
 
-    await db.insert(MySet(trainingID: 1, exerciseID: 6, repetitions: 12, weight: 50.0));
-    await db.insert(MySet(trainingID: 1, exerciseID: 6, repetitions: 10, weight: 60.0));
-    await db.insert(MySet(trainingID: 1, exerciseID: 6, repetitions: 10, weight: 70.0));
-    await db.insert(MySet(trainingID: 1, exerciseID: 6, repetitions: 8, weight: 80.0));
+    await db.insert(ExerciseSet(trainingID: 1, exerciseID: 6, repetitions: 12, weight: 50.0));
+    await db.insert(ExerciseSet(trainingID: 1, exerciseID: 6, repetitions: 10, weight: 60.0));
+    await db.insert(ExerciseSet(trainingID: 1, exerciseID: 6, repetitions: 10, weight: 70.0));
+    await db.insert(ExerciseSet(trainingID: 1, exerciseID: 6, repetitions: 8, weight: 80.0));
 
     await db.insert(FinishedTraining(name: "Historyczny", description: "Bardzo dawny trening", finishedDateTime: DateTime(2023, 2, 30, 12, 30, 0)));
     await db.insert(FinishedTraining(name: "Aktualny", description: "Trening zrobiony podczas budowania bazy", finishedDateTime: DateTime.now()));

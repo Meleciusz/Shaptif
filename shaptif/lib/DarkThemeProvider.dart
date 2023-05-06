@@ -15,3 +15,16 @@ class DarkThemeProvider with ChangeNotifier {
     notifyListeners();
   }
 }
+
+class ShowEmbeddedProvider with ChangeNotifier {
+  ShowEmbeddedPreference showEmbeddedPreference = ShowEmbeddedPreference();
+  bool _showEmbedded = true;
+
+  bool get showEmbedded => _showEmbedded;
+
+  set showEmbedded(bool value) {
+    _showEmbedded = value;
+    showEmbeddedPreference.setShowEmbedded(value);
+    notifyListeners();
+  }
+}

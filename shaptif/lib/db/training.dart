@@ -1,14 +1,15 @@
 import 'package:shaptif/db/table_object.dart';
 import 'package:shaptif/db/setup.dart';
-import 'package:shaptif/db/set.dart';
+import 'package:shaptif/db/exercise_set.dart';
 import 'package:shaptif/db/database_manager.dart';
 
 class Training extends TableObject
 {
   late String name;
   late String description;
+  bool isEmbedded = false;
   List sets = [];
-  Map <String, List> exercisesMap = <String, List>{};
+  Map <String, List<ExerciseSet>> exercisesMap = <String, List<ExerciseSet>>{};
 
   Future initExerciseMap() async
   {
@@ -16,7 +17,7 @@ class Training extends TableObject
     for(var s in sets) {
       if(!exercisesMap.containsKey(s.exerciseName))
       {
-        List tempList = [s];
+        List<ExerciseSet> tempList = [s];
         exercisesMap[s.exerciseName!] = tempList;
       }
       else
@@ -33,17 +34,19 @@ class Training extends TableObject
       id= json[TrainingDatabaseSetup.id] as int?;
       name= json[TrainingDatabaseSetup.name] as String;
       description= json[TrainingDatabaseSetup.description] as String;
+      isEmbedded = json[TrainingDatabaseSetup.isEmbedded] == 1;
     }
   }
 
   @override
-  Training({id, required this.name, required this.description});
+  Training({id, required this.name, required this.description, required this.isEmbedded});
 
   @override
   Training copy({int? id}) =>
       Training(id: id ?? id,
           name: name,
-          description: description
+          description: description,
+          isEmbedded: isEmbedded
       );
 
   @override
@@ -67,6 +70,7 @@ class Training extends TableObject
         TrainingDatabaseSetup.id: id,
         TrainingDatabaseSetup.name: name,
         TrainingDatabaseSetup.description: description,
+        TrainingDatabaseSetup.isEmbedded: isEmbedded ? 1 : 0,
       };
 
   Future<List> getSets()

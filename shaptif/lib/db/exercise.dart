@@ -7,10 +7,11 @@ class Exercise extends TableObject{
   late String name;
   late String description;
   late int bodyPart;
+  bool isEmbedded = false;
   String? bodyPartString;
 
   @override
-  Exercise({id, required this.name, required this.description, required this.bodyPart});
+  Exercise({id, required this.name, required this.description, required this.bodyPart, required this.isEmbedded});
 
   @override
   Exercise.fromJson(Map<String, Object?> json)
@@ -19,6 +20,7 @@ class Exercise extends TableObject{
       name = json[ExerciseDatabaseSetup.name] as String;
       description = json[ExerciseDatabaseSetup.description] as String;
       bodyPart = json[ExerciseDatabaseSetup.bodyPart] as int;
+      isEmbedded = json[ExerciseDatabaseSetup.isEmbedded] == 1;
       bodyPartString = json[ExerciseDatabaseSetup.bodyPartString] as String;
   }
 
@@ -35,6 +37,7 @@ class Exercise extends TableObject{
         ExerciseDatabaseSetup.name: name,
         ExerciseDatabaseSetup.description: description,
         ExerciseDatabaseSetup.bodyPart: bodyPart,
+        ExerciseDatabaseSetup.isEmbedded: isEmbedded ? 1 : 0,
       };
 
   @override
@@ -42,7 +45,8 @@ class Exercise extends TableObject{
       Exercise(id: id ?? id,
           name: name,
           description: description,
-          bodyPart: bodyPart
+          bodyPart: bodyPart,
+          isEmbedded: isEmbedded,
       );
 
   @override
