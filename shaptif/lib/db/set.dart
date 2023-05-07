@@ -8,6 +8,7 @@ class MySet extends TableObject
   late int exerciseID;
   late int repetitions;
   late double weight;
+  bool completed = false;
   String? exerciseName;
 
   Future<String> getExerciseName()
