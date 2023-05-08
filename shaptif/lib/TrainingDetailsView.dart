@@ -172,7 +172,8 @@ class _ExerciseTileState extends State<ExerciseTile> {
                   });
                 },
                 child: Text('Dodaj serię'),
-                style: ElevatedButton.styleFrom(
+                style:
+                ElevatedButton.styleFrom(
                   primary: Colors.green,
                 ),
               ),
@@ -181,11 +182,11 @@ class _ExerciseTileState extends State<ExerciseTile> {
           ElevatedButton(
             onPressed: canStartWorkout
                 ? () {
-              Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => ExerciseWorkoutScreen(
-                    exerciseName: widget.exerciseName,
-                    sets: widget.sets),
-              ));
+              // Navigator.of(context).push(MaterialPageRoute(
+              //   builder: (context) => ExerciseWorkoutScreen(
+              //       exerciseName: widget.exerciseName,
+              //       sets: widget.sets),
+              // ));TODO: FIX THIS SCREEN
             }
                 : null,
             child: Icon(Icons.play_arrow),
