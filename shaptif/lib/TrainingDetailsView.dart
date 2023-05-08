@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shaptif/db/exercise_set.dart';
 import 'package:shaptif/db/training.dart';
 import 'package:shaptif/ExerciseWorkoutScreen.dart';
 
@@ -19,6 +20,7 @@ class _TrainingDetailsViewState extends State<TrainingDetailsView> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.training.name),
+        automaticallyImplyLeading: false,
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -32,7 +34,7 @@ class _TrainingDetailsViewState extends State<TrainingDetailsView> {
               itemCount: widget.training.exercisesMap.length,
               itemBuilder: (context, index) {
                 final exerciseName =
-                widget.training.exercisesMap.keys.elementAt(index);
+                    widget.training.exercisesMap.keys.elementAt(index);
                 final sets = widget.training.exercisesMap[exerciseName]!;
                 return ExerciseTile(
                   exerciseName: exerciseName,
@@ -80,9 +82,10 @@ class _TrainingDetailsViewState extends State<TrainingDetailsView> {
     );
   }
 }
+
 class ExerciseTile extends StatefulWidget {
   final String exerciseName;
-  final List<dynamic> sets;
+  final List<ExerciseSet> sets;
   final VoidCallback onWorkoutStarted;
 
   const ExerciseTile({
@@ -97,14 +100,16 @@ class ExerciseTile extends StatefulWidget {
 }
 
 class _ExerciseTileState extends State<ExerciseTile> {
-  late int  _completedSets = widget.sets.where((s) => s.completed).length;
-  late int _maxSets =widget.sets.length;
+  List<ExerciseSet> editableSets = [];
+  late int _completedSets;
+  late int _maxSets = widget.sets.length;
   bool _workoutCompleted = false;
 
   @override
   void initState() {
     super.initState();
-    _completedSets = 0; // TODO: Implement Loading number of done sets
+    editableSets = widget.sets.toList();
+    _completedSets = widget.sets.where((s) => s.completed).length;
   }
 
   @override
@@ -135,15 +140,14 @@ class _ExerciseTileState extends State<ExerciseTile> {
               ],
             ),
           ),
-
-          _buildStartButton(),
+          buildButtons(),
         ],
       ),
     );
   }
 
-  Widget _buildStartButton() {
-    final maxSets = widget.sets.length;
+  Widget buildButtons() {
+    final maxSets = editableSets.length;
     final canStartWorkout = _completedSets < maxSets;
 
     return Padding(
@@ -155,9 +159,10 @@ class _ExerciseTileState extends State<ExerciseTile> {
             children: [
               ElevatedButton(
                 onPressed: () {
-                    setState(() {
-                      _maxSets>1 && _maxSets>_completedSets ? _maxSets--:_maxSets;
-                    });
+                  setState(() {
+                    if (_maxSets > 1 && _maxSets > _completedSets)
+                      _removeLastSet();
+                  });
                 },
                 child: Text('Usuń serię'),
                 style: ElevatedButton.styleFrom(
@@ -168,12 +173,11 @@ class _ExerciseTileState extends State<ExerciseTile> {
               ElevatedButton(
                 onPressed: () {
                   setState(() {
-                    _maxSets++;
+                    _addNewSet();
                   });
                 },
                 child: Text('Dodaj serię'),
-                style:
-                ElevatedButton.styleFrom(
+                style: ElevatedButton.styleFrom(
                   primary: Colors.green,
                 ),
               ),
@@ -182,12 +186,8 @@ class _ExerciseTileState extends State<ExerciseTile> {
           ElevatedButton(
             onPressed: canStartWorkout
                 ? () {
-              // Navigator.of(context).push(MaterialPageRoute(
-              //   builder: (context) => ExerciseWorkoutScreen(
-              //       exerciseName: widget.exerciseName,
-              //       sets: widget.sets),
-              // ));TODO: FIX THIS SCREEN
-            }
+                    _startExercise();
+                  }
                 : null,
             child: Icon(Icons.play_arrow),
             style: ElevatedButton.styleFrom(
@@ -200,5 +200,49 @@ class _ExerciseTileState extends State<ExerciseTile> {
       ),
     );
   }
-}
 
+  void _addNewSet() {
+    int currentNumberOfSets = editableSets.length;
+    int startingNumberOfSets = widget.sets.length;
+
+    if (currentNumberOfSets < startingNumberOfSets) {
+      editableSets.add(ExerciseSet(
+        trainingID: widget.sets[currentNumberOfSets].trainingID,
+        exerciseID: widget.sets[currentNumberOfSets].exerciseID,
+        weight: widget.sets[currentNumberOfSets].weight,
+        repetitions: widget.sets[currentNumberOfSets].repetitions,
+      ));
+    } else {
+      editableSets.add(ExerciseSet(
+        trainingID: widget.sets.last.trainingID,
+        exerciseID: widget.sets.last.exerciseID,
+        weight: widget.sets.last.weight,
+        repetitions: widget.sets.last.repetitions,
+      ));
+    }
+    _maxSets++;
+  }
+
+  void _removeLastSet() {
+    editableSets.removeLast();
+    _maxSets--;
+  }
+
+  void _startExercise() async {
+    final List<ExerciseSet> returnedSets = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ExerciseWorkoutScreen(
+          exerciseName: widget.exerciseName,
+          sets: editableSets,
+        ),
+      ),
+    );
+    if (returnedSets != null) {
+      setState(() {
+        editableSets = returnedSets.toList();
+        _completedSets = editableSets.where((s) => s.completed).length;
+      });
+    }
+  }
+}

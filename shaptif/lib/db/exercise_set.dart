@@ -9,6 +9,7 @@ class ExerciseSet extends TableObject
   late int repetitions;
   late double weight;
   String? exerciseName;
+  bool completed = false;
 
   Future<String> getExerciseName()
   async
