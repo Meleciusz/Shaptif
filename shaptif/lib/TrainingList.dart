@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shaptif/TrainingDetailsView.dart';
 import 'package:shaptif/db/training.dart';
 import 'package:shaptif/db/database_manager.dart';
-import 'package:shaptif/db/set.dart';
+import 'package:shaptif/db/exercise_set.dart';
 
 class TrainingListView extends StatefulWidget {
   const TrainingListView({Key? key}) : super(key: key);
@@ -14,11 +14,11 @@ class TrainingListView extends StatefulWidget {
 class TrainingListViewState extends State<TrainingListView> {
   late List<Training> trainings;
   bool isLoading = false;
-  bool trainingIsActive=false;
-  late int LocalSelectedTrainingID=-1;
+  bool trainingIsActive = false;
+  late int LocalSelectedTrainingID = -1;
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
     _getData();
   }
@@ -56,19 +56,18 @@ class TrainingListViewState extends State<TrainingListView> {
   }
 
   ListView loaded() {
-
     return ListView.builder(
       itemCount: trainings.length,
       itemBuilder: (BuildContext context, int index) {
         return Card(
-          color: LocalSelectedTrainingID == trainings[index].id! && trainingIsActive
+          color: LocalSelectedTrainingID == trainings[index].id! &&
+                  trainingIsActive
               ? Colors.green[300]
               : Colors.black38,
           margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
           elevation: 4,
           child: InkWell(
             onTap: () {
-
               setState(() {
                 LocalSelectedTrainingID = trainings[index].id!;
               });

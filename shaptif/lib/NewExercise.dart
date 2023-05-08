@@ -29,7 +29,8 @@ class NewExerciseViewState extends State<NewExercise> {
     await DatabaseManger.instance.insert(Exercise(
         name: exerciseNameController.text,
         description: descriptionController.text,
-        bodyPart: dropdownValueController));
+        bodyPart: dropdownValueController,
+        isEmbedded: false));
 
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
       content: Text("Dodano do bazy danych! Dobra robota szefie!!"),

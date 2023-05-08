@@ -14,6 +14,7 @@ class ExerciseDatabaseSetup
   static const String name = "name";
   static const String description = "description";
   static const String bodyPart = "bodyPart";
+  static const String isEmbedded = "is_embedded";
   static const String bodyPartString = "bodyPartString";
 
   static const String selectString = '''
@@ -22,18 +23,19 @@ class ExerciseDatabaseSetup
     ${ExerciseDatabaseSetup.tableName}.${ExerciseDatabaseSetup.name} AS ${ExerciseDatabaseSetup.name},
     ${ExerciseDatabaseSetup.tableName}.${ExerciseDatabaseSetup.description} AS ${ExerciseDatabaseSetup.description}, 
     ${ExerciseDatabaseSetup.tableName}.${ExerciseDatabaseSetup.bodyPart} AS ${ExerciseDatabaseSetup.bodyPart},
+    ${ExerciseDatabaseSetup.tableName}.${ExerciseDatabaseSetup.isEmbedded} AS ${ExerciseDatabaseSetup.isEmbedded},
     ${BodyPartDatabaseSetup.tableName}.${BodyPartDatabaseSetup.name} AS ${ExerciseDatabaseSetup.bodyPartString}
     FROM ${ExerciseDatabaseSetup.tableName}
     JOIN ${BodyPartDatabaseSetup.tableName}
     ON ${ExerciseDatabaseSetup.tableName}.${ExerciseDatabaseSetup.bodyPart} == ${BodyPartDatabaseSetup.tableName}.${BodyPartDatabaseSetup.id}
     ''';
 
-  static final List<String> valuesToRead = [id, name, description, bodyPart];
+  static final List<String> valuesToRead = [id, name, description, bodyPart, isEmbedded];
 }
 
-class SetDatabaseSetup
+class ExerciseSetDatabaseSetup
 {
-  static const String tableName = "janusz";
+  static const String tableName = "ExerciseSet";
   static const String id = "set_id";
   static const String trainingID = TrainingDatabaseSetup.id;
   static const String exerciseID = ExerciseDatabaseSetup.id;
@@ -42,15 +44,15 @@ class SetDatabaseSetup
   static const String exerciseName = "exerciseName";
   static const String selectString = '''
     SELECT 
-    ${SetDatabaseSetup.tableName}.${SetDatabaseSetup.id} AS ${SetDatabaseSetup.id},
-    ${SetDatabaseSetup.tableName}.${SetDatabaseSetup.trainingID} AS ${SetDatabaseSetup.trainingID},
-    ${SetDatabaseSetup.tableName}.${SetDatabaseSetup.exerciseID} AS ${SetDatabaseSetup.exerciseID}, 
-    ${SetDatabaseSetup.tableName}.${SetDatabaseSetup.repetitions} AS ${SetDatabaseSetup.repetitions},
-    ${SetDatabaseSetup.tableName}.${SetDatabaseSetup.weight} AS ${SetDatabaseSetup.weight},
-    ${ExerciseDatabaseSetup.tableName}.${ExerciseDatabaseSetup.name} AS ${SetDatabaseSetup.exerciseName}
-    FROM ${SetDatabaseSetup.tableName}
+    ${ExerciseSetDatabaseSetup.tableName}.${ExerciseSetDatabaseSetup.id} AS ${ExerciseSetDatabaseSetup.id},
+    ${ExerciseSetDatabaseSetup.tableName}.${ExerciseSetDatabaseSetup.trainingID} AS ${ExerciseSetDatabaseSetup.trainingID},
+    ${ExerciseSetDatabaseSetup.tableName}.${ExerciseSetDatabaseSetup.exerciseID} AS ${ExerciseSetDatabaseSetup.exerciseID}, 
+    ${ExerciseSetDatabaseSetup.tableName}.${ExerciseSetDatabaseSetup.repetitions} AS ${ExerciseSetDatabaseSetup.repetitions},
+    ${ExerciseSetDatabaseSetup.tableName}.${ExerciseSetDatabaseSetup.weight} AS ${ExerciseSetDatabaseSetup.weight},
+    ${ExerciseDatabaseSetup.tableName}.${ExerciseDatabaseSetup.name} AS ${ExerciseSetDatabaseSetup.exerciseName}
+    FROM ${ExerciseSetDatabaseSetup.tableName}
     JOIN ${ExerciseDatabaseSetup.tableName}
-    ON ${SetDatabaseSetup.tableName}.${SetDatabaseSetup.exerciseID} == ${ExerciseDatabaseSetup.tableName}.${ExerciseDatabaseSetup.id}
+    ON ${ExerciseSetDatabaseSetup.tableName}.${ExerciseSetDatabaseSetup.exerciseID} == ${ExerciseDatabaseSetup.tableName}.${ExerciseDatabaseSetup.id}
     ''';
 
   static final List<String> valuesToRead = [id, trainingID,exerciseID,repetitions,weight];
@@ -62,8 +64,9 @@ class TrainingDatabaseSetup
   static const String id = "training_id";
   static const String name = "name";
   static const String description = "description";
+  static const String isEmbedded = "is_embedded";
 
-  static final List<String> valuesToRead = [id, name, description];
+  static final List<String> valuesToRead = [id, name, description, isEmbedded];
 }
 
 class FinishedTrainingDatabaseSetup

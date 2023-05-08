@@ -1,15 +1,38 @@
+import 'package:shaptif/db/history.dart';
 import 'package:shaptif/db/setup.dart';
+import 'package:shaptif/db/table_object.dart';
 import 'package:shaptif/db/training.dart';
 
 import 'database_manager.dart';
 
-class FinishedTraining extends Training
+class FinishedTraining extends TableObject
 {
+  late String name;
+  late String description;
+  bool isEmbedded = false;
+  List sets = [];
+  Map <String, List<History>> exercisesMap = <String, List<History>>{};
   late DateTime finishedDateTime /*= DateTime(2000, 1, 1, 12, 0, 0, 0)*/;
 
-  FinishedTraining({id, required super.name, required super.description, required this.finishedDateTime});
+  Future initExerciseMap() async
+  {
+    sets = await getSets();
+    for(var s in sets) {
+      if(!exercisesMap.containsKey(s.exerciseName))
+      {
+        List<History> tempList = [s];
+        exercisesMap[s.exerciseName!] = tempList;
+      }
+      else
+      {
+        exercisesMap[s.exerciseName]!.add(s);
+      }
+    }
+  }
 
-  FinishedTraining.fromJson(Map<String, Object?> json) : super.fromJson(json)
+  FinishedTraining({id, required this.name, required this.description, required this.finishedDateTime});
+
+  FinishedTraining.fromJson(Map<String, Object?> json)
   {
     id= json[FinishedTrainingDatabaseSetup.id] as int?;
     name= json[FinishedTrainingDatabaseSetup.name] as String;
@@ -26,7 +49,6 @@ class FinishedTraining extends Training
         FinishedTrainingDatabaseSetup.finishedDateTime : finishedDateTime.toIso8601String(),
       };
 
-  @override
   Future<List> getSets()
   async {
     if(sets.isEmpty)

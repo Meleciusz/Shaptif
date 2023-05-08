@@ -30,11 +30,13 @@ class _MyAppState extends State<MyApp> {
   // This widget is the root of your application.
 
   DarkThemeProvider themeChangeProvider = DarkThemeProvider();
+  ShowEmbeddedProvider showEmbeddedProvider = ShowEmbeddedProvider();
 
   @override
   void initState() {
     super.initState();
     getCurrentAppTheme();
+    getShowEmbedded();
   }
 
   void getCurrentAppTheme() async {
@@ -42,27 +44,36 @@ class _MyAppState extends State<MyApp> {
       await themeChangeProvider.darkThemePreference.getTheme();
   }
 
+  void getShowEmbedded() async {
+    showEmbeddedProvider.showEmbedded =
+    await showEmbeddedProvider.showEmbeddedPreference.getShowEmbedded();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-        create: (_) {
-      return themeChangeProvider;
-    },
-    child: Consumer<DarkThemeProvider>(
-      builder: (BuildContext context, value, Widget? child){
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<DarkThemeProvider>(
+          create: (_) => themeChangeProvider,
+        ),
+        ChangeNotifierProvider<ShowEmbeddedProvider>(
+          create: (_) => showEmbeddedProvider,
+        ),
+      ],
+      child: Consumer<DarkThemeProvider>(
+        builder: (BuildContext context, value, Widget? child){
           return MaterialApp(
-              //debugShowCheckedModeBanner: false,
-              title: 'Flutter Demo',
-              theme: Styles.themeData(themeChangeProvider.darkTheme, context),
+            //debugShowCheckedModeBanner: false,
+            title: 'Flutter Demo',
+            theme: Styles.themeData(themeChangeProvider.darkTheme, context),
             home: SplashScreen(),
 
             // routes: <String, WidgetBuilder>{
             //     AGENDA
-            //},
+            // },
 
-            );
-          },
-
+          );
+        },
       ),
     );
   }
