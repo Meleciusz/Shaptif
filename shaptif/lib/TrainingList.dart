@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shaptif/TrainingDetailsView.dart';
 import 'package:shaptif/db/training.dart';
 import 'package:shaptif/db/database_manager.dart';
 import 'package:shaptif/db/set.dart';
@@ -13,9 +14,11 @@ class TrainingListView extends StatefulWidget {
 class TrainingListViewState extends State<TrainingListView> {
   late List<Training> trainings;
   bool isLoading = false;
+  bool trainingIsActive=false;
+  late int LocalSelectedTrainingID=-1;
 
   @override
-  void initState() {
+  void initState(){
     super.initState();
     _getData();
   }
@@ -53,46 +56,58 @@ class TrainingListViewState extends State<TrainingListView> {
   }
 
   ListView loaded() {
+
     return ListView.builder(
       itemCount: trainings.length,
       itemBuilder: (BuildContext context, int index) {
-        Map<String, List> mapa = trainings[index].exercisesMap;
         return Card(
+          color: LocalSelectedTrainingID == trainings[index].id! && trainingIsActive
+              ? Colors.green[300]
+              : Colors.black38,
           margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
           elevation: 4,
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(trainings[index].name,
-                    style:
-                        TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-                SizedBox(height: 8),
-                Text(trainings[index].description,
-                    style: TextStyle(fontSize: 16)),
-                SizedBox(height: 16),
-                for (String klucz in mapa.keys)
+          child: InkWell(
+            onTap: () {
+
+              setState(() {
+                LocalSelectedTrainingID = trainings[index].id!;
+              });
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => TrainingDetailsView(
+                    training: trainings[index],
+                  ),
+                ),
+              ).then((value) {
+                // value to tablica zwróconych wartości z ekranu TrainingDetailsView
+                if (value != null) {
+                  setState(() {
+                    // odczytaj wartości zwrócone z ekranu TrainingDetailsView
+                    trainingIsActive = value[0];
+                    LocalSelectedTrainingID = value[1];
+                  });
+                }
+              });
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(klucz,
-                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text(trainings[index].name,
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 20)),
                       SizedBox(height: 8),
-                      for (MySet singleSet in mapa[klucz]!)
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text("Powtórzenia: ${singleSet.repetitions}",
-                                style: TextStyle(fontSize: 16)),
-                            Text("Ciężar: ${singleSet.weight}",
-                                style: TextStyle(fontSize: 16)),
-                          ],
-                        ),
-                      SizedBox(height: 16),
+                      Text(trainings[index].description),
                     ],
                   ),
-              ],
+                  Icon(Icons.arrow_forward_ios_rounded),
+                ],
+              ),
             ),
           ),
         );
