@@ -104,3 +104,8 @@ class HistoryDatabaseSetup
 
   static final List<String> valuesToRead = [id, trainingID,exerciseID,repetitions,weight];
 }
+
+class BodyPartImages
+{
+  static List<String> names = ["Adductor", "Biceps","Butt","Calf","Chest","CoreAbs","Deltoid","Dorsi","DownAbs","Femoris","Forearm", "Quadriceps","Shoulders","SideAbs","Trapezius","Triceps","UpAbs"];
+}
