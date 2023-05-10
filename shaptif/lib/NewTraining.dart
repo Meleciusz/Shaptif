@@ -1,4 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'DarkThemeProvider.dart';
+import 'SharedPreferences.dart';
+import 'TrainingBuilder.dart';
+import 'db/database_manager.dart';
+import 'db/exercise.dart';
 
 class NewTrainingView extends StatefulWidget {
   const NewTrainingView({Key? key}) : super(key: key);
@@ -9,29 +15,45 @@ class NewTrainingView extends StatefulWidget {
 
 class NewTrainingViewState extends State<NewTrainingView> {
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Row(
-            children: <Widget>[
 
-            //   ElevatedButton(
-            //     onPressed: () {
-            //       Navigator.pop(context);
-            //     },
-            //     child: const Text('cos'),
-            //   ),
-              ],
-            ),
+  @override
+  Widget build(BuildContext context) {
+    double heigth = MediaQuery. of(context). size. height;
+    return Scaffold(
+      appBar: AppBar(
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.pop(context);
-        },
-        backgroundColor: const Color.fromARGB(255, 255, 0, 0),
-        shape: const CircleBorder(),
-        child: const Icon(Icons.keyboard_backspace),
+      body: SingleChildScrollView(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox.fromSize(
+              size: Size(56, 56),
+              child: ClipOval(
+                child: Material(
+                  color: Colors.green,
+                  child: InkWell(
+                    splashColor: Colors.redAccent,
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const TrainingBuilder()));
+                    },
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Icon(Icons.add), // <-- Icon
+                        Text("Add"),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            )
+          ],
+        ),
       ),
-    );
+
+  );
+
   }
 }

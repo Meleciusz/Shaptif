@@ -3,7 +3,7 @@ import 'package:shaptif/db/exercise.dart';
 import 'package:shaptif/db/database_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'DarkThemeProvider.dart';
-import 'Description.dart';
+import 'ExerciseDescription.dart';
 import 'NewExercise.dart';
 import 'SharedPreferences.dart';
 
@@ -49,8 +49,6 @@ class ExcerciseViewState extends State<ExcerciseView> {
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    final Color oddItemColor = colorScheme.primary.withOpacity(0.05);
-    final Color evenItemColor = colorScheme.primary.withOpacity(0.15);
     const int tabsCount = 6;
 
     return DefaultTabController(

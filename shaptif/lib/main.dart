@@ -8,7 +8,7 @@ import 'package:shaptif/History.dart';
 import 'package:shaptif/Share.dart';
 import 'package:shaptif/Styles.dart';
 import 'package:shaptif/TrainingList.dart';
-import 'package:shaptif/settings.dart';
+import 'package:shaptif/Settings.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
