@@ -14,7 +14,7 @@ class NewTrainingView extends StatefulWidget {
 }
 
 class NewTrainingViewState extends State<NewTrainingView> {
-  @override
+  List<String> exercises = ['mamamammama', 'hsagsa'];
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +36,16 @@ class NewTrainingViewState extends State<NewTrainingView> {
                     onTap: () {
                       Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const TrainingBuilder()));
+                          MaterialPageRoute(builder: (context) => const TrainingBuilder())
+                      ).then((value){
+                        if(value != null){
+                          setState(() {
+                            Text(
+                              'kurwaaaaaaaaaaaaa'
+                            );
+                          });
+                        }
+                      });
                     },
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,

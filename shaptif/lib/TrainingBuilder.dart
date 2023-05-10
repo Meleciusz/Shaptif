@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'DarkThemeProvider.dart';
@@ -13,10 +14,14 @@ class TrainingBuilder extends StatefulWidget {
 }
 
 class NewTrainingViewState extends State<TrainingBuilder> {
+  Color ?color;
+
   @override
   void initState(){
     super.initState();
     refreshExercises();
+
+    color = Colors.transparent;
   }
 
   late List<Exercise> exercises;
@@ -37,21 +42,35 @@ class NewTrainingViewState extends State<TrainingBuilder> {
     setState(() => isLoading = false);
   }
 
+  int selectedIndex = 0;
   @override
   Widget build(BuildContext context) {
 
     double heigth = MediaQuery. of(context). size. height;
+    //late Set<String> choosenExercise = {};
+    late String choosenExercise;
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(),
         body: isLoading ? buildProgressIndicator(context) : ListView.builder(
             itemCount: exercises.length,
             itemBuilder: (context, index){
-              return ListTile(
-                title: Text('${exercises[index].name}'),
-                onTap: (){
-                },
+              return Ink(
+                color: color,
+                child:   ListTile(
+                    title: Text('${exercises[index].name}'),
+                    selectedTileColor: Colors.green,
+                    selected: index == selectedIndex,
+                    splashColor: Colors.green,
+                    onTap: (){
+                      setState(() {
+                        selectedIndex = index;
+                      });
+                      choosenExercise = exercises[index].name;
+                    },
+                  )
               );
+
             }),
         drawer: Drawer(
             child: Column(
@@ -90,14 +109,31 @@ class NewTrainingViewState extends State<TrainingBuilder> {
               ],
             )
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          backgroundColor: const Color.fromARGB(255, 255, 0, 0),
-          shape: const CircleBorder(),
-          child: const Icon(Icons.keyboard_backspace),
-        ),
+          floatingActionButton: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                FloatingActionButton (
+                  heroTag: "ReturnButton",
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+
+                  backgroundColor: const Color.fromARGB(255, 166, 16, 16),
+                  shape: const CircleBorder(),
+                  child: const Icon(Icons.keyboard_backspace),
+                ),
+                const SizedBox(width: 40,),
+
+                FloatingActionButton (
+                  heroTag: "SaveExerciseButton",
+                  onPressed: () {
+                    Navigator.pop(context, 'choosenExercise');
+                  },
+                  backgroundColor: const Color.fromARGB(255, 95, 166, 83),
+                  shape: const CircleBorder(),
+                  child: const Icon(Icons.save),
+                ),
+              ])
       ),
     );
   }
