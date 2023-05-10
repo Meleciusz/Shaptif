@@ -4,17 +4,20 @@ import 'package:shaptif/db/database_manager.dart';
 import 'package:shaptif/db/exercise.dart';
 
 class NewExercise extends StatefulWidget {
-  const NewExercise({Key? key}) : super(key: key);
-
+  NewExercise({required this.exercises, Key? key}) : super(key: key);
+  List<Exercise> exercises;
   @override
   State<StatefulWidget> createState() => NewExerciseViewState();
 }
 
-List<String> list = <String>["pies"]; String dropdownValue = list.first;
 class NewExerciseViewState extends State<NewExercise> {
+  int selectedBodyPart = 1;
+  late List<BodyPart> bodyParts;
+  late List<DropdownMenuItem<int>> items;
+
+
   bool isLoading = false;
   final  exerciseNameController = TextEditingController();
-  var  dropdownValueController = 1;
   final  descriptionController = TextEditingController();
 
   @override
@@ -26,53 +29,35 @@ class NewExerciseViewState extends State<NewExercise> {
 
   Future loadToDataBase() async {
     setState(() => isLoading = true);
+    Exercise newExcercise=
     await DatabaseManger.instance.insert(Exercise(
         name: exerciseNameController.text,
         description: descriptionController.text,
-        bodyPart: dropdownValueController,
-        isEmbedded: false));
+        bodyPart: selectedBodyPart,
+        isEmbedded: false)) as Exercise;
 
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-      content: Text("Dodano do bazy danych! Dobra robota szefie!!"),
-    ));
-    setState(() => isLoading = false);
+    newExcercise.bodyPartString = (await DatabaseManger.instance.selectBodyPart(selectedBodyPart)).name;
+
+    widget.exercises.add(newExcercise);
+
+    Navigator.of(context).pop();
   }
-
-  late List<BodyPart> bodyParts;
 
   Future loadButtonList() async {
       setState(() => isLoading = true);
 
       bodyParts = await DatabaseManger.instance.selectAllBodyParts();
 
-
-    //   for(var i=0; i<exercises.length; ++i){
-    //     list.add(exercises.iterator.current.name);
-    // }
-      list.clear();
-      for(var bodyP in bodyParts){
-        list.add(bodyP.name);
-      }
-      //list.add(bodyParts.first.name);
+      items = bodyParts.map((bodyPart) {
+        return DropdownMenuItem<int>(
+          value: bodyPart.id,
+          child: Text(bodyPart.name),
+        );
+      }).toList();
 
       setState(() => isLoading = false);
   }
 
-  late List<Exercise> exercises;
-
-  Future refreshExcercises() async {
-    setState(() => isLoading = true);
-
-    exercises = await DatabaseManger.instance.selectAllExercises();
-    if (exercises.isEmpty) {
-      await DatabaseManger.instance.initialData();
-      exercises = await DatabaseManger.instance.selectAllExercises();
-    }
-    for (var ex in exercises) {
-      ex.getCategoryString();
-    }
-    setState(() => isLoading = false);
-  }
 
   @override
   void dispose() {
@@ -147,23 +132,18 @@ class NewExerciseViewState extends State<NewExercise> {
                   height: 50
               ),
 
-              isLoading ?  buildProgressIndicator(context) : DropdownButton<String>(
+              isLoading ?  buildProgressIndicator(context) : DropdownButton<int>(
                 icon: const Icon(Icons.arrow_downward),
-                value: dropdownValue,
+                value: selectedBodyPart,
 
-                onChanged: (String? value){
+                onChanged: (int? value){
                   setState(() {
-                    dropdownValue = value!;
+                    selectedBodyPart = value!;
                     //dropdownValueController = list.indexOf(value!);
                   });
                 },
 
-                items: list.map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
+                items: items,
               ),
 
               const SizedBox(
@@ -209,7 +189,7 @@ class NewExerciseViewState extends State<NewExercise> {
               FloatingActionButton (
                 heroTag: "SaveExerciseButton",
                 onPressed: () {
-                  loadToDataBase(); refreshExcercises();
+                  loadToDataBase();
                 },
                 backgroundColor: const Color.fromARGB(255, 95, 166, 83),
                 shape: const CircleBorder(),

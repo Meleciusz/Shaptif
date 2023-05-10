@@ -35,6 +35,8 @@ dependencies:
 
   font_awesome_flutter: ^9.2.0
 
+  fluttertoast: ^8.2.1
+
   #database
   sqflite: ^2.0.0+3
 

@@ -6,6 +6,7 @@ import 'DarkThemeProvider.dart';
 import 'Description.dart';
 import 'NewExercise.dart';
 import 'SharedPreferences.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class ExcerciseView extends StatefulWidget {
   const ExcerciseView({Key? key}) : super(key: key);
@@ -37,11 +38,10 @@ class ExcerciseViewState extends State<ExcerciseView> {
     exercises = await DatabaseManger.instance.selectAllExercises();
     if (exercises.isEmpty) {
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      if(prefs.getBool(ShowEmbeddedPreference.EMBEDDED_STATUS) ?? true)
-        {
-          await DatabaseManger.instance.initialData();
-          exercises = await DatabaseManger.instance.selectAllExercises();
-        }
+      if (prefs.getBool(ShowEmbeddedPreference.EMBEDDED_STATUS) ?? true) {
+        await DatabaseManger.instance.initialData();
+        exercises = await DatabaseManger.instance.selectAllExercises();
+      }
     }
     setState(() => isLoading = false);
   }
@@ -70,79 +70,104 @@ class ExcerciseViewState extends State<ExcerciseView> {
     );
   }
 
-  Scrollbar buildTilesFromCategory(String category)  {
+  Scrollbar buildTilesFromCategory(String category) {
     List<Exercise> exercisesInCategory = [];
 
     for (Exercise exercise in exercises) {
       if (exercise.bodyPartString! == category)
-          exercisesInCategory.add(exercise);
+        exercisesInCategory.add(exercise);
     }
 
-
-      return Scrollbar(
-        child: ListView.builder(
-          itemCount: exercisesInCategory.length,
-          itemBuilder: (context, index) {
-            var exercise = exercisesInCategory[index];
-            return InkWell(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => Description(exercise: exercise)),
-                );
-              },
-              child: Container(
-                height: 60,
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 18, vertical: 2),
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: Colors.grey,
-                    width: 4,
-                  ),
-                  borderRadius: BorderRadius.circular(20),
+    return Scrollbar(
+      child: ListView.builder(
+        itemCount: exercisesInCategory.length,
+        itemBuilder: (context, index) {
+          var exercise = exercisesInCategory[index];
+          return InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => Description(exercise: exercise)),
+              );
+            },
+            child: Container(
+              height: 60,
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 2),
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: Colors.grey,
+                  width: 4,
                 ),
-                margin: const EdgeInsets.symmetric(horizontal: 2, vertical: 4),
-                child: Center(
-                  child: Stack(
-                    children: [
-                      Center(
-                        child: Text(
-                          exercise.name,
-                          style: const TextStyle(
-                              fontFamily: 'Audiowide',
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              margin: const EdgeInsets.symmetric(horizontal: 2, vertical: 4),
+              child: Center(
+                child: Stack(
+                  children: [
+                    Center(
+                      child: Text(
+                        exercise.name,
+                        style: const TextStyle(
+                            fontFamily: 'Audiowide',
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20),
+                      ),
+                    ),
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.redAccent,
+                        ),
+                        child: IconButton(
+                          icon: Icon(Icons.delete),
+                          color: Colors.black,
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: Text("Usuwanie ćwiczenia"),
+                                  content: Text(
+                                      "Czy na pewno chcesz usunąć ćwiczenie " +
+                                          exercise.name +
+                                          " ?"),
+                                  actions: <Widget>[
+                                    TextButton(
+                                      child: Text("Anuluj"),
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                    ),
+                                    TextButton(
+                                      child: Text("OK"),
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                        Fluttertoast.showToast(
+                                          msg: "Usunięto " +
+                                              exercise.name.toLowerCase(),
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
                         ),
                       ),
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.redAccent,
-
-                          ),
-                          child: IconButton(
-                            icon: Icon(Icons.delete),
-                            color: Colors.black,
-                            onPressed: () {
-                              print("delete stuff");
-                            },
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
-            );
-          },
-        ),
-      );
-    }
-
+            ),
+          );
+        },
+      ),
+    );
+  }
 
   PreferredSize buildAppBar(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
@@ -160,16 +185,31 @@ class ExcerciseViewState extends State<ExcerciseView> {
     );
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+  }
+
   FloatingActionButton buildFloatingActionButton(BuildContext context) {
     return FloatingActionButton(
       heroTag: "AddExerciseButton",
       onPressed: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const NewExercise()),
-        );
+          MaterialPageRoute(
+              builder: (context) => NewExercise(
+                    exercises: exercises,
+                  )),
+        ).then((value) {
+          setState(() {
+            exercises;
+          });
+          Fluttertoast.showToast(
+            msg: "Dodano " + exercises.last.name.toLowerCase(),
+          );
+        });
 
-        isLoading ? buildProgressIndicator(context) : refreshExercises();
+        //isLoading ? buildProgressIndicator(context) : refreshExercises();
       },
       backgroundColor: const Color.fromARGB(255, 41, 201, 175),
       shape: const CircleBorder(),
