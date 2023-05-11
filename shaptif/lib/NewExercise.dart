@@ -7,13 +7,13 @@ import 'db/setup.dart';
 
 class NewExercise extends StatefulWidget {
   NewExercise({required this.exercises, Key? key}) : super(key: key);
-  List<Exercise> exercises;
+  final List<Exercise> exercises;
   @override
   State<StatefulWidget> createState() => NewExerciseViewState();
 }
 
 class NewExerciseViewState extends State<NewExercise> {
-  late Map<String,bool> images = Map.fromIterable(
+  late Map<String, bool> images = Map.fromIterable(
     BodyPartImages.names,
     key: (str) => str,
     value: (str) => false,
@@ -75,8 +75,6 @@ class NewExerciseViewState extends State<NewExercise> {
 
   @override
   Widget build(BuildContext context) {
-    double width = MediaQuery.of(context).size.width; //screen width
-    double height = MediaQuery.of(context).size.height; //screen height
     String appBarText = 'Nowe ćwiczenie';
 
     return Scaffold(
@@ -114,27 +112,30 @@ class NewExerciseViewState extends State<NewExercise> {
               Stack(
                 alignment: Alignment.topCenter,
                 children: <Widget>[
-                  for(var key in images.keys)
-                  ColorFiltered(
-
-                    //colorFilter: const ColorFilter.mode(Colors.red, BlendMode.srcATop),
-                    colorFilter: images[key]! ? const ColorFilter.mode(Colors.red, BlendMode.srcATop) : const ColorFilter.mode(Colors.transparent, BlendMode.srcATop),
-                    child: Image.asset(
-                      "images/body_parts/"+key+".png",
-                      fit: BoxFit.contain,
-                      height: 250,
+                  for (var key in images.keys)
+                    ColorFiltered(
+                      colorFilter: images[key]!
+                          ? const ColorFilter.mode(
+                              Colors.red, BlendMode.srcATop)
+                          : const ColorFilter.mode(
+                              Colors.transparent, BlendMode.srcATop),
+                      child: Image.asset(
+                        "images/body_parts/" + key + ".png",
+                        fit: BoxFit.contain,
+                        height: 250,
+                      ),
                     ),
-                  ),
                 ],
               ),
               for (String item in BodyPartImages.names)
                 CheckboxListTile(
                   title: Text(item),
-                  value: images[item] ?? false, onChanged: (bool? value) {
-                  setState(() {
-                    images[item] = value ?? false;
-                  });
-                },
+                  value: images[item] ?? false,
+                  onChanged: (bool? value) {
+                    setState(() {
+                      images[item] = value ?? false;
+                    });
+                  },
                 ),
               TextField(
                 controller: exerciseNameController,
