@@ -40,7 +40,8 @@ class NewExerciseViewState extends State<NewExercise> {
         name: exerciseNameController.text,
         description: descriptionController.text,
         bodyPart: selectedBodyPart,
-        isEmbedded: false)) as Exercise;
+        isEmbedded: false,
+        imageHash: imageMapToInt())) as Exercise;
 
     newExcercise.bodyPartString =
         (await DatabaseManger.instance.selectBodyPart(selectedBodyPart)).name;
@@ -71,6 +72,23 @@ class NewExerciseViewState extends State<NewExercise> {
     exerciseNameController.dispose();
     descriptionController.dispose();
     super.dispose();
+  }
+
+  int imageMapToInt()
+  {
+    int hash = 0;
+    int imageValue = 1;
+
+    for(var image in images.keys)
+      {
+        if(images[image]!)
+          {
+            hash += imageValue;
+          }
+        imageValue*=2;
+      }
+
+    return hash;
   }
 
   @override

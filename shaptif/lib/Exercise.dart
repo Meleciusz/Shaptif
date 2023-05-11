@@ -17,6 +17,9 @@ class ExcerciseView extends StatefulWidget {
 
 class ExcerciseViewState extends State<ExcerciseView> {
   DarkThemeProvider themeChangeProvider = DarkThemeProvider();
+
+  int? exercisesSize;
+
   @override
   void initState() {
     super.initState();
@@ -43,6 +46,7 @@ class ExcerciseViewState extends State<ExcerciseView> {
         exercises = await DatabaseManger.instance.selectAllExercises();
       }
     }
+    exercisesSize = exercises.length;
     setState(() => isLoading = false);
   }
 
@@ -88,8 +92,19 @@ class ExcerciseViewState extends State<ExcerciseView> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => Description(exercise: exercise)),
-              );
+                    builder: (context) => Description(exercise: exercise, exercises: exercises,)),
+              ).then((value) {
+                setState(() {
+                  exercises;
+                });
+                if(exercisesSize!=exercises.length)
+                {
+                  exercisesSize = exercises.length;
+                  Fluttertoast.showToast(
+                    msg: "Usunięto ćwiczenie",
+                  );
+                }
+              });
             },
             child: Container(
               height: 60,
@@ -120,42 +135,6 @@ class ExcerciseViewState extends State<ExcerciseView> {
                       child: Container(
                         decoration: BoxDecoration(
                           color: Colors.redAccent,
-                        ),
-                        child: IconButton(
-                          icon: Icon(Icons.delete),
-                          color: Colors.black,
-                          onPressed: () {
-                            showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return AlertDialog(
-                                  title: Text("Usuwanie ćwiczenia"),
-                                  content: Text(
-                                      "Czy na pewno chcesz usunąć ćwiczenie " +
-                                          exercise.name +
-                                          " ?"),
-                                  actions: <Widget>[
-                                    TextButton(
-                                      child: Text("Anuluj"),
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                      },
-                                    ),
-                                    TextButton(
-                                      child: Text("OK"),
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                        Fluttertoast.showToast(
-                                          msg: "Usunięto " +
-                                              exercise.name.toLowerCase(),
-                                        );
-                                      },
-                                    ),
-                                  ],
-                                );
-                              },
-                            );
-                          },
                         ),
                       ),
                     ),
@@ -204,9 +183,13 @@ class ExcerciseViewState extends State<ExcerciseView> {
           setState(() {
             exercises;
           });
-          Fluttertoast.showToast(
-            msg: "Dodano " + exercises.last.name.toLowerCase(),
-          );
+          if(exercisesSize!=exercises.length)
+            {
+              exercisesSize = exercises.length;
+              Fluttertoast.showToast(
+              msg: "Dodano " + exercises.last.name.toLowerCase(),
+            );
+            }
         });
 
         //isLoading ? buildProgressIndicator(context) : refreshExercises();

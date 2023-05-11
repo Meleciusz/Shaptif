@@ -15,6 +15,7 @@ class ExerciseDatabaseSetup
   static const String description = "description";
   static const String bodyPart = "bodyPart";
   static const String isEmbedded = "is_embedded";
+  static const String imageHash = "image_hash";
   static const String bodyPartString = "bodyPartString";
 
   static const String selectString = '''
@@ -24,6 +25,7 @@ class ExerciseDatabaseSetup
     ${ExerciseDatabaseSetup.tableName}.${ExerciseDatabaseSetup.description} AS ${ExerciseDatabaseSetup.description}, 
     ${ExerciseDatabaseSetup.tableName}.${ExerciseDatabaseSetup.bodyPart} AS ${ExerciseDatabaseSetup.bodyPart},
     ${ExerciseDatabaseSetup.tableName}.${ExerciseDatabaseSetup.isEmbedded} AS ${ExerciseDatabaseSetup.isEmbedded},
+    ${ExerciseDatabaseSetup.tableName}.${ExerciseDatabaseSetup.imageHash} AS ${ExerciseDatabaseSetup.imageHash},
     ${BodyPartDatabaseSetup.tableName}.${BodyPartDatabaseSetup.name} AS ${ExerciseDatabaseSetup.bodyPartString}
     FROM ${ExerciseDatabaseSetup.tableName}
     JOIN ${BodyPartDatabaseSetup.tableName}
