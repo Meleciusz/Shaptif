@@ -3,19 +3,29 @@ import 'package:shaptif/db/body_part.dart';
 import 'package:shaptif/db/database_manager.dart';
 import 'package:shaptif/db/exercise.dart';
 
-class NewExercise extends StatefulWidget {
-  const NewExercise({Key? key}) : super(key: key);
+import 'db/setup.dart';
 
+class NewExercise extends StatefulWidget {
+  NewExercise({required this.exercises, Key? key}) : super(key: key);
+  final List<Exercise> exercises;
   @override
   State<StatefulWidget> createState() => NewExerciseViewState();
 }
 
-List<String> list = <String>["pies"]; String dropdownValue = list.first;
 class NewExerciseViewState extends State<NewExercise> {
+  late Map<String, bool> images = Map.fromIterable(
+    BodyPartImages.names,
+    key: (str) => str,
+    value: (str) => false,
+  );
+
+  int selectedBodyPart = 1;
+  late List<BodyPart> bodyParts;
+  late List<DropdownMenuItem<int>> items;
+
   bool isLoading = false;
-  final  exerciseNameController = TextEditingController();
-  var  dropdownValueController = 1;
-  final  descriptionController = TextEditingController();
+  final exerciseNameController = TextEditingController();
+  final descriptionController = TextEditingController();
 
   @override
   void initState() {
@@ -26,51 +36,33 @@ class NewExerciseViewState extends State<NewExercise> {
 
   Future loadToDataBase() async {
     setState(() => isLoading = true);
-    await DatabaseManger.instance.insert(Exercise(
+    Exercise newExcercise = await DatabaseManger.instance.insert(Exercise(
         name: exerciseNameController.text,
         description: descriptionController.text,
-        bodyPart: dropdownValueController,
-        isEmbedded: false));
+        bodyPart: selectedBodyPart,
+        isEmbedded: false,
+        imageHash: imageMapToInt())) as Exercise;
 
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-      content: Text("Dodano do bazy danych! Dobra robota szefie!!"),
-    ));
-    setState(() => isLoading = false);
+    newExcercise.bodyPartString =
+        (await DatabaseManger.instance.selectBodyPart(selectedBodyPart)).name;
+
+    widget.exercises.add(newExcercise);
+
+    Navigator.of(context).pop();
   }
-
-  late List<BodyPart> bodyParts;
 
   Future loadButtonList() async {
-      setState(() => isLoading = true);
-
-      bodyParts = await DatabaseManger.instance.selectAllBodyParts();
-
-
-    //   for(var i=0; i<exercises.length; ++i){
-    //     list.add(exercises.iterator.current.name);
-    // }
-      list.clear();
-      for(var bodyP in bodyParts){
-        list.add(bodyP.name);
-      }
-      //list.add(bodyParts.first.name);
-
-      setState(() => isLoading = false);
-  }
-
-  late List<Exercise> exercises;
-
-  Future refreshExcercises() async {
     setState(() => isLoading = true);
 
-    exercises = await DatabaseManger.instance.selectAllExercises();
-    if (exercises.isEmpty) {
-      await DatabaseManger.instance.initialData();
-      exercises = await DatabaseManger.instance.selectAllExercises();
-    }
-    for (var ex in exercises) {
-      ex.getCategoryString();
-    }
+    bodyParts = await DatabaseManger.instance.selectAllBodyParts();
+
+    items = bodyParts.map((bodyPart) {
+      return DropdownMenuItem<int>(
+        value: bodyPart.id,
+        child: Text(bodyPart.name),
+      );
+    }).toList();
+
     setState(() => isLoading = false);
   }
 
@@ -82,11 +74,25 @@ class NewExerciseViewState extends State<NewExercise> {
     super.dispose();
   }
 
+  int imageMapToInt()
+  {
+    int hash = 0;
+    int imageValue = 1;
+
+    for(var image in images.keys)
+      {
+        if(images[image]!)
+          {
+            hash += imageValue;
+          }
+        imageValue*=2;
+      }
+
+    return hash;
+  }
+
   @override
   Widget build(BuildContext context) {
-
-    double width = MediaQuery.of(context).size.width; //screen width
-    double height = MediaQuery.of(context).size.height; //screen height
     String appBarText = 'Nowe ćwiczenie';
 
     return Scaffold(
@@ -108,14 +114,12 @@ class NewExerciseViewState extends State<NewExercise> {
             shape: const RoundedRectangleBorder(
                 borderRadius: BorderRadius.only(
                     bottomRight: Radius.circular(20),
-                    bottomLeft: Radius.circular(20)
-                ),
+                    bottomLeft: Radius.circular(20)),
                 side: BorderSide(
                   width: 1,
                   color: Colors.black,
                   //style: BorderStyle.none
-                )
-            ),
+                )),
             automaticallyImplyLeading: false,
           ),
         ),
@@ -123,105 +127,122 @@ class NewExerciseViewState extends State<NewExercise> {
           child: ListView(
             padding: const EdgeInsets.all(32),
             children: <Widget>[
-
+              Stack(
+                alignment: Alignment.topCenter,
+                children: <Widget>[
+                  for (var key in images.keys)
+                    ColorFiltered(
+                      colorFilter: images[key]!
+                          ? const ColorFilter.mode(
+                              Colors.red, BlendMode.srcATop)
+                          : const ColorFilter.mode(
+                              Colors.transparent, BlendMode.srcATop),
+                      child: Image.asset(
+                        "images/body_parts/" + key + ".png",
+                        fit: BoxFit.contain,
+                        height: 250,
+                      ),
+                    ),
+                ],
+              ),
+              for (String item in BodyPartImages.names)
+                CheckboxListTile(
+                  title: Text(item),
+                  value: images[item] ?? false,
+                  onChanged: (bool? value) {
+                    setState(() {
+                      images[item] = value ?? false;
+                    });
+                  },
+                ),
               TextField(
                 controller: exerciseNameController,
                 style: const TextStyle(color: Colors.white, fontSize: 20),
                 decoration: const InputDecoration(
                     labelText: 'Wpisz nazwe ćwiczenia',
-                    labelStyle: TextStyle(color: Color.fromARGB(255, 92, 92, 94)),
+                    labelStyle:
+                        TextStyle(color: Color.fromARGB(255, 92, 92, 94)),
                     enabledBorder: OutlineInputBorder(
                       //borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(color: Color.fromARGB(255, 92, 92, 94), width: 3),
+                      borderSide: BorderSide(
+                          color: Color.fromARGB(255, 92, 92, 94), width: 3),
                     ),
                     focusedBorder: OutlineInputBorder(
                       //borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(color: Color.fromARGB(255, 92, 92, 94), width: 3),
-                    )
-                ),
+                      borderSide: BorderSide(
+                          color: Color.fromARGB(255, 92, 92, 94), width: 3),
+                    )),
                 maxLength: 20,
                 maxLines: 1,
               ),
-
-              const SizedBox(
-                  height: 50
-              ),
-
-              isLoading ?  buildProgressIndicator(context) : DropdownButton<String>(
-                icon: const Icon(Icons.arrow_downward),
-                value: dropdownValue,
-
-                onChanged: (String? value){
-                  setState(() {
-                    dropdownValue = value!;
-                    //dropdownValueController = list.indexOf(value!);
-                  });
-                },
-
-                items: list.map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-              ),
-
-              const SizedBox(
-                  height: 50
-              ),
-
+              const SizedBox(height: 50),
+              isLoading
+                  ? buildProgressIndicator(context)
+                  : DropdownButton<int>(
+                      icon: const Icon(Icons.arrow_downward),
+                      value: selectedBodyPart,
+                      onChanged: (int? value) {
+                        setState(() {
+                          selectedBodyPart = value!;
+                          //dropdownValueController = list.indexOf(value!);
+                        });
+                      },
+                      items: items,
+                    ),
+              const SizedBox(height: 50),
               TextField(
                 controller: descriptionController,
                 style: const TextStyle(color: Colors.white, fontSize: 20),
                 decoration: const InputDecoration(
                     labelText: 'Opis',
-                    labelStyle: TextStyle(color: Color.fromARGB(255, 92, 92, 94)),
+                    labelStyle:
+                        TextStyle(color: Color.fromARGB(255, 92, 92, 94)),
                     enabledBorder: OutlineInputBorder(
                       //borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(color: Color.fromARGB(255, 92, 92, 94), width: 3),
+                      borderSide: BorderSide(
+                          color: Color.fromARGB(255, 92, 92, 94), width: 3),
                     ),
                     focusedBorder: OutlineInputBorder(
                       //borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(color: Color.fromARGB(255, 92, 92, 94), width: 3),
-                    )
-                ),
+                      borderSide: BorderSide(
+                          color: Color.fromARGB(255, 92, 92, 94), width: 3),
+                    )),
                 maxLines: 10,
               ),
-
             ],
           ),
         ),
-        floatingActionButton: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              FloatingActionButton (
-                heroTag: "ReturnButton",
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-
-                backgroundColor: const Color.fromARGB(255, 166, 16, 16),
-                shape: const CircleBorder(),
-                child: const Icon(Icons.keyboard_backspace),
-              ),
-              const SizedBox(width: 40,),
-
-              FloatingActionButton (
-                heroTag: "SaveExerciseButton",
-                onPressed: () {
-                  loadToDataBase(); refreshExcercises();
-                },
-                backgroundColor: const Color.fromARGB(255, 95, 166, 83),
-                shape: const CircleBorder(),
-                child: const Icon(Icons.save),
-              ),
-            ]));
-
+        floatingActionButton:
+            Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+          FloatingActionButton(
+            heroTag: "ReturnButton",
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            backgroundColor: const Color.fromARGB(255, 166, 16, 16),
+            shape: const CircleBorder(),
+            child: const Icon(Icons.keyboard_backspace),
+          ),
+          const SizedBox(
+            width: 40,
+          ),
+          FloatingActionButton(
+            heroTag: "SaveExerciseButton",
+            onPressed: () {
+              loadToDataBase();
+            },
+            backgroundColor: const Color.fromARGB(255, 95, 166, 83),
+            shape: const CircleBorder(),
+            child: const Icon(Icons.save),
+          ),
+        ]));
   }
+
   Widget buildProgressIndicator(BuildContext context) {
     return const CircularProgressIndicator(
         valueColor: AlwaysStoppedAnimation(
-          Colors.black,) //Color of indicator
-    );
+      Colors.black,
+    ) //Color of indicator
+        );
   }
 }

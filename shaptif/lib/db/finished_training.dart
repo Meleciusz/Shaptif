@@ -1,12 +1,13 @@
 import 'package:shaptif/db/history.dart';
 import 'package:shaptif/db/setup.dart';
 import 'package:shaptif/db/table_object.dart';
-import 'package:shaptif/db/training.dart';
 
 import 'database_manager.dart';
 
 class FinishedTraining extends TableObject
 {
+  @override
+  int? id;
   late String name;
   late String description;
   bool isEmbedded = false;
@@ -30,7 +31,7 @@ class FinishedTraining extends TableObject
     }
   }
 
-  FinishedTraining({id, required this.name, required this.description, required this.finishedDateTime});
+  FinishedTraining({this.id, required this.name, required this.description, required this.finishedDateTime});
 
   FinishedTraining.fromJson(Map<String, Object?> json)
   {
@@ -59,8 +60,8 @@ class FinishedTraining extends TableObject
   }
 
   @override
-  FinishedTraining copy({int? id}) =>
-      FinishedTraining(id: id ?? id,
+  FinishedTraining copy({required int returnedId}) =>
+      FinishedTraining(id: returnedId,
           name: name,
           description: description,
           finishedDateTime: finishedDateTime,

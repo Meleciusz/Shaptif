@@ -3,7 +3,7 @@ abstract class TableObject{
   TableObject();
 
   Map<String, Object?> toJson();
-  TableObject copy({int? id});
+  TableObject copy({required int returnedId});
 
   int? id;
 

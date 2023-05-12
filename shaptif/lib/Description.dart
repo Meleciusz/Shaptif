@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:shaptif/db/database_manager.dart';
 import 'package:shaptif/db/exercise.dart';
 
+import 'db/setup.dart';
+
 class Description extends StatefulWidget {
   final Exercise exercise;
-  const Description({Key? key, required this.exercise}) : super(key: key);
+  final List<Exercise> exercises;
+  const Description({Key? key, required this.exercise, required this.exercises}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => DescriptionViewState( );
@@ -12,6 +15,23 @@ class Description extends StatefulWidget {
 
 
 class DescriptionViewState extends State<Description>{
+  late Map<String, bool> images;
+  bool canBeDeleted = false;
+  bool isLoading = false;
+
+  @override
+  void initState(){
+    super.initState();
+    getCanBeDeleted();
+    images = imageHashToMap(widget.exercise.imageHash);
+  }
+
+Future getCanBeDeleted() async {
+  setState(() => isLoading = true);
+  canBeDeleted = await widget.exercise.canBeDeleted();
+  setState(() => isLoading = false);
+}
+
   @override
   Widget build(BuildContext context) {
 
@@ -50,6 +70,62 @@ class DescriptionViewState extends State<Description>{
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Stack(
+                alignment: Alignment.topCenter,
+                children: <Widget>[
+                  for (var key in images.keys)
+                    ColorFiltered(
+                      colorFilter: images[key]!
+                          ? const ColorFilter.mode(
+                          Colors.red, BlendMode.srcATop)
+                          : const ColorFilter.mode(
+                          Colors.transparent, BlendMode.srcATop),
+                      child: Image.asset(
+                        "images/body_parts/" + key + ".png",
+                        fit: BoxFit.contain,
+                        height: 250,
+                      ),
+                    ),
+                ],
+              ),
+              if(!isLoading && canBeDeleted)
+              IconButton(
+                icon: Icon(Icons.delete),
+                color: Colors.black,
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text("Usuwanie ćwiczenia"),
+                        content: Text(
+                            "Czy na pewno chcesz usunąć ćwiczenie " +
+                                //exercise.name +
+                                " ?"),
+                        actions: <Widget>[
+                          TextButton(
+                            child: Text("Anuluj"),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                          TextButton(
+                            child: Text("OK"),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                              deleteExercise();
+                             // Fluttertoast.showToast(
+                                 // msg: "Usunięto "
+                                //+ exercise.name.toLowerCase(),
+                              //);
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+              ),
               SizedBox(height: 32.0,
                 child:Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -98,5 +174,23 @@ class DescriptionViewState extends State<Description>{
             child: const Icon(Icons.keyboard_backspace),
           ),
       );
+  }
+  Map<String, bool> imageHashToMap(int hash)
+  {
+    int index = BodyPartImages.names.length-1;
+    String binaryString = hash.toRadixString(2).padLeft(BodyPartImages.names.length, '0');
+    return Map.fromIterable(
+      BodyPartImages.names,
+      key: (str) => str,
+      value: (str) =>  binaryString[index--] == '1' ? true:false,
+    );
+  }
+  Future deleteExercise() async {
+    setState(() => isLoading = true);
+    await DatabaseManger.instance.delete(widget.exercise);
+
+    widget.exercises.removeWhere((element) => element == widget.exercise);
+
+    Navigator.of(context).pop();
   }
 }
