@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:shaptif/db/exercise_set.dart';
 
 class ExerciseWorkoutScreen extends StatefulWidget {
   final String exerciseName;
-  final List<dynamic> sets;
+  final List<ExerciseSet> sets;
 
   const ExerciseWorkoutScreen({
     Key? key,
@@ -15,17 +16,47 @@ class ExerciseWorkoutScreen extends StatefulWidget {
 }
 
 class _ExerciseWorkoutScreenState extends State<ExerciseWorkoutScreen> {
-  int _currentSetIndex = 0;
+  late int _currentSetIndex;
+  int _repetitions = 0;
+  double _weight = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _prepareNextSet();
+  }
+
+  void _updateCurrentSet() {
+    widget.sets[_currentSetIndex].completed = true;
+    widget.sets[_currentSetIndex].repetitions = _repetitions ;
+    widget.sets[_currentSetIndex].weight = _weight ;
+  }
+
+  void _prepareNextSet() {
+    _currentSetIndex = widget.sets.where((s) => s.completed).length;
+
+    final currentSet = widget.sets[_currentSetIndex];
+    _repetitions = currentSet.repetitions;
+    _weight = currentSet.weight;
+  }
+
+
+  void _updateSetsList() {
+    setState(() {
+      _updateCurrentSet();
+    });
+    Navigator.pop(context, widget.sets);
+  }
 
   @override
   Widget build(BuildContext context) {
     final currentSet = widget.sets[_currentSetIndex];
-    final completedSets = widget.sets.where((s) => s.completed).length;
     final totalSets = widget.sets.length;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.exerciseName),
+        automaticallyImplyLeading: false,
       ),
       body: Center(
         child: Column(
@@ -37,24 +68,77 @@ class _ExerciseWorkoutScreenState extends State<ExerciseWorkoutScreen> {
             ),
             SizedBox(height: 16),
             Text(
-              'Reps: ${currentSet.reps}',
-              style: TextStyle(fontSize: 36),
+              'Powtórzenia:',
+              style: TextStyle(fontSize: 24),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                IconButton(
+                  icon: Icon(Icons.remove),
+                  onPressed: () {
+                    setState(() {
+                      _repetitions = _repetitions > 0 ? _repetitions - 1 : 0;
+                    });
+                  },
+                ),
+                Text(
+                  _repetitions.toString(),
+                  style: TextStyle(fontSize: 36),
+                ),
+                IconButton(
+                  icon: Icon(Icons.add),
+                  onPressed: () {
+                    setState(() {
+                      _repetitions++;
+                    });
+                  },
+                ),
+              ],
             ),
             SizedBox(height: 16),
             Text(
-              'Weight: ${currentSet.weight} kg',
-              style: TextStyle(fontSize: 36),
+              'Ciężar:',
+              style: TextStyle(fontSize: 24),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                IconButton(
+                  icon: Icon(Icons.remove),
+                  onPressed: () {
+                    setState(() {
+                      _weight = _weight > 0 ? _weight - 1.0 : 0.0;
+                    });
+                  },
+                ),
+                Text(
+                  _weight.toString(),
+                  style: TextStyle(fontSize: 36),
+                ),
+                IconButton(
+                  icon: Icon(Icons.add),
+                  onPressed: () {
+                    setState(() {
+                      _weight += 1.0;
+                    });
+                  },
+                ),
+              ],
             ),
             SizedBox(height: 32),
             ElevatedButton(
-              child: Text('Mark Set as Completed'),
+              child: Text(
+                _currentSetIndex == totalSets - 1 ? 'Zakończ ćwiczenie' : 'Kolejna seria',
+                style: TextStyle(fontSize: 24),
+              ),
               onPressed: () {
                 setState(() {
-                  currentSet.completed = true;
-                  _currentSetIndex++;
-
-                  if (_currentSetIndex >= widget.sets.length) {
-                    _showWorkoutCompletedDialog();
+                  if (_currentSetIndex < totalSets - 1) {
+                    _updateCurrentSet();
+                    _prepareNextSet();
+                  } else {
+                    _updateSetsList();
                   }
                 });
               },
@@ -62,42 +146,16 @@ class _ExerciseWorkoutScreenState extends State<ExerciseWorkoutScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: BottomAppBar(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('$completedSets/$totalSets Sets Completed'),
-              IconButton(
-                icon: Icon(Icons.close),
+      floatingActionButton:
+              FloatingActionButton(
+                heroTag: "returnFromWorkout",
                 onPressed: () {
-                  Navigator.pop(context);
+                  Navigator.pop(context, widget.sets);
                 },
-              ),
-            ],
-          ),
+                backgroundColor: const Color.fromARGB(255, 58, 183, 89),
+                shape: const CircleBorder(),
+                child: const Icon(Icons.arrow_back),
         ),
-      ),
-    );
-  }
-
-  void _showWorkoutCompletedDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Workout Completed!'),
-        content: Text('You have completed all sets for this exercise.'),
-        actions: [
-          TextButton(
-            child: Text('OK'),
-            onPressed: () {
-              Navigator.pop(context);
-              Navigator.pop(context);
-            },
-          ),
-        ],
-      ),
     );
   }
 }
