@@ -123,15 +123,15 @@ class DatabaseManger {
     return object.copy(returnedId: id);
   }
 
-  Future<Training> insertTraining(Training training) async
-  {
-    Training result = await insert(training) as Training;
+  Future insertList(List<TableObject> objects) async{
+    Batch batch = (await instance.database).batch();
+    final tableName = objects.first.getTableName();
 
-    final db = await instance.database;
+    for(var object in objects)
+      batch.insert(tableName, object.toJson());
 
-    return result;
+    await batch.commit(noResult: true);
   }
-
 
   Future<Exercise> selectExercise(int id) async {
     final db = await instance.database;
