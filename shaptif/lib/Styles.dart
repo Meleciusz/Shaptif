@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
 class Styles {
@@ -9,7 +7,7 @@ class Styles {
       primarySwatch: Colors.red,
 
 
-
+      useMaterial3: true,
       appBarTheme: Theme.of(context).appBarTheme.copyWith(
         color: isDarkTheme ? Colors.black : Colors.white
       ),

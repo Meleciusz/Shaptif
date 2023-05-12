@@ -9,15 +9,12 @@ import 'package:shaptif/Share.dart';
 import 'package:shaptif/Styles.dart';
 import 'package:shaptif/TrainingList.dart';
 import 'package:shaptif/Settings.dart';
-import 'package:page_transition/page_transition.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
 
 import 'DarkThemeProvider.dart';
-import 'SharedPreferences.dart';
 
 void main() {
   runApp(MyApp());
-  //SharedPreferences.setMockInitialValues({});
 }
 
 
@@ -95,50 +92,15 @@ class SplashScreen extends StatelessWidget{
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
                     fontSize: 120),
+              ),Text(
+                'haptif',
+                style: TextStyle(
+                    fontFamily: 'Audiowide',
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 60),
               ),
-              Text(
-                'H',
-                style: TextStyle(
-                    fontFamily: 'Audiowide',
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 30),
-              ),Text(
-                'A',
-                style: TextStyle(
-                    fontFamily: 'Audiowide',
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 30),
-              ),Text(
-                'P',
-                style: TextStyle(
-                    fontFamily: 'Audiowide',
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 30),
-              ),Text(
-                'T',
-                style: TextStyle(
-                    fontFamily: 'Audiowide',
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 30),
-              ),Text(
-                'I',
-                style: TextStyle(
-                    fontFamily: 'Audiowide',
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 30),
-              ),Text(
-                'F',
-                style: TextStyle(
-                    fontFamily: 'Audiowide',
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 30),
-              ),
+
             ]
           ),
         ),
