@@ -6,8 +6,9 @@ import 'package:shaptif/db/exercise.dart';
 import 'db/setup.dart';
 
 class NewExercise extends StatefulWidget {
-  NewExercise({required this.exercises, Key? key}) : super(key: key);
-  final List<Exercise> exercises;
+  NewExercise({this.exercises, this.jsonString, Key? key}) : super(key: key);
+  final List<Exercise>? exercises;
+  final String? jsonString;
   @override
   State<StatefulWidget> createState() => NewExerciseViewState();
 }
@@ -46,7 +47,7 @@ class NewExerciseViewState extends State<NewExercise> {
     newExcercise.bodyPartString =
         (await DatabaseManger.instance.selectBodyPart(selectedBodyPart)).name;
 
-    widget.exercises.add(newExcercise);
+    widget.exercises?.add(newExcercise);
 
     Navigator.of(context).pop();
   }
