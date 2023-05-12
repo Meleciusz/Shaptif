@@ -8,7 +8,7 @@ class Training extends TableObject
   late String name;
   late String description;
   bool isEmbedded = false;
-  List sets = [];
+  List<ExerciseSet> sets = [];
   Map <String, List<ExerciseSet>> exercisesMap = <String, List<ExerciseSet>>{};
 
   Future initExerciseMap() async
@@ -73,7 +73,7 @@ class Training extends TableObject
         TrainingDatabaseSetup.isEmbedded: isEmbedded ? 1 : 0,
       };
 
-  Future<List> getSets()
+  Future<List<ExerciseSet>> getSets()
   async {
     if(sets.isEmpty)
     {

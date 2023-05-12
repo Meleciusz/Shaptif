@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:shaptif/db/database_manager.dart';
 import 'package:shaptif/db/exercise_set.dart';
 import 'package:shaptif/db/finished_training.dart';
+import 'package:shaptif/db/history.dart';
 import 'package:shaptif/db/training.dart';
 import 'package:shaptif/ExerciseWorkoutScreen.dart';
 
 class TrainingDetailsView extends StatefulWidget {
   final Training training;
-  final FinishedTraining? finishedTraining;
+  FinishedTraining? finishedTraining;
   final int currentTrainingId;
   bool trainingStarted;
   TrainingDetailsView({
@@ -57,7 +59,41 @@ class _TrainingDetailsViewState extends State<TrainingDetailsView> {
                         ? true
                         : false,
                 trainingStarted: widget.trainingStarted,
-                onTrainingStartedChanged: (value) {
+                onWorkoutExit: (exerciseSet) async {
+                  var setsDoneAndSavedCount = 0;
+                  var setsDoneCount = 0;
+                  for (History set in widget.finishedTraining!.sets) {
+                    if (set.exerciseID == exerciseSet.first.exerciseID)
+                      setsDoneAndSavedCount++;
+                  }
+                  for (ExerciseSet exSet in exerciseSet) {
+                    if (exSet.completed) {
+                      setsDoneCount++;
+                      if (setsDoneCount > setsDoneAndSavedCount) {
+                        widget.finishedTraining!.sets.add(History(
+                            trainingID: widget.finishedTraining!.id!,
+                            exerciseID: exSet.exerciseID,
+                            repetitions: exSet.repetitions,
+                            weight: exSet.weight));
+                        DatabaseManger.instance.insert(
+                            widget.finishedTraining!.sets.last as History);
+                      }
+                    }
+                  }
+                  setState(() {
+                  });
+                },
+                onTrainingStartedChanged: (value) async {
+                  if (value == true) if
+                  (widget.finishedTraining?.id ==
+                      null) {
+                    widget.finishedTraining = (await DatabaseManger.instance
+                        .insert(FinishedTraining(
+                        name: widget.training.name,
+                        description: widget.training.description,
+                        finishedDateTime: DateTime.now()))) as FinishedTraining;
+                  }
+                  print(widget.finishedTraining!.id);
                   setState(() {
                     widget.trainingStarted = value;
                   });
@@ -83,6 +119,8 @@ class _TrainingDetailsViewState extends State<TrainingDetailsView> {
         children: [
           IconButton(
             icon: Icon(Icons.arrow_back),
+            iconSize: 40,
+            color: Colors.green,
             onPressed: () {
               Navigator.pop(context, [
                 widget.trainingStarted,
@@ -92,13 +130,25 @@ class _TrainingDetailsViewState extends State<TrainingDetailsView> {
             },
           ),
           IconButton(
-            icon: Icon(Icons.add),
+            icon: Icon(Icons.add_box_rounded),
+            iconSize: 40,
+            color: Colors.green,
             onPressed: () {
               // TODO: Implement adding a new exercise
             },
           ),
           IconButton(
-            icon: Icon(Icons.save),
+            icon: Icon(Icons.fact_check_outlined),
+            color: widget.trainingStarted ? Colors.green : Colors.grey,
+            iconSize: 40,
+            onPressed: () {
+              if (widget.trainingStarted) saveTraining();
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.save_rounded),
+            iconSize: 40,
+            color: Colors.yellow,
             onPressed: () {
               // TODO: Implement saving changes
             },
@@ -106,6 +156,10 @@ class _TrainingDetailsViewState extends State<TrainingDetailsView> {
         ],
       ),
     );
+  }
+
+  void saveTraining() {
+    DatabaseManger.instance.insert(widget.finishedTraining!);
   }
 }
 
@@ -116,6 +170,7 @@ class ExerciseTile extends StatefulWidget {
   bool isCurrentTraining;
   final ValueChanged<bool> onTrainingStartedChanged;
   final ValueChanged<bool> onTrainingStartedIdChanged;
+  final ValueChanged<List<ExerciseSet>> onWorkoutExit;
 
   ExerciseTile({
     Key? key,
@@ -125,6 +180,7 @@ class ExerciseTile extends StatefulWidget {
     required this.isCurrentTraining,
     required this.onTrainingStartedChanged,
     required this.onTrainingStartedIdChanged,
+    required this.onWorkoutExit,
   }) : super(key: key);
 
   @override
@@ -262,8 +318,6 @@ class _ExerciseTileState extends State<ExerciseTile> {
 
   void _canStartExercise() async {
     _workoutCompleted = false;
-    print("training started: " + widget.trainingStarted.toString());
-    print("current : " + widget.isCurrentTraining.toString());
     if (widget.trainingStarted && !widget.isCurrentTraining) {
       bool shouldStartNewTraining = await showDialog(
         context: context,
@@ -306,6 +360,7 @@ class _ExerciseTileState extends State<ExerciseTile> {
         if (returnedSets != null) {
           setState(() {
             editableSets = returnedSets.toList();
+            widget.onWorkoutExit(editableSets);
             _completedSets = editableSets.where((s) => s.completed).length;
           });
         }
@@ -327,6 +382,7 @@ class _ExerciseTileState extends State<ExerciseTile> {
       if (returnedSets != null) {
         setState(() {
           editableSets = returnedSets.toList();
+          widget.onWorkoutExit(editableSets);
           _completedSets = editableSets.where((s) => s.completed).length;
         });
       }
