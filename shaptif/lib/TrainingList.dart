@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shaptif/TrainingDetailsView.dart';
+import 'package:shaptif/db/finished_training.dart';
 import 'package:shaptif/db/training.dart';
 import 'package:shaptif/db/database_manager.dart';
 import 'package:shaptif/db/exercise_set.dart';
@@ -15,8 +16,8 @@ class TrainingListViewState extends State<TrainingListView> {
   late List<Training> trainings;
   bool isLoading = false;
   bool trainingIsActive = false;
-  late int LocalSelectedTrainingID = -1;
-
+  late int localSelectedTrainingID = -1;
+  FinishedTraining? finishedTraining = null;
   @override
   void initState() {
     super.initState();
@@ -60,7 +61,7 @@ class TrainingListViewState extends State<TrainingListView> {
       itemCount: trainings.length,
       itemBuilder: (BuildContext context, int index) {
         return Card(
-          color: LocalSelectedTrainingID == trainings[index].id! &&
+          color: localSelectedTrainingID == trainings[index].id! &&
                   trainingIsActive
               ? Colors.green[300]
               : Colors.black38,
@@ -69,13 +70,15 @@ class TrainingListViewState extends State<TrainingListView> {
           child: InkWell(
             onTap: () {
               setState(() {
-                LocalSelectedTrainingID = trainings[index].id!;
               });
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => TrainingDetailsView(
+                    finishedTraining: finishedTraining,
                     training: trainings[index],
+                    trainingStarted: trainingIsActive,
+                    currentTrainingId:localSelectedTrainingID,
                   ),
                 ),
               ).then((value) {
@@ -84,7 +87,12 @@ class TrainingListViewState extends State<TrainingListView> {
                   setState(() {
                     // odczytaj wartości zwrócone z ekranu TrainingDetailsView
                     trainingIsActive = value[0];
-                    LocalSelectedTrainingID = value[1];
+
+                    if(value[1]>=0)
+                      localSelectedTrainingID = value[1];
+
+
+                    finishedTraining = value[2];
                   });
                 }
               });

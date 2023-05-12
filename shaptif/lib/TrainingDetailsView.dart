@@ -1,19 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:shaptif/db/exercise_set.dart';
+import 'package:shaptif/db/finished_training.dart';
 import 'package:shaptif/db/training.dart';
 import 'package:shaptif/ExerciseWorkoutScreen.dart';
 
 class TrainingDetailsView extends StatefulWidget {
   final Training training;
-
-  TrainingDetailsView({required this.training});
+  final FinishedTraining? finishedTraining;
+  final int currentTrainingId;
+  bool trainingStarted;
+  TrainingDetailsView({
+    required this.training,
+    required this.finishedTraining,
+    required this.trainingStarted,
+    required this.currentTrainingId,
+  });
 
   @override
   _TrainingDetailsViewState createState() => _TrainingDetailsViewState();
 }
 
 class _TrainingDetailsViewState extends State<TrainingDetailsView> {
-  bool _trainingStarted = false;
+  late bool trainingIdChanged = false;
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,24 +42,34 @@ class _TrainingDetailsViewState extends State<TrainingDetailsView> {
             child: Text(widget.training.description),
           ),
           Expanded(
-            child: ListView.builder(
-              itemCount: widget.training.exercisesMap.length,
-              itemBuilder: (context, index) {
-                final exerciseName =
-                    widget.training.exercisesMap.keys.elementAt(index);
-                final sets = widget.training.exercisesMap[exerciseName]!;
-                return ExerciseTile(
-                  exerciseName: exerciseName,
-                  sets: sets,
-                  onWorkoutStarted: () {
-                    setState(() {
-                      _trainingStarted = true;
-                    });
-                  },
-                );
-              },
-            ),
-          ),
+              child: ListView.builder(
+            itemCount: widget.training.exercisesMap.length,
+            itemBuilder: (context, index) {
+              final exerciseName =
+                  widget.training.exercisesMap.keys.elementAt(index);
+              final sets = widget.training.exercisesMap[exerciseName]!;
+              return ExerciseTile(
+                exerciseName: exerciseName,
+                sets: sets,
+                isCurrentTraining: trainingIdChanged
+                    ? true
+                    : widget.currentTrainingId == widget.training.id
+                        ? true
+                        : false,
+                trainingStarted: widget.trainingStarted,
+                onTrainingStartedChanged: (value) {
+                  setState(() {
+                    widget.trainingStarted = value;
+                  });
+                },
+                onTrainingStartedIdChanged: (value) {
+                  setState(() {
+                    trainingIdChanged = value;
+                  });
+                },
+              );
+            },
+          )),
         ],
       ),
       bottomNavigationBar: _buildBottomNavigationBar(),
@@ -62,7 +84,11 @@ class _TrainingDetailsViewState extends State<TrainingDetailsView> {
           IconButton(
             icon: Icon(Icons.arrow_back),
             onPressed: () {
-              Navigator.pop(context);
+              Navigator.pop(context, [
+                widget.trainingStarted,
+                trainingIdChanged ? widget.training.id : -1,
+                widget.finishedTraining
+              ]);
             },
           ),
           IconButton(
@@ -86,13 +112,19 @@ class _TrainingDetailsViewState extends State<TrainingDetailsView> {
 class ExerciseTile extends StatefulWidget {
   final String exerciseName;
   final List<ExerciseSet> sets;
-  final VoidCallback onWorkoutStarted;
+  bool trainingStarted;
+  bool isCurrentTraining;
+  final ValueChanged<bool> onTrainingStartedChanged;
+  final ValueChanged<bool> onTrainingStartedIdChanged;
 
-  const ExerciseTile({
+  ExerciseTile({
     Key? key,
     required this.exerciseName,
     required this.sets,
-    required this.onWorkoutStarted,
+    required this.trainingStarted,
+    required this.isCurrentTraining,
+    required this.onTrainingStartedChanged,
+    required this.onTrainingStartedIdChanged,
   }) : super(key: key);
 
   @override
@@ -186,7 +218,7 @@ class _ExerciseTileState extends State<ExerciseTile> {
           ElevatedButton(
             onPressed: canStartWorkout
                 ? () {
-                    _startExercise();
+                    _canStartExercise();
                   }
                 : null,
             child: Icon(Icons.play_arrow),
@@ -228,21 +260,76 @@ class _ExerciseTileState extends State<ExerciseTile> {
     _maxSets--;
   }
 
-  void _startExercise() async {
-    final List<ExerciseSet> returnedSets = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ExerciseWorkoutScreen(
-          exerciseName: widget.exerciseName,
-          sets: editableSets,
+  void _canStartExercise() async {
+    _workoutCompleted = false;
+    print("training started: " + widget.trainingStarted.toString());
+    print("current : " + widget.isCurrentTraining.toString());
+    if (widget.trainingStarted && !widget.isCurrentTraining) {
+      bool shouldStartNewTraining = await showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(
+              "Czy na pewno chcesz zakończyć poprzedni trening i rozpocząć ten?"),
+          actions: [
+            TextButton(
+              child: Text("Nie"),
+              onPressed: () {
+                Navigator.pop(context, false);
+              },
+            ),
+            TextButton(
+              child: Text("Tak"),
+              onPressed: () {
+                Navigator.pop(context, true);
+              },
+            ),
+          ],
         ),
-      ),
-    );
-    if (returnedSets != null) {
-      setState(() {
-        editableSets = returnedSets.toList();
-        _completedSets = editableSets.where((s) => s.completed).length;
-      });
+      );
+      if (!shouldStartNewTraining) {
+        widget.onTrainingStartedIdChanged(false);
+        return;
+      } else {
+        widget.onTrainingStartedChanged(true);
+        widget.onTrainingStartedIdChanged(true);
+        widget.isCurrentTraining = true;
+        widget.trainingStarted = true;
+        final List<ExerciseSet> returnedSets = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ExerciseWorkoutScreen(
+              exerciseName: widget.exerciseName,
+              sets: editableSets,
+            ),
+          ),
+        );
+        if (returnedSets != null) {
+          setState(() {
+            editableSets = returnedSets.toList();
+            _completedSets = editableSets.where((s) => s.completed).length;
+          });
+        }
+      }
+    } else {
+      widget.onTrainingStartedChanged(true);
+      widget.onTrainingStartedIdChanged(true);
+      widget.isCurrentTraining = true;
+      widget.trainingStarted = true;
+      final List<ExerciseSet> returnedSets = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ExerciseWorkoutScreen(
+            exerciseName: widget.exerciseName,
+            sets: editableSets,
+          ),
+        ),
+      );
+      if (returnedSets != null) {
+        setState(() {
+          editableSets = returnedSets.toList();
+          _completedSets = editableSets.where((s) => s.completed).length;
+        });
+      }
     }
   }
 }
