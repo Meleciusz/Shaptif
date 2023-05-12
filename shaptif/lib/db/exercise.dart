@@ -3,7 +3,8 @@ import 'package:shaptif/db/database_manager.dart';
 import 'package:shaptif/db/setup.dart';
 
 class Exercise extends TableObject{
-
+  @override
+  int? id;
   late String name;
   late String description;
   late int bodyPart;
@@ -12,7 +13,7 @@ class Exercise extends TableObject{
   String? bodyPartString;
 
   @override
-  Exercise({id, required this.name, required this.description, required this.bodyPart, required this.isEmbedded, this.imageHash = 0});
+  Exercise({this.id, required this.name, required this.description, required this.bodyPart, required this.isEmbedded, this.imageHash = 0});
 
   @override
   Exercise.fromJson(Map<String, Object?> json)
@@ -44,8 +45,8 @@ class Exercise extends TableObject{
       };
 
   @override
-  Exercise copy({int? id}) =>
-      Exercise(id: id ?? id,
+  Exercise copy({required int returnedId}) =>
+      Exercise(id: returnedId,
           name: name,
           description: description,
           bodyPart: bodyPart,
@@ -70,7 +71,6 @@ class Exercise extends TableObject{
 
   Future<bool> canBeDeleted() async
   {
-    assert(id!=null);
     return await DatabaseManger.instance.isExerciseInDB(id!);
   }
 

@@ -4,6 +4,8 @@ import 'package:shaptif/db/database_manager.dart';
 
 class History extends TableObject
 {
+  @override
+  int? id;
   late int trainingID;
   late int exerciseID;
   late int repetitions;
@@ -30,11 +32,11 @@ class History extends TableObject
   }
 
   @override
-  History({id, required this.trainingID, required this.exerciseID, required this.repetitions, required this.weight});
+  History({this.id, required this.trainingID, required this.exerciseID, required this.repetitions, required this.weight});
 
   @override
-  History copy({int? id}) =>
-      History(id: id ?? id,
+  History copy({required int returnedId}) =>
+      History(id: returnedId,
           trainingID: trainingID,
           exerciseID: exerciseID,
           repetitions: repetitions,

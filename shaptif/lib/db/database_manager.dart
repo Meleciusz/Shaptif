@@ -120,8 +120,18 @@ class DatabaseManger {
     final db = await instance.database;
 
     final id = await db.insert(object.getTableName(), object.toJson());
-    return object.copy(id: id);
+    return object.copy(returnedId: id);
   }
+
+  Future<Training> insertTraining(Training training) async
+  {
+    Training result = await insert(training) as Training;
+
+    final db = await instance.database;
+
+    return result;
+  }
+
 
   Future<Exercise> selectExercise(int id) async {
     final db = await instance.database;

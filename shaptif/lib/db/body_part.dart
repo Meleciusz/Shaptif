@@ -2,9 +2,11 @@ import 'package:shaptif/db/table_object.dart';
 import 'package:shaptif/db/setup.dart';
 
 class BodyPart extends TableObject{
+  @override
+  int? id;
   late String name;
 
-  BodyPart({id, required this.name});
+  BodyPart({this.id, required this.name});
 
   @override
   Map<String, Object?> toJson() =>
@@ -14,8 +16,8 @@ class BodyPart extends TableObject{
       };
 
   @override
-  BodyPart copy({int? id/*, String? name, String? description, int? category*/}) =>
-      BodyPart(id: id,
+  BodyPart copy({required int returnedId}) =>
+      BodyPart(id: returnedId,
           name: name
       );
 

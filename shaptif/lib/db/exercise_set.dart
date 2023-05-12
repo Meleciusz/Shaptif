@@ -4,6 +4,8 @@ import 'package:shaptif/db/database_manager.dart';
 
 class ExerciseSet extends TableObject
 {
+  @override
+  int? id;
   late int trainingID;
   late int exerciseID;
   late int repetitions;
@@ -30,11 +32,11 @@ class ExerciseSet extends TableObject
   }
 
   @override
-  ExerciseSet({id, required this.trainingID, required this.exerciseID, required this.repetitions, required this.weight});
+  ExerciseSet({this.id, required this.trainingID, required this.exerciseID, required this.repetitions, required this.weight});
 
   @override
-  ExerciseSet copy({int? id}) =>
-      ExerciseSet(id: id ?? id,
+  ExerciseSet copy({required int returnedId}) =>
+      ExerciseSet(id: returnedId,
           trainingID: trainingID,
           exerciseID: exerciseID,
           repetitions: repetitions,

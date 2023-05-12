@@ -5,6 +5,8 @@ import 'package:shaptif/db/database_manager.dart';
 
 class Training extends TableObject
 {
+  @override
+  int? id;
   late String name;
   late String description;
   bool isEmbedded = false;
@@ -39,11 +41,11 @@ class Training extends TableObject
   }
 
   @override
-  Training({id, required this.name, required this.description, required this.isEmbedded});
+  Training({this.id, required this.name, required this.description, required this.isEmbedded});
 
   @override
-  Training copy({int? id}) =>
-      Training(id: id ?? id,
+  Training copy({required int returnedId}) =>
+      Training(id: returnedId,
           name: name,
           description: description,
           isEmbedded: isEmbedded
