@@ -13,17 +13,17 @@ class TrainingBuilderView extends StatefulWidget {
 }
 
 class TrainingBuilderViewState extends State<TrainingBuilderView> {
+  TextEditingController editingController = TextEditingController();
   @override
   void initState(){
     super.initState();
     refreshExercises();
-
   }
-
 
   late List<Exercise> exercises;
   late List<bool> standardSelectIndex;
   Map<String, List<Exercise>> filteredExercises = {};
+  late var items = <Exercise>[];
   bool isLoading = false;
 
   Future initExerciseMap() async
@@ -55,27 +55,34 @@ class TrainingBuilderViewState extends State<TrainingBuilderView> {
       }
     }
 
-    // for(BodyPart bp in bodyParts) {
-    //   standardSelectIndex.add(false);
-    //   }
+
     await initExerciseMap();
+    items = exercises;
     setState(() => isLoading = false);
   }
 
-  int selectedIndex = 0;
+  int ?selectedIndex;
   int selectedKey = 0;
 
   Map<String, IconData> iconsMap = {
     'Plecy' : Icons.person ,
+    'Ręce' : Icons.front_hand_outlined ,
     'Klata' : Icons.person ,
     'Barki' : Icons.person ,
     'Nogi' : Icons.airline_seat_legroom_extra ,
-    'Ręce' : Icons.front_hand_outlined ,
     'Brzuch' : Icons.person ,
   };
 
   String ?selectedIconKey;
-  String ?choosenExercise;
+  late String choosenExercise;// = exercises[selectedIndex].name;
+
+  void filterSearchResults(value) {
+    setState(() {
+      items = exercises
+          .where((item) => item.name.toLowerCase().contains(value.toLowerCase()))
+          .toList();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -89,26 +96,49 @@ class TrainingBuilderViewState extends State<TrainingBuilderView> {
           appBar: AppBar(
             title: Text('Filters'),
           ),
-          body: isLoading ? buildProgressIndicator(context) : ListView.builder(
-              itemCount: exercises.length,
-              itemBuilder: (context, index){
-                return Ink(
-                  //color: color,
-                  child:   ListTile(
-                      title: Text('${exercises[index].name}'),
-                      selectedTileColor: Colors.green,
-                      selected: index == selectedIndex,
-                      splashColor: Colors.green,
-                      onTap: (){
-                        setState(() {
-                          selectedIndex = index;
-                        });
-                        choosenExercise = exercises[index].name;
+          body: Container(
+            child: Column(
+              children: <Widget>[
+                Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: TextField(
+                      onChanged: (value){
+                        filterSearchResults(value);
                       },
-                    )
-                );
-
-              }),
+                      controller: editingController,
+                      decoration: InputDecoration(
+                        labelText: "Search",
+                        hintText: "Search",
+                        prefixIcon: Icon(Icons.search),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular((25.0)))
+                        )
+                      ),
+                    ),
+                ),
+                Expanded(
+                    child: isLoading ? buildProgressIndicator(context) : ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: items.length,
+                      itemBuilder: (context, index) {
+                        return ListTile(
+                          title: Text('${items[index].name}'),
+                          selectedTileColor: Colors.green,
+                          selected: index == selectedIndex,
+                          splashColor: Colors.green,
+                          onTap: (){
+                            setState(() {
+                              selectedIndex = index;
+                            });
+                            choosenExercise = items[index].name;
+                          },
+                        );
+                      },
+                    ),
+                )
+              ],
+            ),
+          ),
           drawer: Drawer(
             child: Column(
               children: [
@@ -143,7 +173,7 @@ class TrainingBuilderViewState extends State<TrainingBuilderView> {
                         selectedIconKey = key; // Ustaw wybrany klucz ikony
                         List<MapEntry<String, IconData>> lista = iconsMap.entries.toList();
                         int kaka = lista.indexWhere((entry) => entry.key == key);
-                        exercises = filteredExercises.values.elementAt(kaka);
+                        items = filteredExercises.values.elementAt(kaka);
                       });
                     },
                   );

@@ -26,7 +26,7 @@ class NewTrainingViewState extends State<NewTrainingView> {
     themeChangeProvider.darkTheme =
     await themeChangeProvider.darkThemePreference.getTheme();
   }
-  List<String> exercises = [];
+  Set<String> exercises = {};
   @override
   Widget build(BuildContext context) {
     double heigth = MediaQuery. of(context). size. height;
@@ -41,7 +41,7 @@ class NewTrainingViewState extends State<NewTrainingView> {
                     return Ink(
                       //color: Colors.white,
                       child: ListTile(
-                        title: Text('${exercises[index]}', textAlign: TextAlign.center,),
+                        title: Text('${exercises.elementAt(index)}', textAlign: TextAlign.center,),
                         //textColor: Colors.black,
                       )
                     );
