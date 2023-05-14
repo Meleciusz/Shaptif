@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'DarkThemeProvider.dart';
-import 'SharedPreferences.dart';
+//import 'DarkThemeProvider.dart';
 import 'package:shaptif/TrainingBuilder.dart';
-import 'db/database_manager.dart';
-import 'db/exercise.dart';
+
 
 class NewTrainingView extends StatefulWidget {
   const NewTrainingView({Key? key}) : super(key: key);
@@ -14,18 +11,18 @@ class NewTrainingView extends StatefulWidget {
 }
 
 class NewTrainingViewState extends State<NewTrainingView> {
-  DarkThemeProvider themeChangeProvider = DarkThemeProvider();
+  //DarkThemeProvider themeChangeProvider = DarkThemeProvider();
 
   @override
   void initState(){
     super.initState();
-    getCurrentAppTheme();
+    //getCurrentAppTheme();
   }
 
-  void getCurrentAppTheme() async {
-    themeChangeProvider.darkTheme =
-    await themeChangeProvider.darkThemePreference.getTheme();
-  }
+  // void getCurrentAppTheme() async {
+  //   themeChangeProvider.darkTheme =
+  //   await themeChangeProvider.darkThemePreference.getTheme();
+  // }
   Set<String> exercises = {};
   @override
   Widget build(BuildContext context) {
@@ -35,17 +32,19 @@ class NewTrainingViewState extends State<NewTrainingView> {
         body: Column(
           children: [
             Flexible(
-                child: ListView.builder(
-                  itemCount: exercises.length,
-                    itemBuilder: (context, index){
-                    return Ink(
-                      //color: Colors.white,
-                      child: ListTile(
-                        title: Text('${exercises.elementAt(index)}', textAlign: TextAlign.center,),
-                        //textColor: Colors.black,
-                      )
-                    );
-                    })),
+                  child:
+                    ListView.builder(
+                        itemCount: exercises.length,
+                        itemBuilder: (context, index){
+                          return Ink(
+                            //color: Colors.white,
+                              child: ListTile(
+                                title: Text('${exercises.elementAt(index)}', textAlign: TextAlign.center,),
+                                //textColor: Colors.black,
+                              )
+                          );
+                        })
+                ),
             SizedBox.fromSize(
               size: Size(56, 56),
               child: ClipOval(

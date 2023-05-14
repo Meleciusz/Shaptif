@@ -48,7 +48,6 @@ class ExcerciseViewState extends State<ExcerciseView> {
 
   @override
   Widget build(BuildContext context) {
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
     const int tabsCount = 6;
 
     return DefaultTabController(
@@ -143,8 +142,7 @@ class ExcerciseViewState extends State<ExcerciseView> {
 
 
   PreferredSize buildAppBar(BuildContext context) {
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    return PreferredSize(
+     return PreferredSize(
       preferredSize: const Size.fromHeight(74),
       child: AppBar(
         notificationPredicate: (ScrollNotification notification) {

@@ -88,11 +88,7 @@ class TrainingBuilderViewState extends State<TrainingBuilderView> {
   Widget build(BuildContext context) {
 
     double heigth = MediaQuery. of(context). size. height;
-    return MaterialApp(
-      theme: ThemeData(
-        useMaterial3: true
-      ),
-      home: Scaffold(
+      return Scaffold(
           appBar: AppBar(
             title: Text('Filters'),
           ),
@@ -206,8 +202,7 @@ class TrainingBuilderViewState extends State<TrainingBuilderView> {
                   child: const Icon(Icons.save),
                 ),
               ])
-      ),
-    );
+      );
   }
 
   Widget buildProgressIndicator(BuildContext context) {
