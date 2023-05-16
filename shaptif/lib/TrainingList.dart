@@ -3,7 +3,6 @@ import 'package:shaptif/TrainingDetailsView.dart';
 import 'package:shaptif/db/finished_training.dart';
 import 'package:shaptif/db/training.dart';
 import 'package:shaptif/db/database_manager.dart';
-import 'package:shaptif/db/exercise_set.dart';
 
 class TrainingListView extends StatefulWidget {
   const TrainingListView({Key? key}) : super(key: key);
@@ -18,6 +17,7 @@ class TrainingListViewState extends State<TrainingListView> {
   bool trainingIsActive = false;
   late int localSelectedTrainingID = -1;
   FinishedTraining? finishedTraining = null;
+
   @override
   void initState() {
     super.initState();
@@ -87,12 +87,13 @@ class TrainingListViewState extends State<TrainingListView> {
                   setState(() {
                     // odczytaj wartości zwrócone z ekranu TrainingDetailsView
                     trainingIsActive = value[0];
-
                     if(value[1]>=0)
                       localSelectedTrainingID = value[1];
-
-
                     finishedTraining = value[2];
+                    bool databaseReloadNeeded = value[3];
+                    if(databaseReloadNeeded)
+
+                      _getData();
                   });
                 }
               });

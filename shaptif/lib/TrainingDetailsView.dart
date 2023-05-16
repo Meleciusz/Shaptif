@@ -5,6 +5,7 @@ import 'package:shaptif/db/finished_training.dart';
 import 'package:shaptif/db/history.dart';
 import 'package:shaptif/db/training.dart';
 import 'package:shaptif/ExerciseWorkoutScreen.dart';
+import 'package:tuple/tuple.dart';
 
 class TrainingDetailsView extends StatefulWidget {
   final Training training;
@@ -24,8 +25,10 @@ class TrainingDetailsView extends StatefulWidget {
 
 class _TrainingDetailsViewState extends State<TrainingDetailsView> {
   late bool trainingIdChanged = false;
+  late bool databaseReloadNeeded = false;
   @override
   void initState() {
+    databaseReloadNeeded=false;
     super.initState();
   }
 
@@ -59,7 +62,8 @@ class _TrainingDetailsViewState extends State<TrainingDetailsView> {
                         ? true
                         : false,
                 trainingStarted: widget.trainingStarted,
-                onWorkoutExit: (exerciseSet) async {
+                onWorkoutExitEvent: (exerciseSet) async {
+
                   var setsDoneAndSavedCount = 0;
                   var setsDoneCount = 0;
                   for (History set in widget.finishedTraining!.sets) {
@@ -70,37 +74,40 @@ class _TrainingDetailsViewState extends State<TrainingDetailsView> {
                     if (exSet.completed) {
                       setsDoneCount++;
                       if (setsDoneCount > setsDoneAndSavedCount) {
-                        widget.finishedTraining!.sets.add(History(
-                            trainingID: widget.finishedTraining!.id!,
-                            exerciseID: exSet.exerciseID,
-                            repetitions: exSet.repetitions,
-                            weight: exSet.weight));
-                        DatabaseManger.instance.insert(
-                            widget.finishedTraining!.sets.last as History);
+                        addHistoryEntry(exSet);
+                        updateDatabase(exSet);
                       }
                     }
                   }
-                  setState(() {
-                  });
+                  setState(() {});
                 },
-                onTrainingStartedChanged: (value) async {
-                  if (value == true) if
-                  (widget.finishedTraining?.id ==
-                      null) {
-                    widget.finishedTraining = (await DatabaseManger.instance
-                        .insert(FinishedTraining(
-                        name: widget.training.name,
-                        description: widget.training.description,
-                        finishedDateTime: DateTime.now()))) as FinishedTraining;
+                onTrainingStartedEvent: (value) async {
+                  bool started = value.item1;
+                  bool changed = value.item2;
+                  if (started == true) {
+                    if (widget.finishedTraining?.id == null) {
+                      widget.finishedTraining = (await DatabaseManger.instance
+                              .insert(FinishedTraining(
+                                  name: widget.training.name,
+                                  description: widget.training.description,
+                                  finishedDateTime: DateTime.now())))
+                          as FinishedTraining;
+                    }
+                    else if(changed)
+                      {
+                        widget.finishedTraining = (await DatabaseManger.instance
+                            .insert(FinishedTraining(
+                            name: widget.training.name,
+                            description: widget.training.description,
+                            finishedDateTime: DateTime.now())))
+                        as FinishedTraining;
+
+                      }
                   }
-                  print(widget.finishedTraining!.id);
+
                   setState(() {
-                    widget.trainingStarted = value;
-                  });
-                },
-                onTrainingStartedIdChanged: (value) {
-                  setState(() {
-                    trainingIdChanged = value;
+                    widget.trainingStarted = started;
+                    trainingIdChanged = changed;
                   });
                 },
               );
@@ -122,11 +129,8 @@ class _TrainingDetailsViewState extends State<TrainingDetailsView> {
             iconSize: 40,
             color: Colors.green,
             onPressed: () {
-              Navigator.pop(context, [
-                widget.trainingStarted,
-                trainingIdChanged ? widget.training.id : -1,
-                widget.finishedTraining
-              ]);
+              backToTrainingListView();
+
             },
           ),
           IconButton(
@@ -137,7 +141,7 @@ class _TrainingDetailsViewState extends State<TrainingDetailsView> {
               // TODO: Implement adding a new exercise
             },
           ),
-          IconButton(
+          IconButton(//Finish current training
             icon: Icon(Icons.fact_check_outlined),
             color: widget.trainingStarted ? Colors.green : Colors.grey,
             iconSize: 40,
@@ -158,19 +162,61 @@ class _TrainingDetailsViewState extends State<TrainingDetailsView> {
     );
   }
 
-  void saveTraining() {
-    DatabaseManger.instance.insert(widget.finishedTraining!);
+  void saveTraining() async{
+    bool found = false;
+    var startingSets = await DatabaseManger.instance.selectSetsByTraining(widget.training.id!);
+    for(var set in startingSets) {
+      for (var currentSet in widget.training.sets) {
+        if (currentSet.id == null)
+          continue;
+        else if (set.id! == currentSet.id!) found = true;
+      }
+      if(!found)
+        {
+          await DatabaseManger.instance.delete(set);
+        }
+      found=false;
+    }
+    databaseReloadNeeded = true;
+    trainingIdChanged = false;
+    widget.trainingStarted=false;
+    backToTrainingListView();
+  }
+
+  void addHistoryEntry(ExerciseSet exSet) {
+    widget.finishedTraining!.sets.add(History(
+        trainingID: widget.finishedTraining!.id!,
+        exerciseID: exSet.exerciseID,
+        repetitions: exSet.repetitions,
+        weight: exSet.weight));
+  }
+
+  void updateDatabase(ExerciseSet exSet) async {
+    await DatabaseManger.instance
+        .insert(widget.finishedTraining!.sets.last as History);
+    if (exSet.id != null)
+      await DatabaseManger.instance.update(exSet);
+    else
+      await DatabaseManger.instance.insert(exSet);
+  }
+
+  void backToTrainingListView() {
+    Navigator.pop(context, [
+      widget.trainingStarted,
+      trainingIdChanged ? widget.training.id : -1,
+      widget.finishedTraining,
+      databaseReloadNeeded
+    ]);
   }
 }
 
 class ExerciseTile extends StatefulWidget {
   final String exerciseName;
-  final List<ExerciseSet> sets;
+  List<ExerciseSet> sets;
   bool trainingStarted;
   bool isCurrentTraining;
-  final ValueChanged<bool> onTrainingStartedChanged;
-  final ValueChanged<bool> onTrainingStartedIdChanged;
-  final ValueChanged<List<ExerciseSet>> onWorkoutExit;
+  final ValueChanged<Tuple2<bool, bool>> onTrainingStartedEvent;
+  final ValueChanged<List<ExerciseSet>> onWorkoutExitEvent;
 
   ExerciseTile({
     Key? key,
@@ -178,9 +224,8 @@ class ExerciseTile extends StatefulWidget {
     required this.sets,
     required this.trainingStarted,
     required this.isCurrentTraining,
-    required this.onTrainingStartedChanged,
-    required this.onTrainingStartedIdChanged,
-    required this.onWorkoutExit,
+    required this.onTrainingStartedEvent,
+    required this.onWorkoutExitEvent,
   }) : super(key: key);
 
   @override
@@ -188,7 +233,7 @@ class ExerciseTile extends StatefulWidget {
 }
 
 class _ExerciseTileState extends State<ExerciseTile> {
-  List<ExerciseSet> editableSets = [];
+  List<ExerciseSet> backupSets = [];
   late int _completedSets;
   late int _maxSets = widget.sets.length;
   bool _workoutCompleted = false;
@@ -196,7 +241,7 @@ class _ExerciseTileState extends State<ExerciseTile> {
   @override
   void initState() {
     super.initState();
-    editableSets = widget.sets.toList();
+    backupSets = widget.sets.toList();
     _completedSets = widget.sets.where((s) => s.completed).length;
   }
 
@@ -235,7 +280,7 @@ class _ExerciseTileState extends State<ExerciseTile> {
   }
 
   Widget buildButtons() {
-    final maxSets = editableSets.length;
+    final maxSets = widget.sets.length;
     final canStartWorkout = _completedSets < maxSets;
 
     return Padding(
@@ -254,7 +299,7 @@ class _ExerciseTileState extends State<ExerciseTile> {
                 },
                 child: Text('Usuń serię'),
                 style: ElevatedButton.styleFrom(
-                  primary: Colors.red,
+                  backgroundColor: Colors.red,
                 ),
               ),
               SizedBox(width: 8.0),
@@ -266,7 +311,7 @@ class _ExerciseTileState extends State<ExerciseTile> {
                 },
                 child: Text('Dodaj serię'),
                 style: ElevatedButton.styleFrom(
-                  primary: Colors.green,
+                  backgroundColor: Colors.green,
                 ),
               ),
             ],
@@ -279,7 +324,7 @@ class _ExerciseTileState extends State<ExerciseTile> {
                 : null,
             child: Icon(Icons.play_arrow),
             style: ElevatedButton.styleFrom(
-              primary: _workoutCompleted ? Colors.grey : Colors.green,
+              backgroundColor: _workoutCompleted ? Colors.grey : Colors.green,
               shape: CircleBorder(),
               padding: EdgeInsets.all(16.0),
             ),
@@ -290,18 +335,18 @@ class _ExerciseTileState extends State<ExerciseTile> {
   }
 
   void _addNewSet() {
-    int currentNumberOfSets = editableSets.length;
-    int startingNumberOfSets = widget.sets.length;
+    int currentNumberOfSets = widget.sets.length;
+    int startingNumberOfSets = backupSets.length;
 
     if (currentNumberOfSets < startingNumberOfSets) {
-      editableSets.add(ExerciseSet(
+      widget.sets.add(ExerciseSet(
         trainingID: widget.sets[currentNumberOfSets].trainingID,
         exerciseID: widget.sets[currentNumberOfSets].exerciseID,
         weight: widget.sets[currentNumberOfSets].weight,
         repetitions: widget.sets[currentNumberOfSets].repetitions,
       ));
     } else {
-      editableSets.add(ExerciseSet(
+      widget.sets.add(ExerciseSet(
         trainingID: widget.sets.last.trainingID,
         exerciseID: widget.sets.last.exerciseID,
         weight: widget.sets.last.weight,
@@ -312,7 +357,7 @@ class _ExerciseTileState extends State<ExerciseTile> {
   }
 
   void _removeLastSet() {
-    editableSets.removeLast();
+    widget.sets.removeLast();
     _maxSets--;
   }
 
@@ -340,12 +385,8 @@ class _ExerciseTileState extends State<ExerciseTile> {
           ],
         ),
       );
-      if (!shouldStartNewTraining) {
-        widget.onTrainingStartedIdChanged(false);
-        return;
-      } else {
-        widget.onTrainingStartedChanged(true);
-        widget.onTrainingStartedIdChanged(true);
+      if (shouldStartNewTraining) {
+        widget.onTrainingStartedEvent(Tuple2(true, true));
         widget.isCurrentTraining = true;
         widget.trainingStarted = true;
         final List<ExerciseSet> returnedSets = await Navigator.push(
@@ -353,21 +394,20 @@ class _ExerciseTileState extends State<ExerciseTile> {
           MaterialPageRoute(
             builder: (context) => ExerciseWorkoutScreen(
               exerciseName: widget.exerciseName,
-              sets: editableSets,
+              sets: widget.sets,
             ),
           ),
         );
         if (returnedSets != null) {
           setState(() {
-            editableSets = returnedSets.toList();
-            widget.onWorkoutExit(editableSets);
-            _completedSets = editableSets.where((s) => s.completed).length;
+            widget.sets = returnedSets.toList();
+            widget.onWorkoutExitEvent(widget.sets);
+            _completedSets = widget.sets.where((s) => s.completed).length;
           });
         }
       }
     } else {
-      widget.onTrainingStartedChanged(true);
-      widget.onTrainingStartedIdChanged(true);
+      widget.onTrainingStartedEvent(Tuple2(true, true));
       widget.isCurrentTraining = true;
       widget.trainingStarted = true;
       final List<ExerciseSet> returnedSets = await Navigator.push(
@@ -375,15 +415,15 @@ class _ExerciseTileState extends State<ExerciseTile> {
         MaterialPageRoute(
           builder: (context) => ExerciseWorkoutScreen(
             exerciseName: widget.exerciseName,
-            sets: editableSets,
+            sets: widget.sets,
           ),
         ),
       );
       if (returnedSets != null) {
         setState(() {
-          editableSets = returnedSets.toList();
-          widget.onWorkoutExit(editableSets);
-          _completedSets = editableSets.where((s) => s.completed).length;
+          widget.sets = returnedSets.toList();
+          widget.onWorkoutExitEvent(widget.sets);
+          _completedSets = widget.sets.where((s) => s.completed).length;
         });
       }
     }
