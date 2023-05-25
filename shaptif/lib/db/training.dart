@@ -29,6 +29,22 @@ class Training extends TableObject
     }
   }
 
+  Future refreshExerciseMap() async
+  {
+    sets = await getNewSets();
+    for(var s in sets) {
+      if(!exercisesMap.containsKey(s.exerciseName))
+      {
+        List<ExerciseSet> tempList = [s];
+        exercisesMap[s.exerciseName!] = tempList;
+      }
+      else
+      {
+        exercisesMap[s.exerciseName]!.add(s);
+      }
+    }
+  }
+
   @override
   Training.fromJson(Map<String, Object?> json)
   {
@@ -82,6 +98,11 @@ class Training extends TableObject
       sets = (await DatabaseManger.instance.selectSetsByTraining(id!));
     }
     return sets;
+  }
+  Future<List<ExerciseSet>> getNewSets()
+  async {
+    return await DatabaseManger.instance.selectSetsByTraining(id!);
+
   }
 
 

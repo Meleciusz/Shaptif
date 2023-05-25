@@ -33,6 +33,17 @@ class TrainingListViewState extends State<TrainingListView> {
     setState(() => isLoading = false);
   }
 
+  Future refreshData() async {
+    setState(() => isLoading = true);
+    trainings = await DatabaseManger.instance.selectAllTrainings();
+    for (Training el in trainings) {
+      await el.refreshExerciseMap();
+    }
+    setState(() => isLoading = false);
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -84,7 +95,7 @@ class TrainingListViewState extends State<TrainingListView> {
               ).then((value) {
                 // value to tablica zwróconych wartości z ekranu TrainingDetailsView
                 if (value != null) {
-                  setState(() {
+                  setState(() async {
                     // odczytaj wartości zwrócone z ekranu TrainingDetailsView
                     trainingIsActive = value[0];
                     if(value[1]>=0)
@@ -93,7 +104,7 @@ class TrainingListViewState extends State<TrainingListView> {
                     bool databaseReloadNeeded = value[3];
                     if(databaseReloadNeeded)
 
-                      _getData();
+                     await refreshData();
                   });
                 }
               });

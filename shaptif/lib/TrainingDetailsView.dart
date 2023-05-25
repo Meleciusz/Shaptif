@@ -53,6 +53,7 @@ class _TrainingDetailsViewState extends State<TrainingDetailsView> {
               final exerciseName =
                   widget.training.exercisesMap.keys.elementAt(index);
               final sets = widget.training.exercisesMap[exerciseName]!;
+
               return ExerciseTile(
                 exerciseName: exerciseName,
                 sets: sets,
@@ -95,19 +96,22 @@ class _TrainingDetailsViewState extends State<TrainingDetailsView> {
                     }
                     else if(changed)
                       {
+
+                        print(widget.finishedTraining!.name);
+                        changeCurrentTrainingWithSaving();
                         widget.finishedTraining = (await DatabaseManger.instance
                             .insert(FinishedTraining(
                             name: widget.training.name,
                             description: widget.training.description,
                             finishedDateTime: DateTime.now())))
                         as FinishedTraining;
-
+                        print(widget.finishedTraining!.name);
                       }
                   }
 
                   setState(() {
                     widget.trainingStarted = started;
-                    trainingIdChanged = changed;
+                    trainingIdChanged = started;
                   });
                 },
               );
@@ -145,8 +149,8 @@ class _TrainingDetailsViewState extends State<TrainingDetailsView> {
             icon: Icon(Icons.fact_check_outlined),
             color: widget.trainingStarted ? Colors.green : Colors.grey,
             iconSize: 40,
-            onPressed: () {
-              if (widget.trainingStarted) saveTraining();
+            onPressed: () async {
+              if (widget.trainingStarted) await saveTraining();
             },
           ),
           IconButton(
@@ -162,24 +166,40 @@ class _TrainingDetailsViewState extends State<TrainingDetailsView> {
     );
   }
 
-  void saveTraining() async{
+  Future saveToDatabase()async{
+    //TODO FIX THIS BULLCRAP
+
     bool found = false;
     var startingSets = await DatabaseManger.instance.selectSetsByTraining(widget.training.id!);
     for(var set in startingSets) {
       for (var currentSet in widget.training.sets) {
         if (currentSet.id == null)
           continue;
-        else if (set.id! == currentSet.id!) found = true;
+        else if (set.id! == currentSet.id!)
+        {
+          found = true;
+          break;
+        }
       }
       if(!found)
-        {
-          await DatabaseManger.instance.delete(set);
-        }
+      {
+        await DatabaseManger.instance.delete(set);
+      }
       found=false;
     }
+  }
+  Future changeCurrentTrainingWithSaving()async
+  {
+      await saveToDatabase();
+      databaseReloadNeeded = true;
+      trainingIdChanged = true;
+      widget.trainingStarted = true;
+  }
+  Future saveTraining() async{
+    await saveToDatabase();
     databaseReloadNeeded = true;
     trainingIdChanged = false;
-    widget.trainingStarted=false;
+    widget.trainingStarted = false;
     backToTrainingListView();
   }
 
@@ -191,7 +211,7 @@ class _TrainingDetailsViewState extends State<TrainingDetailsView> {
         weight: exSet.weight));
   }
 
-  void updateDatabase(ExerciseSet exSet) async {
+  Future updateDatabase(ExerciseSet exSet) async {
     await DatabaseManger.instance
         .insert(widget.finishedTraining!.sets.last as History);
     if (exSet.id != null)
@@ -203,7 +223,7 @@ class _TrainingDetailsViewState extends State<TrainingDetailsView> {
   void backToTrainingListView() {
     Navigator.pop(context, [
       widget.trainingStarted,
-      trainingIdChanged ? widget.training.id : -1,
+      trainingIdChanged ? widget.training.id :  -1,
       widget.finishedTraining,
       databaseReloadNeeded
     ]);
@@ -407,7 +427,7 @@ class _ExerciseTileState extends State<ExerciseTile> {
         }
       }
     } else {
-      widget.onTrainingStartedEvent(Tuple2(true, true));
+      widget.onTrainingStartedEvent(Tuple2(true, false));
       widget.isCurrentTraining = true;
       widget.trainingStarted = true;
       final List<ExerciseSet> returnedSets = await Navigator.push(
