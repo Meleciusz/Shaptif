@@ -92,20 +92,17 @@ class TrainingListViewState extends State<TrainingListView> {
                     currentTrainingId:localSelectedTrainingID,
                   ),
                 ),
-              ).then((value) {
+              ).then((value) async{
                 // value to tablica zwróconych wartości z ekranu TrainingDetailsView
                 if (value != null) {
-                  setState(() async {
-                    // odczytaj wartości zwrócone z ekranu TrainingDetailsView
-                    trainingIsActive = value[0];
-                    if(value[1]>=0)
-                      localSelectedTrainingID = value[1];
-                    finishedTraining = value[2];
-                    bool databaseReloadNeeded = value[3];
-                    if(databaseReloadNeeded)
-
-                     await refreshData();
-                  });
+                  trainingIsActive = value[0];
+                  if(value[1]>=0)
+                    localSelectedTrainingID = value[1];
+                  finishedTraining = value[2];
+                  bool databaseReloadNeeded = value[3];
+                  if(databaseReloadNeeded)
+                    await refreshData();
+                  setState((){});
                 }
               });
             },

@@ -12,6 +12,7 @@ class TrainingDetailsView extends StatefulWidget {
   FinishedTraining? finishedTraining;
   final int currentTrainingId;
   bool trainingStarted;
+
   TrainingDetailsView({
     required this.training,
     required this.finishedTraining,
@@ -26,8 +27,10 @@ class TrainingDetailsView extends StatefulWidget {
 class _TrainingDetailsViewState extends State<TrainingDetailsView> {
   late bool trainingIdChanged = false;
   late bool databaseReloadNeeded = false;
+  late bool _isEdited;
   @override
   void initState() {
+    _isEdited = false ;
     databaseReloadNeeded=false;
     super.initState();
   }
@@ -63,6 +66,12 @@ class _TrainingDetailsViewState extends State<TrainingDetailsView> {
                         ? true
                         : false,
                 trainingStarted: widget.trainingStarted,
+                  onEditWorkout:(value)
+                  {
+                    setState(() {
+                      _isEdited = value;
+                    });
+                  },
                 onWorkoutExitEvent: (exerciseSet) async {
 
                   var setsDoneAndSavedCount = 0;
@@ -147,10 +156,10 @@ class _TrainingDetailsViewState extends State<TrainingDetailsView> {
           ),
           IconButton(//Finish current training
             icon: Icon(Icons.fact_check_outlined),
-            color: widget.trainingStarted ? Colors.green : Colors.grey,
+            color: widget.trainingStarted ? Colors.green : (_isEdited==true ? Colors.green : Colors.grey),
             iconSize: 40,
             onPressed: () async {
-              if (widget.trainingStarted) await saveTraining();
+              if (widget.trainingStarted || _isEdited) await saveTraining();
             },
           ),
           IconButton(
@@ -166,26 +175,29 @@ class _TrainingDetailsViewState extends State<TrainingDetailsView> {
     );
   }
 
-  Future saveToDatabase()async{
-    //TODO FIX THIS BULLCRAP
-
+  Future saveToDatabase() async {
+    // TODO: FIX THIS BULLCRAP
     bool found = false;
-    var startingSets = await DatabaseManger.instance.selectSetsByTraining(widget.training.id!);
-    for(var set in startingSets) {
-      for (var currentSet in widget.training.sets) {
-        if (currentSet.id == null)
-          continue;
-        else if (set.id! == currentSet.id!)
-        {
-          found = true;
-          break;
+    var setsInDatabase = await DatabaseManger.instance.selectSetsByTraining(widget.training.id!);
+
+    for (var set in setsInDatabase) {
+      for (var key in widget.training.exercisesMap.keys) {
+        var exerciseSets = widget.training.exercisesMap[key]!;
+
+        for (var currentSet in exerciseSets) {
+          if (currentSet.id == null) {
+            continue;
+          } else if (set.id! == currentSet.id!) {
+            found = true;
+            break;
+          }
         }
+
+        if (!found) {
+           await DatabaseManger.instance.delete(set);
+        }
+        found = false;
       }
-      if(!found)
-      {
-        await DatabaseManger.instance.delete(set);
-      }
-      found=false;
     }
   }
   Future changeCurrentTrainingWithSaving()async
@@ -237,6 +249,7 @@ class ExerciseTile extends StatefulWidget {
   bool isCurrentTraining;
   final ValueChanged<Tuple2<bool, bool>> onTrainingStartedEvent;
   final ValueChanged<List<ExerciseSet>> onWorkoutExitEvent;
+  final ValueChanged<bool> onEditWorkout;
 
   ExerciseTile({
     Key? key,
@@ -246,6 +259,7 @@ class ExerciseTile extends StatefulWidget {
     required this.isCurrentTraining,
     required this.onTrainingStartedEvent,
     required this.onWorkoutExitEvent,
+    required this.onEditWorkout,
   }) : super(key: key);
 
   @override
@@ -315,6 +329,7 @@ class _ExerciseTileState extends State<ExerciseTile> {
                   setState(() {
                     if (_maxSets > 1 && _maxSets > _completedSets)
                       _removeLastSet();
+                      widget.onEditWorkout(true);
                   });
                 },
                 child: Text('Usuń serię'),
@@ -327,6 +342,7 @@ class _ExerciseTileState extends State<ExerciseTile> {
                 onPressed: () {
                   setState(() {
                     _addNewSet();
+                    widget.onEditWorkout(true);
                   });
                 },
                 child: Text('Dodaj serię'),
