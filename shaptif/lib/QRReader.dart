@@ -23,14 +23,17 @@ class QRReaderState extends State<QRReader> {
 
   bool goesBack = false;
 
+  void goBack()
+  {
+    if(!goesBack)
+    {
+      goesBack = true;
+      Navigator.pop(context, qrText);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    if(!goesBack && qrText!=null)
-      {
-        goesBack = true;
-        Navigator.pop(context, qrText);
-      }
-
     return Scaffold(
       appBar: AppBar(
         title: Text('QR Scanner'),
@@ -91,16 +94,18 @@ class QRReaderState extends State<QRReader> {
     } else if (status.isGranted) {
       qrController.scannedDataStream.listen((scanData) {
 
-          setState(() {
+          //setState(() {
             qrText = scanData.code;
-          });
+            goBack();
+          //});
 
       });
 
     } else {
-      setState(() {
+      //setState(() {
         qrText = 'Brak wymaganych uprawnień';
-      });
+        goBack();
+      //});
     }
   }
 

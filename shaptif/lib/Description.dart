@@ -3,8 +3,6 @@ import 'package:shaptif/db/database_manager.dart';
 import 'package:shaptif/db/exercise.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
-import 'db/setup.dart';
-
 class Description extends StatefulWidget {
   final Exercise exercise;
   final List<Exercise> exercises;
@@ -26,7 +24,7 @@ class DescriptionViewState extends State<Description> {
   void initState() {
     super.initState();
     getCanBeDeleted();
-    images = imageHashToMap(widget.exercise.imageHash);
+    images = widget.exercise.imageHashToMap();
   }
 
   Future getCanBeDeleted() async {
@@ -136,7 +134,7 @@ class DescriptionViewState extends State<Description> {
               ),
             if (_showQRCode)
               QrImage(
-                data: widget.exercise.toJson().toString(),
+                data: widget.exercise.toQR(),
                 version: QrVersions.auto,
                 size: 150,
                 backgroundColor: Colors.white,
@@ -188,17 +186,6 @@ class DescriptionViewState extends State<Description> {
         shape: const CircleBorder(),
         child: const Icon(Icons.keyboard_backspace),
       ),
-    );
-  }
-
-  Map<String, bool> imageHashToMap(int hash) {
-    int index = BodyPartImages.names.length - 1;
-    String binaryString =
-        hash.toRadixString(2).padLeft(BodyPartImages.names.length, '0');
-    return Map.fromIterable(
-      BodyPartImages.names,
-      key: (str) => str,
-      value: (str) => binaryString[index--] == '1' ? true : false,
     );
   }
 

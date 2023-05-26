@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:qr_code_scanner/qr_code_scanner.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:shaptif/NewExercise.dart';
 import 'package:shaptif/QRReader.dart';
+import 'package:shaptif/db/exercise.dart';
 
 class ShareView extends StatefulWidget {
   const ShareView({Key? key}) : super(key: key);
@@ -19,15 +18,45 @@ class ShareViewState extends State<ShareView> {
       body: Center(
         child: ElevatedButton(
           onPressed: () {
+
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => QRReader()),
             ).then((value) {
-              Fluttertoast.showToast(
-                msg: value ?? "Nie udało się odczytać QR"
-              );
-            })
-            ;
+
+              if(value!=null)
+                {
+                  Exercise? jsonExercise = Exercise.fromQR(value);
+                  if(jsonExercise != null)
+                    {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => NewExercise(
+                              jsonExercise: jsonExercise,
+                            )),
+                      ).then((value) {
+                        Fluttertoast.showToast(
+                          msg: value != null ? "Dodano "+value : "Nic nie dodano",
+                        );
+                      });
+                    }
+                  else
+                    {
+                      Fluttertoast.showToast(
+                        msg: "Nie poprawny kod QR",
+                      );
+                    }
+                }
+              else
+                {
+                  Fluttertoast.showToast(
+                    msg: "Nie udało się odczytać kodu QR",
+                  );
+                }
+            });
+
+
           },
           child: Text('Skanuj QR'),
         ),

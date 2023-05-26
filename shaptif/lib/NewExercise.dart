@@ -6,15 +6,15 @@ import 'package:shaptif/db/exercise.dart';
 import 'db/setup.dart';
 
 class NewExercise extends StatefulWidget {
-  NewExercise({this.exercises, this.jsonString, Key? key}) : super(key: key);
+  NewExercise({this.exercises, this.jsonExercise, Key? key}) : super(key: key);
   final List<Exercise>? exercises;
-  final String? jsonString;
+  final Exercise? jsonExercise;
   @override
   State<StatefulWidget> createState() => NewExerciseViewState();
 }
 
 class NewExerciseViewState extends State<NewExercise> {
-  late Map<String, bool> images = Map.fromIterable(
+  late Map<String, bool> images = widget.jsonExercise != null ? widget.jsonExercise!.imageHashToMap() : Map.fromIterable(
     BodyPartImages.names,
     key: (str) => str,
     value: (str) => false,
@@ -31,8 +31,18 @@ class NewExerciseViewState extends State<NewExercise> {
   @override
   void initState() {
     super.initState();
-
+    checkJsonExercise();
     loadButtonList();
+  }
+
+  void checkJsonExercise()
+  {
+    if(widget.jsonExercise != null)
+      {
+        exerciseNameController.text = widget.jsonExercise!.name;
+        descriptionController.text = widget.jsonExercise!.description;
+        selectedBodyPart = widget.jsonExercise!.bodyPart;
+      }
   }
 
   Future loadToDataBase() async {
@@ -48,8 +58,10 @@ class NewExerciseViewState extends State<NewExercise> {
         (await DatabaseManger.instance.selectBodyPart(selectedBodyPart)).name;
 
     widget.exercises?.add(newExcercise);
-
-    Navigator.of(context).pop();
+    setState(() {
+      widget.exercises;
+    });
+    Navigator.pop(context, newExcercise.name);
   }
 
   Future loadButtonList() async {
