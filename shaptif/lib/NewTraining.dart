@@ -24,64 +24,95 @@ class NewTrainingViewState extends State<NewTrainingView> {
   //   await themeChangeProvider.darkThemePreference.getTheme();
   // }
   Set<String> exercises = {};
+
   @override
   Widget build(BuildContext context) {
     double heigth = MediaQuery. of(context). size. height;
     return Scaffold(
       appBar: AppBar(),
-        body: Column(
-          children: [
-            Flexible(
-                  child:
-                    ListView.builder(
-                        itemCount: exercises.length,
-                        itemBuilder: (context, index){
-                          return Ink(
-                            //color: Colors.white,
-                              child: ListTile(
-                                title: Text('${exercises.elementAt(index)}', textAlign: TextAlign.center,),
-                                //textColor: Colors.black,
-                              )
-                          );
-                        })
-                ),
-            SizedBox.fromSize(
-              size: Size(56, 56),
-              child: ClipOval(
-                child: Material(
-                  color: Colors.green,
-                  child: InkWell(
-                    splashColor: Colors.redAccent,
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const TrainingBuilderView())
-                      ).then((value){
-                        if(value != null){
+      body: ListView.builder(
+                itemCount: exercises.length,
+                itemBuilder: (context, index){
+                  return Card(
+                    color: Colors.greenAccent,
+                      child:Padding(
+                        padding: const EdgeInsets.all(14.0),
+                        child: ListTile(
+                          title: Text('${exercises.elementAt(index)}'),
+                          trailing: SizedBox(
+                            child: Expanded(
+                              child: IconButton(
+                                  icon: Icon(Icons.delete),
+                                onPressed: (){
+                                    setState(() {
+                                      exercises.remove(exercises.elementAt(index));
+                                    });
+                                },
+                              ),
+                            ),
+                          ),
+                        ),
+                      )
+                  );
+                }),
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            heroTag: "AddExercise",
+            onPressed: (){
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const TrainingBuilderView())
+              ).then((value){
+                if(value != null){
+                  setState(() {
+                    exercises.add(value);
+                  });
+                }
+              });
+            },
+            shape: CircleBorder(),
+            backgroundColor: Colors.green,
+            child: Icon(Icons.add),
+          ),
+          FloatingActionButton(
+              heroTag: "SaveTraining",
+              onPressed: (){
+                showDialog(
+                    context: context,
+                    builder: (BuildContext context) => AlertDialog(
+                      title: const Text('Nadaj nazwe'),
+                      content: TextField(
+                        onChanged: (value){
                           setState(() {
-                            exercises.add(value);
-                          });
-                        }
-                      });
-                    },
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Icon(Icons.add), // <-- Icon
-                        Text("Add"),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            SizedBox(
-              height: 50,
-            ),
-          ],
-        ),
 
+                          });
+                        },
+                        decoration:  InputDecoration(hintText: 'Nazwa treningu'),
+                      ),
+                        //content: ,
+                        actions: <Widget>[
+                          TextButton(
+                              onPressed: (){Navigator.pop(context, 'OK');},
+                              child: const Text('OK'))
+                        ],
+                    )
+                    );
+              },
+            shape: CircleBorder(),
+            backgroundColor: Colors.orangeAccent,
+            child: Icon(Icons.save),
+          )
+        ],
+      )
   );
 
   }
+
+  // Widget showDialogAlert(BuildContext context) {
+  //   return
+  // }
+
+
 }
