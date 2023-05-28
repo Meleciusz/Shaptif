@@ -10,7 +10,9 @@ class ShareView extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => ShareViewState();
 }
-
+//TODO:
+//-when exercise is added, user should be moved to corresponding Exercise screen
+//-when exercise is added, Exercise screen should refresh exercise list from DB
 class ShareViewState extends State<ShareView> {
   @override
   Widget build(BuildContext context) {
