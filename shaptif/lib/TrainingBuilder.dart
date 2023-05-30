@@ -4,6 +4,7 @@ import 'package:shaptif/db/exercise.dart';
 import 'package:shaptif/db/database_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'SharedPreferences.dart';
+import 'db/training.dart';
 
 class TrainingBuilderView extends StatefulWidget {
   const TrainingBuilderView({Key? key}) : super(key: key);
@@ -74,7 +75,7 @@ class TrainingBuilderViewState extends State<TrainingBuilderView> {
   };
 
   String ?selectedIconKey;
-  late String choosenExercise;// = exercises[selectedIndex].name;
+  late Exercise choosenExercise;// = exercises[selectedIndex].name;
 
   void filterSearchResults(value) {
     setState(() {
@@ -126,7 +127,7 @@ class TrainingBuilderViewState extends State<TrainingBuilderView> {
                             setState(() {
                               selectedIndex = index;
                             });
-                            choosenExercise = items[index].name;
+                            choosenExercise = items[index];
                           },
                         );
                       },

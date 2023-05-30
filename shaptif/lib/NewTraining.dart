@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shaptif/TrainingBuilder.dart';
 import 'package:shaptif/db/database_manager.dart';
+import 'package:shaptif/db/exercise.dart';
 import 'package:shaptif/db/exercise_set.dart';
 import 'package:shaptif/db/training.dart';
 
@@ -18,7 +19,7 @@ class NewTrainingViewState extends State<NewTrainingView> {
   int weight = 50;
   String trainingName = '';
   String descriptionName = '';
-  Set<String> exercises = {};
+  List<Exercise> exercises = [];
   @override
   void initState(){
     super.initState();
@@ -27,19 +28,23 @@ class NewTrainingViewState extends State<NewTrainingView> {
   Future loadToDatabase() async{
     setState(() => isLoading = true);
 
-    await DatabaseManger.instance.insert(Training(
+    Training ddd = await DatabaseManger.instance.insert(Training(
         name: trainingName,
         description: descriptionName,
-        isEmbedded: false));
+        isEmbedded: false)) as Training;
 
-    // for(String rm in exercises){
+    // for(String rm in exercises) {
     //
-    // }
-    // await DatabaseManger.instance.insert(ExerciseSet(
-    //     trainingID: trainingID,
-    //     exerciseID: exerciseID,
-    //     repetitions: 5,
-    //     weight: 50.0));
+    // } //TODO zrób sekcje, która pozwoli na dawanie ilości serii, powtórzeń i obciążenia
+
+    // for(Exercise rm in exercises){
+      await DatabaseManger.instance.insert(ExerciseSet(
+          trainingID: ddd.id!,
+          exerciseID: exercises.first.id!,
+          repetitions: 5,
+          weight: 50.0));
+    //}
+
 
     setState(() => isLoading = false);
   }
@@ -58,17 +63,17 @@ class NewTrainingViewState extends State<NewTrainingView> {
                       child:Padding(
                         padding: const EdgeInsets.all(14.0),
                         child: ListTile(
-                          title: Text('${exercises.elementAt(index)}'),
+                          title: Text('${exercises.elementAt(index).name}'),
                           trailing: SizedBox(
-                            child: Expanded(
-                              child: IconButton(
-                                  icon: Icon(Icons.delete),
-                                onPressed: (){
-                                    setState(() {
-                                      exercises.remove(exercises.elementAt(index));
-                                    });
-                                },
-                              ),
+                            width: 70,
+                            height: 100,
+                            child: IconButton(
+                              icon: Icon(Icons.delete),
+                              onPressed: () {
+                                setState(() {
+                                  exercises.remove(exercises.elementAt(index));
+                                });
+                              },
                             ),
                           ),
                         ),
@@ -85,10 +90,21 @@ class NewTrainingViewState extends State<NewTrainingView> {
                   context,
                   MaterialPageRoute(builder: (context) => const TrainingBuilderView())
               ).then((value){
+                bool isSame = false;
+                Exercise givenValue = value;
+
                 if(value != null){
-                  setState(() {
-                    exercises.add(value);
-                  });
+                  for(Exercise rn in exercises){
+                    if(rn.name == givenValue.name){
+                      isSame = true;
+                    }
+                  }
+
+                  if(isSame == false){
+                    setState(() {
+                      exercises.add(givenValue);
+                    });
+                  }
                 }
               });
             },
