@@ -33,23 +33,23 @@ class HistoryViewState extends State<HistoryView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 31, 31, 33),
+      //backgroundColor: const Color.fromARGB(255, 31, 31, 33),
       body: isLoading ? notLoaded() : loaded(),
-      floatingActionButton: FloatingActionButton(
-        heroTag: "AddHistoryButton",
-        onPressed: () {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content: const Text("Smack me!"),
-              action: SnackBarAction(
-                  label: "Fuck",
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                  })));
-        },
-        backgroundColor: const Color.fromARGB(255, 58, 183, 89),
-        shape: const CircleBorder(),
-        child: const Icon(Icons.add),
-      ),
+      // floatingActionButton: FloatingActionButton(
+      //   heroTag: "AddHistoryButton",
+      //   onPressed: () {
+      //     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      //         content: const Text("Smack me!"),
+      //         action: SnackBarAction(
+      //             label: "Fuck",
+      //             onPressed: () {
+      //               ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      //             })));
+      //   },
+      //   backgroundColor: const Color.fromARGB(255, 58, 183, 89),
+      //   shape: const CircleBorder(),
+      //   child: const Icon(Icons.add),
+      // ),
     );
   }
 
