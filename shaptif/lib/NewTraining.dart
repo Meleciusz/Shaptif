@@ -7,8 +7,9 @@ import 'package:shaptif/db/training.dart';
 
 
 class NewTrainingView extends StatefulWidget {
-  const NewTrainingView({Key? key}) : super(key: key);
+  const NewTrainingView({this.trainings, Key? key}) : super(key: key);
 
+  final List<Training>? trainings;
   @override
   State<StatefulWidget> createState() => NewTrainingViewState();
 }
@@ -53,8 +54,12 @@ class NewTrainingViewState extends State<NewTrainingView> {
       ++number;
     }
 
+    widget.trainings?.add(newTraining);
+    setState(() {
+      widget.trainings;
+    });
 
-    setState(() => isLoading = false);
+    Navigator.pop(context, newTraining.name);
   }
 
 
@@ -229,7 +234,6 @@ class NewTrainingViewState extends State<NewTrainingView> {
                           TextButton(
                               onPressed: (){
                                 loadToDatabase();
-                                Navigator.pop(context);
                                 Navigator.pop(context);
                               },
                               child: const Text('OK')

@@ -25,6 +25,7 @@ class TrainingListViewState extends State<TrainingListView> {
   void initState() {
     super.initState();
     _getData();
+    refreshData();
   }
 
   Future _getData() async {
@@ -58,7 +59,9 @@ class TrainingListViewState extends State<TrainingListView> {
         onPressed: () {
           Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const NewTrainingView())
+              MaterialPageRoute(builder: (context) => NewTrainingView(
+                trainings: trainings,
+              ))
           ).then((value) {
             setState(() {
               trainings;
