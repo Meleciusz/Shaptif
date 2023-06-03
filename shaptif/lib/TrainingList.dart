@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shaptif/NewTraining.dart';
 import 'package:shaptif/TrainingDetailsView.dart';
 import 'package:shaptif/db/finished_training.dart';
@@ -18,6 +19,7 @@ class TrainingListViewState extends State<TrainingListView> {
   bool trainingIsActive = false;
   late int localSelectedTrainingID = -1;
   FinishedTraining? finishedTraining = null;
+  late int trainingSize;
 
   @override
   void initState() {
@@ -40,6 +42,7 @@ class TrainingListViewState extends State<TrainingListView> {
     for (Training el in trainings) {
       await el.refreshExerciseMap();
     }
+    trainingSize = trainings.length;
     setState(() => isLoading = false);
   }
 
@@ -55,8 +58,18 @@ class TrainingListViewState extends State<TrainingListView> {
         onPressed: () {
           Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const NewTrainingView()));
-                  },
+              MaterialPageRoute(builder: (context) => const NewTrainingView())
+          ).then((value) {
+            setState(() {
+              trainings;
+            });
+            if(trainingSize != trainings.length){
+              trainingSize = trainings.length;
+              Fluttertoast.showToast(
+                  msg: "Dodano " + trainings.last.name.toLowerCase(),
+              );
+            }
+          });},
         backgroundColor: const Color.fromARGB(255, 58, 183, 89),
         shape: const CircleBorder(),
         child: const Icon(Icons.add),

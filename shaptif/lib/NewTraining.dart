@@ -16,10 +16,18 @@ class NewTrainingView extends StatefulWidget {
 class NewTrainingViewState extends State<NewTrainingView> {
 
   bool isLoading = false;
-  int weight = 50;
   String trainingName = '';
   String descriptionName = '';
   List<Exercise> exercises = [];
+  double firstWeight = 50.0;
+  int firstSeries = 5;
+  int firstRepetitions = 10;
+  List<int> series = [];
+  List<int> repetitions = [];
+  List<double> weight = [];
+  int number = 0;//number of series iteration
+  late Training newTraining;
+
   @override
   void initState(){
     super.initState();
@@ -28,22 +36,22 @@ class NewTrainingViewState extends State<NewTrainingView> {
   Future loadToDatabase() async{
     setState(() => isLoading = true);
 
-    Training ddd = await DatabaseManger.instance.insert(Training(
+    newTraining = await DatabaseManger.instance.insert(Training(
         name: trainingName,
         description: descriptionName,
         isEmbedded: false)) as Training;
 
-    // for(String rm in exercises) {
-    //
-    // } //TODO zrób sekcje, która pozwoli na dawanie ilości serii, powtórzeń i obciążenia
 
-    // for(Exercise rm in exercises){
-      await DatabaseManger.instance.insert(ExerciseSet(
-          trainingID: ddd.id!,
-          exerciseID: exercises.first.id!,
-          repetitions: 5,
-          weight: 50.0));
-    //}
+    for(Exercise rm in exercises){
+      for(int i=0; i<series[number]; i++){
+        await DatabaseManger.instance.insert(ExerciseSet(
+            trainingID: newTraining.id!,
+            exerciseID: rm.id!,
+            repetitions: repetitions[number],
+            weight: weight[number]));
+      }
+      ++number;
+    }
 
 
     setState(() => isLoading = false);
@@ -62,21 +70,90 @@ class NewTrainingViewState extends State<NewTrainingView> {
                     color: Colors.greenAccent,
                       child:Padding(
                         padding: const EdgeInsets.all(14.0),
-                        child: ListTile(
-                          title: Text('${exercises.elementAt(index).name}'),
-                          trailing: SizedBox(
-                            width: 70,
-                            height: 100,
-                            child: IconButton(
-                              icon: Icon(Icons.delete),
-                              onPressed: () {
-                                setState(() {
-                                  exercises.remove(exercises.elementAt(index));
-                                });
-                              },
+                        child: Column(
+                          children: [
+                            ListTile(
+                              title: Text('${exercises.elementAt(index).name}'),
+                              trailing: SizedBox(
+                                width: 70,
+                                height: 100,
+                                child: IconButton(
+                                  icon: Icon(Icons.delete),
+                                  onPressed: () {
+                                    setState(() {
+                                      exercises.remove(exercises.elementAt(index));
+                                    });
+                                  },
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children:[
+                                Column(
+                                  children: [
+                                    Text('Serie'),
+                                    Row(
+                                      children: [
+                                        IconButton(
+                                            onPressed: (){
+                                              setState(() => series[index]++);
+                                            },
+                                            icon: Icon(Icons.add)),
+                                        Text('${series[index]}'),
+                                        IconButton(
+                                            onPressed: (){
+                                              setState(() => series[index]--);
+                                            },
+                                            icon: Icon(Icons.remove)),
+                                      ],
+                                    )
+                                  ],
+                                ),
+                                Column(
+                                  children: [
+                                    Text('Powtórzenia'),
+                                    Row(
+                                      children: [
+                                        IconButton(
+                                            onPressed: (){
+                                              setState(() => repetitions[index]++);
+                                            },
+                                            icon: Icon(Icons.add)),
+                                        Text('${repetitions[index]}'),
+                                        IconButton(
+                                            onPressed: (){
+                                              setState(() => repetitions[index]--);
+                                            },
+                                            icon: Icon(Icons.remove)),
+                                      ],
+                                    )
+                                  ],
+                                ),
+                                Column(
+                                  children: [
+                                    Text('Ciężar'),
+                                    Row(
+                                      children: [
+                                        IconButton(
+                                            onPressed: (){
+                                              setState(() => weight[index] = weight[index] + 5);
+                                            },
+                                            icon: Icon(Icons.add)),
+                                        Text('${weight[index]}'),
+                                        IconButton(
+                                            onPressed: (){
+                                              setState(() => weight[index] = weight[index] - 1.25);
+                                            },
+                                            icon: Icon(Icons.remove)),
+                                      ],
+                                    )
+                                  ],
+                                )
+                            ]
+                            ),
+                          ],
+                        )
                       )
                   );
                 }),
@@ -103,6 +180,9 @@ class NewTrainingViewState extends State<NewTrainingView> {
                   if(isSame == false){
                     setState(() {
                       exercises.add(givenValue);
+                      series.add(firstSeries);
+                      weight.add(firstWeight);
+                      repetitions.add(firstRepetitions);
                     });
                   }
                 }
