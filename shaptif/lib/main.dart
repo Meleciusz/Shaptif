@@ -17,7 +17,8 @@ void main() {
   runApp(MyApp());
 }
 
-
+//TODO: Ładowanie treningu i historii przy pierwszym uruchomieniu
+//TODO: Odświeżanie danych po zmianie
 class MyApp extends StatefulWidget {
   @override
   _MyAppState createState() => _MyAppState();

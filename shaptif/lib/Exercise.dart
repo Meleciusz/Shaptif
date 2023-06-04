@@ -14,7 +14,7 @@ class ExcerciseView extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => ExcerciseViewState();
 }
-
+//TODO: SCROLLBAR FIX
 class ExcerciseViewState extends State<ExcerciseView> {
   DarkThemeProvider themeChangeProvider = DarkThemeProvider();
 
