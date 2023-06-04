@@ -3,6 +3,8 @@ import 'package:shaptif/db/finished_training.dart';
 import 'package:shaptif/db/history.dart';
 
 import 'db/database_manager.dart';
+//TODO: Poprawne wyświetlanie historii (Nazwa / data reningu)
+//TODO:Przejście do nowego ekrau i okodowanie go
 
 class HistoryView extends StatefulWidget {
   const HistoryView({Key? key}) : super(key: key);

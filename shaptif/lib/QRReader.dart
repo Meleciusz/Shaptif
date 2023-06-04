@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:permission_handler/permission_handler.dart';
-
+//TODO: PRzejsćie do ekranu dodawnaia cwczienia z uzupełnianiem danych i poprawne zamknięcie skanera
 class QRReader extends StatefulWidget {
   const QRReader({Key? key}) : super(key: key);
 

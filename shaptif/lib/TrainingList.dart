@@ -5,7 +5,7 @@ import 'package:shaptif/TrainingDetailsView.dart';
 import 'package:shaptif/db/finished_training.dart';
 import 'package:shaptif/db/training.dart';
 import 'package:shaptif/db/database_manager.dart';
-
+//TODO: Odświeżanie ekranu po dodaniu treningu
 class TrainingListView extends StatefulWidget {
   const TrainingListView({Key? key}) : super(key: key);
 

@@ -6,7 +6,10 @@ import 'package:shaptif/db/history.dart';
 import 'package:shaptif/db/training.dart';
 import 'package:shaptif/ExerciseWorkoutScreen.dart';
 import 'package:tuple/tuple.dart';
-
+//TODO : ERROR Z ZAPISYWANIEM TRENINGU (występuje po usunieciu serii?)
+//TODO: Usunąć zbędny przycisk
+//TODO: Dodać dodawanie ćwiczenia do treningu
+//TODO :FRONT
 class TrainingDetailsView extends StatefulWidget {
   final Training training;
   FinishedTraining? finishedTraining;

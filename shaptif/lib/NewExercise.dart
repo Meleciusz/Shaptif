@@ -4,7 +4,9 @@ import 'package:shaptif/db/database_manager.dart';
 import 'package:shaptif/db/exercise.dart';
 
 import 'db/setup.dart';
-
+//TODO: Cofanie do kategorii, do której dodano cwiczenie
+//TODO: FRONT (Wybór części ciała)
+//TODO: Tłumaczenie nazw cześci ciała
 class NewExercise extends StatefulWidget {
   NewExercise({this.exercises, this.jsonExercise, Key? key}) : super(key: key);
   final List<Exercise>? exercises;
