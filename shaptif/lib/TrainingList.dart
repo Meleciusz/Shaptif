@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:shaptif/NewTraining.dart';
 import 'package:shaptif/TrainingDetailsView.dart';
 import 'package:shaptif/db/finished_training.dart';
 import 'package:shaptif/db/training.dart';
@@ -17,11 +19,13 @@ class TrainingListViewState extends State<TrainingListView> {
   bool trainingIsActive = false;
   late int localSelectedTrainingID = -1;
   FinishedTraining? finishedTraining = null;
+  late int trainingSize;
 
   @override
   void initState() {
     super.initState();
     _getData();
+    refreshData();
   }
 
   Future _getData() async {
@@ -39,6 +43,7 @@ class TrainingListViewState extends State<TrainingListView> {
     for (Training el in trainings) {
       await el.refreshExerciseMap();
     }
+    trainingSize = trainings.length;
     setState(() => isLoading = false);
   }
 
@@ -47,19 +52,27 @@ class TrainingListViewState extends State<TrainingListView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 31, 31, 33),
+      //backgroundColor: const Color.fromARGB(255, 31, 31, 33),
       body: isLoading ? notLoaded() : loaded(),
       floatingActionButton: FloatingActionButton(
         heroTag: "AddTrainingButton",
         onPressed: () {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content: const Text("Smack me!"),
-              action: SnackBarAction(
-                  label: "Fuck",
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                  })));
-        },
+          Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => NewTrainingView(
+                trainings: trainings,
+              ))
+          ).then((value) {
+            setState(() {
+              trainings;
+            });
+            if(trainingSize != trainings.length){
+              trainingSize = trainings.length;
+              Fluttertoast.showToast(
+                  msg: "Dodano " + trainings.last.name.toLowerCase(),
+              );
+            }
+          });},
         backgroundColor: const Color.fromARGB(255, 58, 183, 89),
         shape: const CircleBorder(),
         child: const Icon(Icons.add),
