@@ -9,8 +9,13 @@ import 'SharedPreferences.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class ExcerciseView extends StatefulWidget {
-  const ExcerciseView({Key? key}) : super(key: key);
-
+  final ValueChanged<bool> onExerciseChanged;
+  final List<Exercise> exercises;
+  const ExcerciseView({
+    Key? key,
+    required this.onExerciseChanged,
+    required this.exercises,
+  }) : super(key: key);
   @override
   State<StatefulWidget> createState() => ExcerciseViewState();
 }
@@ -24,7 +29,6 @@ class ExcerciseViewState extends State<ExcerciseView> {
   void initState() {
     super.initState();
     getCurrentAppTheme();
-    refreshExercises();
   }
 
   void getCurrentAppTheme() async {
@@ -32,23 +36,10 @@ class ExcerciseViewState extends State<ExcerciseView> {
         await themeChangeProvider.darkThemePreference.getTheme();
   }
 
-  late List<Exercise> exercises;
+
   bool isLoading = false;
 
-  Future refreshExercises() async {
-    setState(() => isLoading = true);
 
-    exercises = await DatabaseManger.instance.selectAllExercises();
-    if (exercises.isEmpty) {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      if (prefs.getBool(ShowEmbeddedPreference.EMBEDDED_STATUS) ?? true) {
-        await DatabaseManger.instance.initialData();
-        exercises = await DatabaseManger.instance.selectAllExercises();
-      }
-    }
-    exercisesSize = exercises.length;
-    setState(() => isLoading = false);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +53,7 @@ class ExcerciseViewState extends State<ExcerciseView> {
         body: Center(
           child: isLoading
               ? buildProgressIndicator(context)
-              : exercises.isEmpty
+              : widget.exercises.isEmpty
                   ? buildEmptyView(context)
                   : buildTabBarContext(),
         ),
@@ -74,7 +65,7 @@ class ExcerciseViewState extends State<ExcerciseView> {
   Scrollbar buildTilesFromCategory(String category) {
     List<Exercise> exercisesInCategory = [];
 
-    for (Exercise exercise in exercises) {
+    for (Exercise exercise in widget.exercises) {
       if (exercise.bodyPartString! == category)
         exercisesInCategory.add(exercise);
     }
@@ -89,14 +80,14 @@ class ExcerciseViewState extends State<ExcerciseView> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => Description(exercise: exercise, exercises: exercises,)),
+                    builder: (context) => Description(exercise: exercise, exercises: widget.exercises,)),
               ).then((value) {
                 setState(() {
-                  exercises;
+                  widget.exercises;
                 });
-                if(exercisesSize!=exercises.length)
+                if(exercisesSize!=widget.exercises.length)
                 {
-                  exercisesSize = exercises.length;
+                  exercisesSize = widget.exercises.length;
                   Fluttertoast.showToast(
                     msg: "Usunięto ćwiczenie",
                   );
@@ -173,17 +164,18 @@ class ExcerciseViewState extends State<ExcerciseView> {
           context,
           MaterialPageRoute(
               builder: (context) => NewExercise(
-                    exercises: exercises,
+                    exercises: widget.exercises,
                   )),
         ).then((value) {
           setState(() {
-            exercises;
+            widget.exercises;
+            //TODO: PUSH BACK DO BAZY EWENTUALNIE POWIADOMIENIE MAINA O POTRZEBIE ODŚWIEŻENIA (widget.onExerciseChanged(true))
           });
-          if(exercisesSize!=exercises.length)
+          if(exercisesSize!=widget.exercises.length)
             {
-              exercisesSize = exercises.length;
+              exercisesSize = widget.exercises.length;
               Fluttertoast.showToast(
-              msg: "Dodano " + exercises.last.name.toLowerCase(),
+              msg: "Dodano " + widget.exercises.last.name.toLowerCase(),
             );
             }
         });

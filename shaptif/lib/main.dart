@@ -6,8 +6,11 @@ import 'package:provider/provider.dart';
 import 'package:shaptif/Exercise.dart';
 import 'package:shaptif/History.dart';
 import 'package:shaptif/Share.dart';
+import 'package:shaptif/SharedPreferences.dart';
 import 'package:shaptif/Styles.dart';
 import 'package:shaptif/TrainingList.dart';
+import 'package:shaptif/db/database_manager.dart';
+import 'package:shaptif/db/exercise.dart';
 import 'package:shaptif/settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -17,8 +20,7 @@ void main() {
   runApp(MyApp());
 }
 
-//TODO: Ładowanie treningu i historii przy pierwszym uruchomieniu
-//TODO: Odświeżanie danych po zmianie
+//TODO: Odświeżanie danych po zmianie -> Należy zrobić to analogicznie do exercises (w main wszystkie zmienne przekazywane do ekranów i w main odświeżanie ich)
 class MyApp extends StatefulWidget {
   @override
   _MyAppState createState() => _MyAppState();
@@ -39,12 +41,12 @@ class _MyAppState extends State<MyApp> {
 
   void getCurrentAppTheme() async {
     themeChangeProvider.darkTheme =
-      await themeChangeProvider.darkThemePreference.getTheme();
+        await themeChangeProvider.darkThemePreference.getTheme();
   }
 
   void getShowEmbedded() async {
     showEmbeddedProvider.showEmbedded =
-    await showEmbeddedProvider.showEmbeddedPreference.getShowEmbedded();
+        await showEmbeddedProvider.showEmbeddedPreference.getShowEmbedded();
   }
 
   @override
@@ -59,7 +61,7 @@ class _MyAppState extends State<MyApp> {
         ),
       ],
       child: Consumer<DarkThemeProvider>(
-        builder: (BuildContext context, value, Widget? child){
+        builder: (BuildContext context, value, Widget? child) {
           return MaterialApp(
             //debugShowCheckedModeBanner: false,
             title: 'Flutter Demo',
@@ -69,7 +71,6 @@ class _MyAppState extends State<MyApp> {
             // routes: <String, WidgetBuilder>{
             //     AGENDA
             // },
-
           );
         },
       ),
@@ -77,37 +78,33 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
-
-class SplashScreen extends StatelessWidget{
+class SplashScreen extends StatelessWidget {
   const SplashScreen({Key? key}) : super(key: key);
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     return AnimatedSplashScreen(
-        splash: Align(
-          child: Row(
-            children: const [
-              Text(
-                'S',
-                style: TextStyle(
-                    fontFamily: 'Audiowide',
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 120),
-              ),Text(
-                'haptif',
-                style: TextStyle(
-                    fontFamily: 'Audiowide',
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 60),
-              ),
-
-            ]
+      splash: Align(
+        child: Row(children: const [
+          Text(
+            'S',
+            style: TextStyle(
+                fontFamily: 'Audiowide',
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 120),
           ),
-        ),
-
-        nextScreen: const MyHomePage(title: 'Shaptif'),
-        splashTransition: SplashTransition.slideTransition,
+          Text(
+            'haptif',
+            style: TextStyle(
+                fontFamily: 'Audiowide',
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 60),
+          ),
+        ]),
+      ),
+      nextScreen: const MyHomePage(title: 'Shaptif'),
+      splashTransition: SplashTransition.slideTransition,
       backgroundColor: Colors.black,
       splashIconSize: 250,
       pageTransitionType: PageTransitionType.topToBottom,
@@ -124,19 +121,91 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  late List<Exercise> exercises;
+
   bool isLoading = false;
   int currentBottomNavBarIndex = 0;
   final String appBarText = 'Shaptif';
-  final screens = [
-    const ExcerciseView(),
-    const TrainingListView(),
-    const HistoryView(),
-    const SettingsView(),
-    const ShareView()
-  ];
+
+  List<Widget>? screens;
+
+  void loadScreens() {
+    isLoading = false;
+    screens = [
+      ExcerciseView(
+        onExerciseChanged: (value) async {
+          await refreshExercises();
+          setState(() {
+          });
+        },
+        exercises: exercises,
+      ),
+      const TrainingListView(),
+      const HistoryView(),
+      const SettingsView(),
+      const ShareView(),
+    ];
+  }
+
+  Future refreshExercises() async {
+    exercises = await DatabaseManger.instance.selectAllExercises();
+  }
+
+  void CheckDatabase() {
+    setState(() => isLoading = true);
+
+    DatabaseManger.instance.selectAllExercises().then((exercises) {
+      if (exercises.isEmpty) {
+        SharedPreferences.getInstance().then((prefs) {
+          if (prefs.getBool(ShowEmbeddedPreference.EMBEDDED_STATUS) ?? true) {
+            DatabaseManger.instance.initialData().then((_) {
+              DatabaseManger.instance.selectAllExercises().then((exercises) {
+                setState(() {
+                  this.exercises = exercises;
+                  loadScreens();
+                });
+              });
+            });
+          } else {
+            setState(() {
+              this.exercises = exercises;
+              loadScreens();
+            });
+          }
+        });
+      } else {
+        setState(() {
+          this.exercises = exercises;
+          loadScreens();
+        });
+      }
+    });
+  }
+
+  Widget buildProgressIndicator(BuildContext context) {
+    return Center(
+      child: SizedBox(
+        width: 40,
+        height: 40,
+        child: CircularProgressIndicator(
+          strokeWidth: 4,
+          color: Colors.green,
+        ),
+      ),
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    CheckDatabase();
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (screens == null) {
+      return buildProgressIndicator(context);
+    }
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(80),
@@ -144,39 +213,20 @@ class _MyHomePageState extends State<MyHomePage> {
           title: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-            Image.asset(
-            "images/ksiazka.png",
-            fit: BoxFit.contain,
-            height: 110,
-          ),],),
-          // centerTitle: true,
-          // title: Image.asset("images/ksiazka.png"),
-          // flexibleSpace: Container(
-          //   decoration: const BoxDecoration(
-          //       image: DecorationImage(
-          //         image: AssetImage("images/ksiazka.png"),
-          //         fit: BoxFit.fill,
-          //       )),
-          // ),
-          // title: Text(
-          //   appBarText,
-          //   style: const TextStyle(
-          //       fontFamily: 'Audiowide',
-          //       color: Colors.black,
-          //       fontWeight: FontWeight.bold,
-          //       fontSize: 40),
-          // ),
+              Image.asset(
+                "images/ksiazka.png",
+                fit: BoxFit.contain,
+                height: 110,
+              ),
+            ],
+          ),
           backgroundColor: Colors.black,
-          // shape: const RoundedRectangleBorder(
-          //     borderRadius: BorderRadius.only(
-          //         bottomRight: Radius.circular(20),
-          //         bottomLeft: Radius.circular(20))),
           automaticallyImplyLeading: false,
         ),
       ),
       body: IndexedStack(
         index: currentBottomNavBarIndex,
-        children: screens,
+        children: screens!,
       ),
       bottomNavigationBar: BottomNavigationBar(
           currentIndex: currentBottomNavBarIndex,
@@ -214,8 +264,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 backgroundColor: Colors.black)
           ]
 
-        // This trailing comma makes auto-formatting nicer for build methods.
-      ),
+          // This trailing comma makes auto-formatting nicer for build methods.
+          ),
     );
   }
 }
