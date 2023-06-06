@@ -31,6 +31,7 @@ class _TrainingDetailsViewState extends State<TrainingDetailsView> {
   late bool trainingIdChanged = false;
   late bool databaseReloadNeeded = false;
   late bool _isEdited;
+  List<ExerciseSet> toDeleteList = [];
   @override
   void initState() {
     _isEdited = false ;
@@ -109,7 +110,6 @@ class _TrainingDetailsViewState extends State<TrainingDetailsView> {
                     else if(changed)
                       {
 
-                        print(widget.finishedTraining!.name);
                         changeCurrentTrainingWithSaving();
                         widget.finishedTraining = (await DatabaseManger.instance
                             .insert(FinishedTraining(
@@ -117,7 +117,6 @@ class _TrainingDetailsViewState extends State<TrainingDetailsView> {
                             description: widget.training.description,
                             finishedDateTime: DateTime.now())))
                         as FinishedTraining;
-                        print(widget.finishedTraining!.name);
                       }
                   }
 
@@ -126,6 +125,23 @@ class _TrainingDetailsViewState extends State<TrainingDetailsView> {
                     trainingIdChanged = started;
                   });
                 },
+                onAddSet:(value) async {
+                  toDeleteList.removeLast();
+                  print("ADD DELTELIST: ");
+                  for(var set in toDeleteList)
+                  {
+                    print("id: "+set.id!.toString());
+                  }
+                  },
+                onDeleteSet: (value) async {
+
+                   toDeleteList.add(value);
+                   print("DEL DELTELIST: ");
+                   for(var set in toDeleteList)
+                     {
+                       print("id: "+set.id!.toString());
+                     }
+                  },
               );
             },
           )),
@@ -168,9 +184,9 @@ class _TrainingDetailsViewState extends State<TrainingDetailsView> {
           IconButton(
             icon: Icon(Icons.save_rounded),
             iconSize: 40,
-            color: Colors.yellow,
-            onPressed: () {
-              // TODO: Implement saving changes
+            color: _isEdited==true ? Colors.yellow : Colors.grey,
+            onPressed: () async{
+              if(_isEdited) await saveChangesInTraining();
             },
           ),
         ],
@@ -178,44 +194,33 @@ class _TrainingDetailsViewState extends State<TrainingDetailsView> {
     );
   }
 
-  Future saveToDatabase() async {
-    // TODO: FIX THIS BULLCRAP
-    bool found = false;
-    var setsInDatabase = await DatabaseManger.instance.selectSetsByTraining(widget.training.id!);
-
-    for (var set in setsInDatabase) {
-      for (var key in widget.training.exercisesMap.keys) {
-        var exerciseSets = widget.training.exercisesMap[key]!;
-
-        for (var currentSet in exerciseSets) {
-          if (currentSet.id == null) {
-            continue;
-          } else if (set.id! == currentSet.id!) {
-            found = true;
-            break;
-          }
+  Future deleteSetsInQueueFromDatabase() async {
+    for(ExerciseSet set in toDeleteList)
+        {
+          await DatabaseManger.instance.delete(set);
         }
-
-        if (!found) {
-           await DatabaseManger.instance.delete(set);
-        }
-        found = false;
-      }
-    }
+    toDeleteList.clear();
   }
   Future changeCurrentTrainingWithSaving()async
   {
-      await saveToDatabase();
+      await deleteSetsInQueueFromDatabase();
       databaseReloadNeeded = true;
       trainingIdChanged = true;
       widget.trainingStarted = true;
   }
   Future saveTraining() async{
-    await saveToDatabase();
+    await deleteSetsInQueueFromDatabase();
     databaseReloadNeeded = true;
     trainingIdChanged = false;
     widget.trainingStarted = false;
     backToTrainingListView();
+  }
+  Future saveChangesInTraining() async{
+    await deleteSetsInQueueFromDatabase();
+    setState(() {
+      _isEdited = false;
+    });
+
   }
 
   void addHistoryEntry(ExerciseSet exSet) {
@@ -253,6 +258,8 @@ class ExerciseTile extends StatefulWidget {
   final ValueChanged<Tuple2<bool, bool>> onTrainingStartedEvent;
   final ValueChanged<List<ExerciseSet>> onWorkoutExitEvent;
   final ValueChanged<bool> onEditWorkout;
+  final ValueChanged<ExerciseSet> onDeleteSet;
+  final ValueChanged<ExerciseSet> onAddSet;
 
   ExerciseTile({
     Key? key,
@@ -263,6 +270,8 @@ class ExerciseTile extends StatefulWidget {
     required this.onTrainingStartedEvent,
     required this.onWorkoutExitEvent,
     required this.onEditWorkout,
+    required this.onDeleteSet,
+    required this.onAddSet,
   }) : super(key: key);
 
   @override
@@ -379,11 +388,13 @@ class _ExerciseTileState extends State<ExerciseTile> {
 
     if (currentNumberOfSets < startingNumberOfSets) {
       widget.sets.add(ExerciseSet(
-        trainingID: widget.sets[currentNumberOfSets].trainingID,
-        exerciseID: widget.sets[currentNumberOfSets].exerciseID,
-        weight: widget.sets[currentNumberOfSets].weight,
-        repetitions: widget.sets[currentNumberOfSets].repetitions,
+        id: backupSets[currentNumberOfSets].id,
+        trainingID: backupSets[currentNumberOfSets].trainingID,
+        exerciseID: backupSets[currentNumberOfSets].exerciseID,
+        weight: backupSets[currentNumberOfSets].weight,
+        repetitions: backupSets[currentNumberOfSets].repetitions,
       ));
+      widget.onAddSet(widget.sets.last);
     } else {
       widget.sets.add(ExerciseSet(
         trainingID: widget.sets.last.trainingID,
@@ -395,9 +406,33 @@ class _ExerciseTileState extends State<ExerciseTile> {
     _maxSets++;
   }
 
-  void _removeLastSet() {
-    widget.sets.removeLast();
-    _maxSets--;
+  void _removeLastSet() async {
+    //TODO: Performance adjustments: create method getAllSetsInExerciseInTraining(int trainingId, int ExerciseId)
+    //TODO: Performance adjustments: if said method returns elements order by setId DESC, it should significantly shorten searching
+    var lastSet = widget.sets.removeLast();
+    setState(() {
+      _maxSets--;
+    });
+
+    if (lastSet.id == null) {
+
+      print("NULL id");
+    return;
+  }
+    var exerciseId = lastSet.exerciseID;
+    List<ExerciseSet> setList = await DatabaseManger.instance.selectSetsByTraining(lastSet.trainingID);
+
+    for(ExerciseSet set in setList)
+      {
+        if(set.exerciseID!=exerciseId)continue;
+        if(set.id! == lastSet.id!)
+          {
+            print("deleted");
+            widget.onDeleteSet(lastSet);
+            break;
+          }
+      }
+
   }
 
   void _canStartExercise() async {
