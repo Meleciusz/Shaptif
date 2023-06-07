@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shaptif/TrainingBuilder.dart';
 import 'package:shaptif/db/database_manager.dart';
 import 'package:shaptif/db/exercise.dart';
@@ -7,9 +8,9 @@ import 'package:shaptif/db/training.dart';
 
 
 class NewTrainingView extends StatefulWidget {
-  const NewTrainingView({this.trainings, Key? key}) : super(key: key);
+  const NewTrainingView({Key? key}) : super(key: key);
 
-  final List<Training>? trainings;
+
   @override
   State<StatefulWidget> createState() => NewTrainingViewState();
 }
@@ -54,12 +55,7 @@ class NewTrainingViewState extends State<NewTrainingView> {
       ++number;
     }
 
-    widget.trainings?.add(newTraining);
-    setState(() {
-      widget.trainings;
-    });
-
-    Navigator.pop(context, newTraining.name);
+    Navigator.pop(context, true);
   }
 
 
@@ -172,10 +168,9 @@ class NewTrainingViewState extends State<NewTrainingView> {
                   context,
                   MaterialPageRoute(builder: (context) => const TrainingBuilderView())
               ).then((value){
-                bool isSame = false;
-                Exercise givenValue = value;
-
                 if(value != null){
+                  bool isSame = false;
+                  Exercise givenValue = value;
                   for(Exercise rn in exercises){
                     if(rn.name == givenValue.name){
                       isSame = true;
@@ -190,6 +185,12 @@ class NewTrainingViewState extends State<NewTrainingView> {
                       repetitions.add(firstRepetitions);
                     });
                   }
+                  else
+                    {
+                      Fluttertoast.showToast(
+                        msg: "To ćwiczenie już znajduje się w treningu ",
+                      );
+                    }
                 }
               });
             },

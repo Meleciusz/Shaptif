@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:shaptif/TrainingBuilder.dart';
 import 'package:shaptif/db/database_manager.dart';
+import 'package:shaptif/db/exercise.dart';
 import 'package:shaptif/db/exercise_set.dart';
 import 'package:shaptif/db/finished_training.dart';
 import 'package:shaptif/db/history.dart';
+import 'package:shaptif/db/table_object.dart';
 import 'package:shaptif/db/training.dart';
 import 'package:shaptif/ExerciseWorkoutScreen.dart';
 import 'package:tuple/tuple.dart';
@@ -32,6 +36,11 @@ class _TrainingDetailsViewState extends State<TrainingDetailsView> {
   late bool databaseReloadNeeded = false;
   late bool _isEdited;
   List<ExerciseSet> toDeleteList = [];
+
+  final int baseSetCount = 5;
+  final int baseRepCount = 10;
+  final double baseWeight = 20;
+
   @override
   void initState() {
     _isEdited = false ;
@@ -127,20 +136,9 @@ class _TrainingDetailsViewState extends State<TrainingDetailsView> {
                 },
                 onAddSet:(value) async {
                   toDeleteList.removeLast();
-                  print("ADD DELTELIST: ");
-                  for(var set in toDeleteList)
-                  {
-                    print("id: "+set.id!.toString());
-                  }
                   },
                 onDeleteSet: (value) async {
-
                    toDeleteList.add(value);
-                   print("DEL DELTELIST: ");
-                   for(var set in toDeleteList)
-                     {
-                       print("id: "+set.id!.toString());
-                     }
                   },
               );
             },
@@ -170,9 +168,35 @@ class _TrainingDetailsViewState extends State<TrainingDetailsView> {
             iconSize: 40,
             color: Colors.green,
             onPressed: () {
-              // TODO: Implement adding a new exercise
-            },
-          ),
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const TrainingBuilderView())
+              ).then((value) async{
+                if(value != null){
+                  Exercise exercise = value;
+                  if(widget.training.exercisesMap.containsKey(exercise.name))
+                  {
+                    Fluttertoast.showToast(
+                        msg: "To ćwiczenie już znajduje się w treningu ");
+                  }
+                  else
+                  {
+                    for (int i = 0; i < baseSetCount;i ++)
+                      {
+                        //TODO: FIX ERROR HERE
+                        ExerciseSet exerciseSet = ExerciseSet(trainingID: widget.training.id!, exerciseID: exercise.id!, repetitions: baseRepCount, weight: baseWeight);
+                        exerciseSet = (await DatabaseManger.instance.insert(exerciseSet)) as ExerciseSet;
+                        widget.training.exercisesMap[exercise.name]!.add(exerciseSet);
+                      }
+                    setState(() {
+
+                    });
+
+                  }
+                }});
+            }
+             ),
           IconButton(//Finish current training
             icon: Icon(Icons.fact_check_outlined),
             color: widget.trainingStarted ? Colors.green : (_isEdited==true ? Colors.green : Colors.grey),

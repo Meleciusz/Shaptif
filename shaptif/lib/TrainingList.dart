@@ -7,50 +7,34 @@ import 'package:shaptif/db/training.dart';
 import 'package:shaptif/db/database_manager.dart';
 //TODO: Odświeżanie ekranu po dodaniu treningu
 class TrainingListView extends StatefulWidget {
-  const TrainingListView({Key? key}) : super(key: key);
+  final ValueChanged<bool> onTrainingChanged;
+
+  final List<Training> trainings;
+
+  const TrainingListView({    Key? key,
+    required this.onTrainingChanged,
+    required this.trainings,
+  }) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => TrainingListViewState();
 }
 
 class TrainingListViewState extends State<TrainingListView> {
-  late List<Training> trainings;
+
   bool isLoading = false;
   bool trainingIsActive = false;
   late int localSelectedTrainingID = -1;
   FinishedTraining? finishedTraining = null;
-  late int trainingSize;
 
   @override
   void initState() {
     super.initState();
-    _getData();
-    refreshData();
   }
-
-  Future _getData() async {
-    setState(() => isLoading = true);
-    trainings = await DatabaseManger.instance.selectAllTrainings();
-    for (Training el in trainings) {
-      await el.initExerciseMap();
-    }
-    setState(() => isLoading = false);
-  }
-
-  Future refreshData() async {
-    setState(() => isLoading = true);
-    trainings = await DatabaseManger.instance.selectAllTrainings();
-    for (Training el in trainings) {
-      await el.refreshExerciseMap();
-    }
-    trainingSize = trainings.length;
-    setState(() => isLoading = false);
-  }
-
-
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       //backgroundColor: const Color.fromARGB(255, 31, 31, 33),
       body: isLoading ? notLoaded() : loaded(),
@@ -59,17 +43,15 @@ class TrainingListViewState extends State<TrainingListView> {
         onPressed: () {
           Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => NewTrainingView(
-                trainings: trainings,
-              ))
-          ).then((value) {
+              MaterialPageRoute(builder: (context) => NewTrainingView())
+          ).then((addedSuccessfully) {
+            widget.onTrainingChanged(true);
             setState(() {
-              trainings;
+              widget.trainings;
             });
-            if(trainingSize != trainings.length){
-              trainingSize = trainings.length;
+            if(addedSuccessfully){
               Fluttertoast.showToast(
-                  msg: "Dodano " + trainings.last.name.toLowerCase(),
+                  msg: "Dodano " + widget.trainings.last.name.toLowerCase(),
               );
             }
           });},
@@ -82,10 +64,10 @@ class TrainingListViewState extends State<TrainingListView> {
 
   ListView loaded() {
     return ListView.builder(
-      itemCount: trainings.length,
+      itemCount: widget.trainings.length,
       itemBuilder: (BuildContext context, int index) {
         return Card(
-          color: localSelectedTrainingID == trainings[index].id! &&
+          color: localSelectedTrainingID == widget.trainings[index].id! &&
                   trainingIsActive
               ? Colors.green[300]
               : Colors.black38,
@@ -100,7 +82,7 @@ class TrainingListViewState extends State<TrainingListView> {
                 MaterialPageRoute(
                   builder: (context) => TrainingDetailsView(
                     finishedTraining: finishedTraining,
-                    training: trainings[index],
+                    training: widget.trainings[index],
                     trainingStarted: trainingIsActive,
                     currentTrainingId:localSelectedTrainingID,
                   ),
@@ -114,7 +96,7 @@ class TrainingListViewState extends State<TrainingListView> {
                   finishedTraining = value[2];
                   bool databaseReloadNeeded = value[3];
                   if(databaseReloadNeeded)
-                    await refreshData();
+                    widget.onTrainingChanged(true);
                   setState((){});
                 }
               });
@@ -127,11 +109,11 @@ class TrainingListViewState extends State<TrainingListView> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(trainings[index].name,
+                      Text(widget.trainings[index].name,
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 20)),
                       SizedBox(height: 8),
-                      Text(trainings[index].description),
+                      Text(widget.trainings[index].description),
                     ],
                   ),
                   Icon(Icons.arrow_forward_ios_rounded),
