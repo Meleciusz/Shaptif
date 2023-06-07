@@ -407,8 +407,6 @@ class _ExerciseTileState extends State<ExerciseTile> {
   }
 
   void _removeLastSet() async {
-    //TODO: Performance adjustments: create method getAllSetsInExerciseInTraining(int trainingId, int ExerciseId)
-    //TODO: Performance adjustments: if said method returns elements order by setId DESC, it should significantly shorten searching
     var lastSet = widget.sets.removeLast();
     setState(() {
       _maxSets--;
