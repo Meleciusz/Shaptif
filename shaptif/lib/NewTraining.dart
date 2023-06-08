@@ -72,7 +72,7 @@ class NewTrainingViewState extends State<NewTrainingView> {
                 itemCount: exercises.length,
                 itemBuilder: (context, index){
                   return Card(
-                    color: Colors.greenAccent,
+                    //color: Colors.greenAccent,
                       child:Padding(
                         padding: const EdgeInsets.all(14.0),
                         child: Column(
@@ -172,22 +172,26 @@ class NewTrainingViewState extends State<NewTrainingView> {
                   context,
                   MaterialPageRoute(builder: (context) => const TrainingBuilderView())
               ).then((value){
-                bool isSame = false;
-                Exercise givenValue = value;
+                bool isSame = false;  //checks if Exercise is already in builder
+                List<Exercise> givenValues = value;
 
                 if(value != null){
                   for(Exercise rn in exercises){
-                    if(rn.name == givenValue.name){
-                      isSame = true;
+                    for(Exercise ex in givenValues){
+                      if(rn.name == ex.name){
+                        isSame = true;
+                      }
                     }
                   }
 
                   if(isSame == false){
                     setState(() {
-                      exercises.add(givenValue);
-                      series.add(firstSeries);
-                      weight.add(firstWeight);
-                      repetitions.add(firstRepetitions);
+                      for(Exercise ex in givenValues){
+                        exercises.add(ex);
+                        series.add(firstSeries);
+                        weight.add(firstWeight);
+                        repetitions.add(firstRepetitions);
+                      }
                     });
                   }
                 }
@@ -209,6 +213,15 @@ class NewTrainingViewState extends State<NewTrainingView> {
                           runSpacing: 8.0,
                             children:[
                               TextField(
+                                maxLength: 20,
+                                onChanged: (value){
+                                  setState(() {
+                                    trainingName = value;
+                                  });
+                                },
+                                decoration:  InputDecoration(hintText: 'Nazwa treningu'),
+                              ),
+                              TextField(
                                 maxLines : 5,
                                 onChanged: (value){
                                   setState(() {
@@ -218,15 +231,6 @@ class NewTrainingViewState extends State<NewTrainingView> {
                                 decoration:  InputDecoration(
                                     hintText: 'Opis treningu'
                                 ),
-                              ),
-                              TextField(
-                                maxLength: 20,
-                                onChanged: (value){
-                                  setState(() {
-                                    trainingName = value;
-                                  });
-                                },
-                                decoration:  InputDecoration(hintText: 'Nazwa treningu'),
                               ),
                             ],
                           ),

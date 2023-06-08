@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shaptif/HistoryDetails.dart';
 import 'package:shaptif/db/finished_training.dart';
 import 'package:shaptif/db/history.dart';
 
@@ -16,6 +17,8 @@ class HistoryView extends StatefulWidget {
 class HistoryViewState extends State<HistoryView> {
   late List<FinishedTraining> trainings;
   bool isLoading = false;
+  int ?ID = null;
+  int ?i= null;
 
   @override
   void initState() {
@@ -35,23 +38,8 @@ class HistoryViewState extends State<HistoryView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      //backgroundColor: const Color.fromARGB(255, 31, 31, 33),
+
       body: isLoading ? notLoaded() : loaded(),
-      // floatingActionButton: FloatingActionButton(
-      //   heroTag: "AddHistoryButton",
-      //   onPressed: () {
-      //     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      //         content: const Text("Smack me!"),
-      //         action: SnackBarAction(
-      //             label: "Fuck",
-      //             onPressed: () {
-      //               ScaffoldMessenger.of(context).hideCurrentSnackBar();
-      //             })));
-      //   },
-      //   backgroundColor: const Color.fromARGB(255, 58, 183, 89),
-      //   shape: const CircleBorder(),
-      //   child: const Icon(Icons.add),
-      // ),
     );
   }
 
@@ -59,47 +47,63 @@ class HistoryViewState extends State<HistoryView> {
     return ListView.builder(
       itemCount: trainings.length,
       itemBuilder: (BuildContext context, int index) {
-        Map<String, List> mapa = trainings[index].exercisesMap;
+        //Map<String, List> mapa = trainings[0].exercisesMap;
         return Card(
           margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
           elevation: 4,
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(trainings[index].name,
-                    style:
-                        TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-                SizedBox(height: 8),
-                Text(trainings[index].finishedDateTime.toString(),
-                    style:
-                        TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-                SizedBox(height: 8),
-                Text(trainings[index].description,
-                    style: TextStyle(fontSize: 16)),
-                SizedBox(height: 16),
-                for (String klucz in mapa.keys)
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(klucz,
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                      SizedBox(height: 8),
-                      for (History singleSet in mapa[klucz]!)
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text("Powtórzenia: ${singleSet.repetitions}",
-                                style: TextStyle(fontSize: 16)),
-                            Text("Ciężar: ${singleSet.weight}",
-                                style: TextStyle(fontSize: 16)),
-                          ],
-                        ),
-                      SizedBox(height: 16),
-                    ],
-                  ),
-              ],
+          child: GestureDetector(
+            onTap: (){
+              setState(() {
+                Navigator.push(context, MaterialPageRoute(
+                    builder: (context) => HistoryDetails(
+                      ID: trainings[index].id,
+                      i: index
+                    )));
+              });
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisAlignment:  MainAxisAlignment.center,
+                children: [
+                  Text(
+                      trainings[index].name,
+                      style: TextStyle(
+                          fontFamily: 'Audiowide',
+                          fontWeight: FontWeight.bold,
+                          fontSize: 25)),
+                  SizedBox(height: 8),
+                  Text(trainings[index].description,
+                      style: TextStyle(
+                          fontFamily: 'Audiowide',
+                          fontSize: 10)),
+                  SizedBox(height: 16),
+                  Text(trainings[index].finishedDateTime.toString(),
+                      style: TextStyle(
+                          fontFamily: 'Audiowide',
+                          fontSize: 17)),
+                  // for (String klucz in mapa.keys)
+                  //   Column(
+                  //     crossAxisAlignment: CrossAxisAlignment.start,
+                  //     children: [
+                  //       Text(klucz,
+                  //           style: TextStyle(fontWeight: FontWeight.bold)),
+                  //       SizedBox(height: 8),
+                  //       for (History singleSet in mapa[klucz]!)
+                  //         Row(
+                  //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //           children: [
+                  //             Text("Powtórzenia: ${singleSet.repetitions}",
+                  //                 style: TextStyle(fontSize: 16)),
+                  //             Text("Ciężar: ${singleSet.weight}",
+                  //                 style: TextStyle(fontSize: 16)),
+                  //           ],
+                  //         ),
+                  //       SizedBox(height: 16),
+                  //     ],
+                  //   ),
+                ],
+              ),
             ),
           ),
         );

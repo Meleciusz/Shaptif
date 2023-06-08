@@ -4,7 +4,6 @@ import 'package:shaptif/db/exercise.dart';
 import 'package:shaptif/db/database_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'SharedPreferences.dart';
-import 'db/training.dart';
 
 class TrainingBuilderView extends StatefulWidget {
   const TrainingBuilderView({Key? key}) : super(key: key);
@@ -22,10 +21,15 @@ class TrainingBuilderViewState extends State<TrainingBuilderView> {
   }
 
   late List<Exercise> exercises;
-  late List<bool> standardSelectIndex;
   Map<String, List<Exercise>> filteredExercises = {};
   late var items = <Exercise>[];
   bool isLoading = false;
+  int ?selectedIndex;
+  int selectedKey = 0;
+  String ?selectedIconKey;
+  late Exercise choosenExercise;
+  List<Exercise> chosenExercises = [];
+  List<int> selectedIndexes = [];
 
   Future initExerciseMap() async
   {
@@ -62,9 +66,6 @@ class TrainingBuilderViewState extends State<TrainingBuilderView> {
     setState(() => isLoading = false);
   }
 
-  int ?selectedIndex;
-  int selectedKey = 0;
-
   Map<String, IconData> iconsMap = {
     'Plecy' : Icons.person ,
     'Ręce' : Icons.front_hand_outlined ,
@@ -74,8 +75,7 @@ class TrainingBuilderViewState extends State<TrainingBuilderView> {
     'Brzuch' : Icons.person ,
   };
 
-  String ?selectedIconKey;
-  late Exercise choosenExercise;// = exercises[selectedIndex].name;
+
 
   void filterSearchResults(value) {
     setState(() {
@@ -88,7 +88,7 @@ class TrainingBuilderViewState extends State<TrainingBuilderView> {
   @override
   Widget build(BuildContext context) {
 
-    double heigth = MediaQuery. of(context). size. height;
+
       return Scaffold(
           appBar: AppBar(
             title: Text('Filters'),
@@ -121,13 +121,22 @@ class TrainingBuilderViewState extends State<TrainingBuilderView> {
                         return ListTile(
                           title: Text('${items[index].name}'),
                           selectedTileColor: Colors.green,
-                          selected: index == selectedIndex,
+                          selected: selectedIndexes.contains(index),
                           splashColor: Colors.green,
                           onTap: (){
                             setState(() {
-                              selectedIndex = index;
+                              if (selectedIndexes.contains(index)) {
+                                selectedIndexes.remove(index);
+                              } else {
+                                selectedIndexes.add(index);
+                              }
                             });
-                            choosenExercise = items[index];
+
+                            if (selectedIndexes.contains(index)) {
+                              chosenExercises.add(items[index]);
+                            } else {
+                              chosenExercises.remove(items[index]);
+                            }
                           },
                         );
                       },
@@ -167,6 +176,8 @@ class TrainingBuilderViewState extends State<TrainingBuilderView> {
                     title: Text('$key'),
                     onTap: () {
                       setState(() {
+                        selectedIndexes.clear();
+
                         selectedIconKey = key; // Ustaw wybrany klucz ikony
                         List<MapEntry<String, IconData>> lista = iconsMap.entries.toList();
                         int kaka = lista.indexWhere((entry) => entry.key == key);
@@ -196,7 +207,7 @@ class TrainingBuilderViewState extends State<TrainingBuilderView> {
                 FloatingActionButton (
                   heroTag: "SaveExerciseButton",
                   onPressed: () {
-                    Navigator.pop(context, choosenExercise);
+                    Navigator.pop(context, chosenExercises);
                   },
                   backgroundColor: const Color.fromARGB(255, 95, 166, 83),
                   shape: const CircleBorder(),
