@@ -5,13 +5,14 @@ import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
 import 'package:shaptif/Exercise.dart';
 import 'package:shaptif/History.dart';
+import 'package:shaptif/Settings.dart';
 import 'package:shaptif/Share.dart';
 import 'package:shaptif/SharedPreferences.dart';
 import 'package:shaptif/Styles.dart';
 import 'package:shaptif/TrainingList.dart';
 import 'package:shaptif/db/database_manager.dart';
 import 'package:shaptif/db/exercise.dart';
-import 'package:shaptif/settings.dart';
+import 'package:shaptif/db/training.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'DarkThemeProvider.dart';
@@ -122,33 +123,54 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   late List<Exercise> exercises;
-
+  late List<Training> trainings = [];
   bool isLoading = false;
+  bool screensLoaded = false;
   int currentBottomNavBarIndex = 0;
   final String appBarText = 'Shaptif';
 
   List<Widget>? screens;
 
+  Widget CreateExerciseView()
+  {
+    return ExcerciseView(
+      onExerciseChanged: (value) async {
+        await refreshExercisesData();
+        setState(() {
+        });
+      },
+      exercises: exercises,
+    );
+
+  }
+
+  Widget CreateTrainingListView()
+  {
+    return TrainingListView(
+      onTrainingChanged: (value) async {
+        if(value)refreshTrainingsData();
+        setState(() {
+        });
+      },
+      trainings: trainings,
+    );
+  }
   void loadScreens() {
     isLoading = false;
     screens = [
-      ExcerciseView(
-        onExerciseChanged: (value) async {
-          await refreshExercises();
-          setState(() {
-          });
-        },
-        exercises: exercises,
-      ),
-      const TrainingListView(),
+      CreateExerciseView(),
+      CreateTrainingListView(),
       const HistoryView(),
       const SettingsView(),
       const ShareView(),
     ];
   }
 
-  Future refreshExercises() async {
+  Future refreshExercisesData() async {
     exercises = await DatabaseManger.instance.selectAllExercises();
+    setState(() {
+      screens![0]=CreateExerciseView();
+    });
   }
 
   void CheckDatabase() {
@@ -162,6 +184,7 @@ class _MyHomePageState extends State<MyHomePage> {
               DatabaseManger.instance.selectAllExercises().then((exercises) {
                 setState(() {
                   this.exercises = exercises;
+
                   loadScreens();
                 });
               });
@@ -199,10 +222,44 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     CheckDatabase();
+
   }
 
+  Future _getData() async {
+    //Initialize required variables here
+    // \/   \/    \/    \/    \/    \/
+
+
+    trainings = await DatabaseManger.instance.selectAllTrainings();
+    for (Training el in trainings) {
+      await el.initExerciseMap();
+    }
+
+    // /\   /\    /\    /\    /\    /\
+    //Initialize required variables here
+
+    //This method should be used data is loaded from DB and
+    // is ready to be used
+    loadScreens();
+    setState(() {
+      //Training loaded
+      screensLoaded=true;
+    });
+  }
+  Future refreshTrainingsData() async {
+    trainings = await DatabaseManger.instance.selectAllTrainings();
+    for (Training el in trainings) {
+      await el.refreshExerciseMap();
+    }
+
+    setState(() {
+      screens![1]=CreateTrainingListView();
+    });
+  }
   @override
   Widget build(BuildContext context) {
+    if (!isLoading&& !screensLoaded) _getData();
+
     if (screens == null) {
       return buildProgressIndicator(context);
     }

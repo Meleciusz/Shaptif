@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:shaptif/TrainingBuilder.dart';
 import 'package:shaptif/db/database_manager.dart';
+import 'package:shaptif/db/exercise.dart';
 import 'package:shaptif/db/exercise_set.dart';
 import 'package:shaptif/db/finished_training.dart';
 import 'package:shaptif/db/history.dart';
+import 'package:shaptif/db/table_object.dart';
 import 'package:shaptif/db/training.dart';
 import 'package:shaptif/ExerciseWorkoutScreen.dart';
 import 'package:tuple/tuple.dart';
-//TODO : ERROR Z ZAPISYWANIEM TRENINGU (występuje po usunieciu serii?)
-//TODO: Usunąć zbędny przycisk
-//TODO: Dodać dodawanie ćwiczenia do treningu
 //TODO :FRONT
 class TrainingDetailsView extends StatefulWidget {
   final Training training;
@@ -32,10 +33,15 @@ class _TrainingDetailsViewState extends State<TrainingDetailsView> {
   late bool databaseReloadNeeded = false;
   late bool _isEdited;
   List<ExerciseSet> toDeleteList = [];
+
+  final int baseSetCount = 5;
+  final int baseRepCount = 10;
+  final double baseWeight = 20;
+
   @override
   void initState() {
-    _isEdited = false ;
-    databaseReloadNeeded=false;
+    _isEdited = false;
+    databaseReloadNeeded = false;
     super.initState();
   }
 
@@ -70,14 +76,12 @@ class _TrainingDetailsViewState extends State<TrainingDetailsView> {
                         ? true
                         : false,
                 trainingStarted: widget.trainingStarted,
-                  onEditWorkout:(value)
-                  {
-                    setState(() {
-                      _isEdited = value;
-                    });
-                  },
+                onEditWorkout: (value) {
+                  setState(() {
+                    _isEdited = value;
+                  });
+                },
                 onWorkoutExitEvent: (exerciseSet) async {
-
                   var setsDoneAndSavedCount = 0;
                   var setsDoneCount = 0;
                   for (History set in widget.finishedTraining!.sets) {
@@ -106,18 +110,15 @@ class _TrainingDetailsViewState extends State<TrainingDetailsView> {
                                   description: widget.training.description,
                                   finishedDateTime: DateTime.now())))
                           as FinishedTraining;
+                    } else if (changed) {
+                      changeCurrentTrainingWithSaving();
+                      widget.finishedTraining = (await DatabaseManger.instance
+                              .insert(FinishedTraining(
+                                  name: widget.training.name,
+                                  description: widget.training.description,
+                                  finishedDateTime: DateTime.now())))
+                          as FinishedTraining;
                     }
-                    else if(changed)
-                      {
-
-                        changeCurrentTrainingWithSaving();
-                        widget.finishedTraining = (await DatabaseManger.instance
-                            .insert(FinishedTraining(
-                            name: widget.training.name,
-                            description: widget.training.description,
-                            finishedDateTime: DateTime.now())))
-                        as FinishedTraining;
-                      }
                   }
 
                   setState(() {
@@ -125,23 +126,17 @@ class _TrainingDetailsViewState extends State<TrainingDetailsView> {
                     trainingIdChanged = started;
                   });
                 },
-                onAddSet:(value) async {
+                onAddSet: (value) async {
                   toDeleteList.removeLast();
-                  print("ADD DELTELIST: ");
-                  for(var set in toDeleteList)
-                  {
-                    print("id: "+set.id!.toString());
-                  }
-                  },
+                },
                 onDeleteSet: (value) async {
-
-                   toDeleteList.add(value);
-                   print("DEL DELTELIST: ");
-                   for(var set in toDeleteList)
-                     {
-                       print("id: "+set.id!.toString());
-                     }
-                  },
+                  toDeleteList.add(value);
+                },
+                onDeleteExercise: (value) async {
+                 setState(() {
+                   widget.training.exercisesMap.remove(value);
+                 });
+                },
               );
             },
           )),
@@ -162,20 +157,48 @@ class _TrainingDetailsViewState extends State<TrainingDetailsView> {
             color: Colors.green,
             onPressed: () {
               backToTrainingListView();
-
             },
           ),
           IconButton(
-            icon: Icon(Icons.add_box_rounded),
-            iconSize: 40,
-            color: Colors.green,
-            onPressed: () {
-              // TODO: Implement adding a new exercise
-            },
-          ),
-          IconButton(//Finish current training
+              icon: Icon(Icons.add_box_rounded),
+              iconSize: 40,
+              color: Colors.green,
+              onPressed: () async {
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const TrainingBuilderView()),
+                );
+                if (result != null) {
+                  Exercise exercise = result;
+                  if (widget.training.exercisesMap.containsKey(exercise.name)) {
+                    Fluttertoast.showToast(
+                        msg: "To ćwiczenie już znajduje się w treningu ");
+                  } else {
+                    List<ExerciseSet> addedSets = [];
+                    for (int i = 0; i < baseSetCount; i++) {
+                      ExerciseSet exerciseSet = ExerciseSet(
+                          trainingID: widget.training.id!,
+                          exerciseID: exercise.id!,
+                          repetitions: baseRepCount,
+                          weight: baseWeight);
+                      exerciseSet = await DatabaseManger.instance
+                          .insert(exerciseSet) as ExerciseSet;
+                      addedSets.add(exerciseSet);
+                    }
+                    setState(() {
+                      widget.training.exercisesMap[exercise.name] = addedSets;
+                    });
+                  }
+                }
+                setState(() {});
+              }),
+          IconButton(
+            //Finish current training
             icon: Icon(Icons.fact_check_outlined),
-            color: widget.trainingStarted ? Colors.green : (_isEdited==true ? Colors.green : Colors.grey),
+            color: widget.trainingStarted
+                ? Colors.green
+                : (_isEdited == true ? Colors.green : Colors.grey),
             iconSize: 40,
             onPressed: () async {
               if (widget.trainingStarted || _isEdited) await saveTraining();
@@ -184,9 +207,9 @@ class _TrainingDetailsViewState extends State<TrainingDetailsView> {
           IconButton(
             icon: Icon(Icons.save_rounded),
             iconSize: 40,
-            color: _isEdited==true ? Colors.yellow : Colors.grey,
-            onPressed: () async{
-              if(_isEdited) await saveChangesInTraining();
+            color: _isEdited == true ? Colors.yellow : Colors.grey,
+            onPressed: () async {
+              if (_isEdited) await saveChangesInTraining();
             },
           ),
         ],
@@ -195,32 +218,32 @@ class _TrainingDetailsViewState extends State<TrainingDetailsView> {
   }
 
   Future deleteSetsInQueueFromDatabase() async {
-    for(ExerciseSet set in toDeleteList)
-        {
-          await DatabaseManger.instance.delete(set);
-        }
+    for (ExerciseSet set in toDeleteList) {
+      await DatabaseManger.instance.delete(set);
+    }
     toDeleteList.clear();
   }
-  Future changeCurrentTrainingWithSaving()async
-  {
-      await deleteSetsInQueueFromDatabase();
-      databaseReloadNeeded = true;
-      trainingIdChanged = true;
-      widget.trainingStarted = true;
+
+  Future changeCurrentTrainingWithSaving() async {
+    await deleteSetsInQueueFromDatabase();
+    databaseReloadNeeded = true;
+    trainingIdChanged = true;
+    widget.trainingStarted = true;
   }
-  Future saveTraining() async{
+
+  Future saveTraining() async {
     await deleteSetsInQueueFromDatabase();
     databaseReloadNeeded = true;
     trainingIdChanged = false;
     widget.trainingStarted = false;
     backToTrainingListView();
   }
-  Future saveChangesInTraining() async{
+
+  Future saveChangesInTraining() async {
     await deleteSetsInQueueFromDatabase();
     setState(() {
       _isEdited = false;
     });
-
   }
 
   void addHistoryEntry(ExerciseSet exSet) {
@@ -243,7 +266,7 @@ class _TrainingDetailsViewState extends State<TrainingDetailsView> {
   void backToTrainingListView() {
     Navigator.pop(context, [
       widget.trainingStarted,
-      trainingIdChanged ? widget.training.id :  -1,
+      trainingIdChanged ? widget.training.id : -1,
       widget.finishedTraining,
       databaseReloadNeeded
     ]);
@@ -259,6 +282,7 @@ class ExerciseTile extends StatefulWidget {
   final ValueChanged<List<ExerciseSet>> onWorkoutExitEvent;
   final ValueChanged<bool> onEditWorkout;
   final ValueChanged<ExerciseSet> onDeleteSet;
+  final ValueChanged<String> onDeleteExercise;
   final ValueChanged<ExerciseSet> onAddSet;
 
   ExerciseTile({
@@ -271,6 +295,7 @@ class ExerciseTile extends StatefulWidget {
     required this.onWorkoutExitEvent,
     required this.onEditWorkout,
     required this.onDeleteSet,
+    required this.onDeleteExercise,
     required this.onAddSet,
   }) : super(key: key);
 
@@ -341,7 +366,10 @@ class _ExerciseTileState extends State<ExerciseTile> {
                   setState(() {
                     if (_maxSets > 1 && _maxSets > _completedSets)
                       _removeLastSet();
-                      widget.onEditWorkout(true);
+                    else if(_maxSets == 1 && _maxSets > _completedSets)
+                      _deleteExercise();
+
+                    widget.onEditWorkout(true);
                   });
                 },
                 child: Text('Usuń serię'),
@@ -415,26 +443,55 @@ class _ExerciseTileState extends State<ExerciseTile> {
     });
 
     if (lastSet.id == null) {
-
-      print("NULL id");
-    return;
-  }
+      return;
+    }
     var exerciseId = lastSet.exerciseID;
-    List<ExerciseSet> setList = await DatabaseManger.instance.selectSetsByTraining(lastSet.trainingID);
+    List<ExerciseSet> setList =
+        await DatabaseManger.instance.selectSetsByTraining(lastSet.trainingID);
 
-    for(ExerciseSet set in setList)
+    for (ExerciseSet set in setList) {
+      if (set.exerciseID != exerciseId) continue;
+      if (set.id! == lastSet.id!) {
+        widget.onDeleteSet(lastSet);
+        break;
+      }
+    }
+  }
+
+
+  void _deleteExercise() async {
+    bool result =  await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Potwierdź usunięcie ćwiczenie'),
+        content: Text('Czy na pewno chcesz usunąć te ćwiczenie?'),
+        actions: [
+          TextButton(
+            child: Text('Anuluj'),
+            onPressed: () {
+              Navigator.pop(context, false);
+            },
+          ),
+          TextButton(
+            child: Text('Usuń'),
+            onPressed: () {
+              Navigator.pop(context, true);
+            },
+          ),
+        ],
+      ),
+    );
+
+    if(result)
       {
-        if(set.exerciseID!=exerciseId)continue;
-        if(set.id! == lastSet.id!)
-          {
-            print("deleted");
-            widget.onDeleteSet(lastSet);
-            break;
-          }
+        setState(() {
+          _removeLastSet();
+        });
+        widget.onDeleteExercise(widget.exerciseName);
       }
 
-  }
 
+  }
   void _canStartExercise() async {
     _workoutCompleted = false;
     if (widget.trainingStarted && !widget.isCurrentTraining) {
