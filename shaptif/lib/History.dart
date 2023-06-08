@@ -75,7 +75,7 @@ class HistoryViewState extends State<HistoryView> {
                   SizedBox(height: 8),
                   Text(trainings[index].description,
                       style: TextStyle(
-                          fontFamily: 'Audiowide',
+                          //fontFamily: 'Audiowide',
                           fontSize: 10)),
                   SizedBox(height: 16),
                   Text(trainings[index].finishedDateTime.toString(),
