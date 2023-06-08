@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shaptif/NewTraining.dart';
 import 'package:shaptif/TrainingDetailsView.dart';
+import 'package:shaptif/db/exercise_set.dart';
 import 'package:shaptif/db/finished_training.dart';
 import 'package:shaptif/db/training.dart';
 import 'package:shaptif/db/database_manager.dart';
-//TODO: Odświeżanie ekranu po dodaniu treningu
+
 class TrainingListView extends StatefulWidget {
   final ValueChanged<bool> onTrainingChanged;
 
@@ -116,6 +117,12 @@ class TrainingListViewState extends State<TrainingListView> {
                       Text(widget.trainings[index].description),
                     ],
                   ),
+                  IconButton(
+                    onPressed: () {
+                      _deleteTraining(widget.trainings[index]);
+                    },
+                    icon: Icon(Icons.delete),
+                  ),
                   Icon(Icons.arrow_forward_ios_rounded),
                 ],
               ),
@@ -124,6 +131,47 @@ class TrainingListViewState extends State<TrainingListView> {
         );
       },
     );
+  }
+  Future<void> _deleteTraining(Training training) async {
+    bool confirmDelete = await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Potwierdź usunięcie treningu'),
+        content: Text('Czy na pewno chcesz usunąć ten trening?'),
+        actions: [
+          TextButton(
+            child: Text('Anuluj'),
+            onPressed: () {
+              Navigator.pop(context, false);
+            },
+          ),
+          TextButton(
+            child: Text('Usuń'),
+            onPressed: () {
+              Navigator.pop(context, true);
+            },
+          ),
+        ],
+      ),
+    );
+
+    if (confirmDelete) {
+      if(localSelectedTrainingID==training.id!)
+        {
+          localSelectedTrainingID=-1;
+          trainingIsActive = false;
+        }
+      List<ExerciseSet> exerciseSets = await DatabaseManger.instance.selectSetsByTraining(training.id!);
+      for(ExerciseSet set in exerciseSets)
+        await DatabaseManger.instance.delete(set);
+      int deleteCount = await DatabaseManger.instance.delete(training);
+      if (deleteCount > 0) {
+        Fluttertoast.showToast(msg: "Usunięto " + training.name.toLowerCase());
+        widget.onTrainingChanged(true);
+      } else {
+        Fluttertoast.showToast(msg: "Błąd podczas usuwania " + training.name.toLowerCase());
+      }
+    }
   }
 
   Text notLoaded() {
