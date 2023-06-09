@@ -17,6 +17,7 @@ class HistoryView extends StatefulWidget {
 
 class HistoryViewState extends State<HistoryView> {
   TextEditingController editingController = TextEditingController();
+  Map<DateTime, List<FinishedTraining>> filteredExercises = {};
   late List<FinishedTraining> trainings;
   bool isLoading = false;
   int ?ID = null;
@@ -24,12 +25,27 @@ class HistoryViewState extends State<HistoryView> {
   String ?selectedIconKey;
   late var items = <FinishedTraining>[];
   DateTime currentDate = DateTime.now();
-  //DateTime oneWeekAgo = currentDate.subtract(Duration(days: 7));
+  List<int> indexes = [];
 
   @override
   void initState() {
     super.initState();
     _getData();
+  }
+
+  Future initTrainingMap() async
+  {
+    for(var s in trainings) {
+      if(!filteredExercises.containsKey(s.finishedDateTime))
+      {
+        List<FinishedTraining> tempList = [s];
+        filteredExercises[s.finishedDateTime] = tempList;
+      }
+      else
+      {
+        filteredExercises[s.finishedDateTime]!.add(s);
+      }
+    }
   }
 
   Future _getData() async {
@@ -38,17 +54,22 @@ class HistoryViewState extends State<HistoryView> {
     for (FinishedTraining el in trainings) {
       await el.initExerciseMap();
     }
+
+    await initTrainingMap();
     items = trainings;
     setState(() => isLoading = false);
   }
 
-  Map<String, IconData> iconsMap = {
-    'Dziś' : Icons.calendar_today ,
-    'Wczoraj' : Icons.calendar_today_outlined ,
-    'Ostatni tydzień' : Icons.calendar_month_rounded ,
-    'Ostatni miesiąc' : Icons.calendar_month_outlined ,
-    'Ostatni Rok' : Icons.calendar_month_sharp ,
-  };
+  Map<DateTime, IconData> getIconsMap(){
+    Map<DateTime, IconData> iconsMap = {
+      currentDate : Icons.calendar_today ,
+      currentDate.subtract(Duration(days: 7)) : Icons.calendar_today_outlined ,
+      currentDate.subtract(Duration(days: 31)) : Icons.calendar_month_rounded ,
+      currentDate.subtract(Duration(days: 186)) : Icons.calendar_month_outlined ,
+    };
+    return iconsMap;
+  }
+
 
   void filterSearchResults(value) {
     setState(() {
@@ -151,8 +172,8 @@ class HistoryViewState extends State<HistoryView> {
                   )
               ),
               Divider(),
-              ...iconsMap.keys.map((key) {
-                final IconData? iconData = iconsMap[key];
+              ...getIconsMap().keys.map((key) {
+                final IconData? iconData = getIconsMap()[key];
                 final bool isSelected = (key == selectedIconKey);
 
                 return ListTile(
@@ -163,10 +184,18 @@ class HistoryViewState extends State<HistoryView> {
                   title: Text('$key'),
                   onTap: () {
                     setState(() {
-                      selectedIconKey = key; // Ustaw wybrany klucz ikony
-
-                      //TODO: filtrowanie po dacie
-                      //items = items.first.finishedDateTime.isAfter(currentDate);
+                      //selectedIconKey = key; // Ustaw wybrany klucz ikony
+                      indexes.clear();
+                      items.clear();
+                      List<MapEntry<DateTime, IconData>> lista = getIconsMap().entries.toList();
+                      //int kaka = lista.indexWhere((element) => (element.key.day == key.day) && (element.key.month == key.month) && (element.key.year == key.year));
+                      //int kaka = lista.indexWhere((element) => element.key.isAfter(key));
+                      lista.asMap().forEach((index, entry) {
+                        if(entry.key.isAfter(key)){
+                          items.add(filteredExercises.values.elementAt(index).elementAt(0));
+                        }
+                      }); //TODO: pozmieniaj daty na inne
+                      //GOODDDD    items = filteredExercises.values.elementAt(kaka);
                     });
                   },
                 );
