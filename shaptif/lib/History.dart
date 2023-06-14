@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:shaptif/HistoryDetails.dart';
 import 'package:shaptif/db/finished_training.dart';
 import 'package:shaptif/db/history.dart';
 
@@ -14,13 +16,36 @@ class HistoryView extends StatefulWidget {
 }
 
 class HistoryViewState extends State<HistoryView> {
+  TextEditingController editingController = TextEditingController();
+  Map<DateTime, List<FinishedTraining>> filteredExercises = {};
   late List<FinishedTraining> trainings;
   bool isLoading = false;
+  int ?ID = null;
+  int ?i= null;
+  String ?selectedIconKey;
+  late var items = <FinishedTraining>[];
+  DateTime currentDate = DateTime.now();
+  List<int> indexes = [];
 
   @override
   void initState() {
     super.initState();
     _getData();
+  }
+
+  Future initTrainingMap() async
+  {
+    for(var s in trainings) {
+      if(!filteredExercises.containsKey(s.finishedDateTime))
+      {
+        List<FinishedTraining> tempList = [s];
+        filteredExercises[s.finishedDateTime] = tempList;
+      }
+      else
+      {
+        filteredExercises[s.finishedDateTime]!.add(s);
+      }
+    }
   }
 
   Future _getData() async {
@@ -29,81 +54,155 @@ class HistoryViewState extends State<HistoryView> {
     for (FinishedTraining el in trainings) {
       await el.initExerciseMap();
     }
+
+    await initTrainingMap();
+    items = trainings;
     setState(() => isLoading = false);
+  }
+
+  Map<DateTime, IconData> getIconsMap(){
+    Map<DateTime, IconData> iconsMap = {
+      currentDate : Icons.calendar_today ,
+      currentDate.subtract(Duration(days: 7)) : Icons.calendar_today_outlined ,
+      currentDate.subtract(Duration(days: 31)) : Icons.calendar_month_rounded ,
+      currentDate.subtract(Duration(days: 186)) : Icons.calendar_month_outlined ,
+    };
+    return iconsMap;
+  }
+
+
+  void filterSearchResults(value) {
+    setState(() {
+      items = trainings
+          .where((item) => item.name.toLowerCase().contains(value.toLowerCase()))
+          .toList();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      //backgroundColor: const Color.fromARGB(255, 31, 31, 33),
-      body: isLoading ? notLoaded() : loaded(),
-      // floatingActionButton: FloatingActionButton(
-      //   heroTag: "AddHistoryButton",
-      //   onPressed: () {
-      //     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      //         content: const Text("Smack me!"),
-      //         action: SnackBarAction(
-      //             label: "Fuck",
-      //             onPressed: () {
-      //               ScaffoldMessenger.of(context).hideCurrentSnackBar();
-      //             })));
-      //   },
-      //   backgroundColor: const Color.fromARGB(255, 58, 183, 89),
-      //   shape: const CircleBorder(),
-      //   child: const Icon(Icons.add),
-      // ),
-    );
-  }
-
-  ListView loaded() {
-    return ListView.builder(
-      itemCount: trainings.length,
-      itemBuilder: (BuildContext context, int index) {
-        Map<String, List> mapa = trainings[index].exercisesMap;
-        return Card(
-          margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-          elevation: 4,
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(trainings[index].name,
-                    style:
-                        TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-                SizedBox(height: 8),
-                Text(trainings[index].finishedDateTime.toString(),
-                    style:
-                        TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-                SizedBox(height: 8),
-                Text(trainings[index].description,
-                    style: TextStyle(fontSize: 16)),
-                SizedBox(height: 16),
-                for (String klucz in mapa.keys)
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(klucz,
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                      SizedBox(height: 8),
-                      for (History singleSet in mapa[klucz]!)
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      appBar: AppBar(),
+      body: Container(
+        child: Column(
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextField(
+                onChanged: (value){
+                  filterSearchResults(value);
+                },
+                controller: editingController,
+                decoration: InputDecoration(
+                    labelText: "Search",
+                    hintText: "Search",
+                    prefixIcon: Icon(Icons.search),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular((25.0)))
+                    )
+                ),
+              ),
+            ),
+            Expanded(
+              child: isLoading ? notLoaded() : ListView.builder(
+                itemCount: items.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return Card(
+                    margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                    elevation: 4,
+                    child: GestureDetector(
+                      onTap: (){
+                        setState(() {
+                          Navigator.push(context, MaterialPageRoute(
+                              builder: (context) => HistoryDetails(
+                                  ID: items[index].id,
+                                  i: index
+                              )));
+                        });
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          mainAxisAlignment:  MainAxisAlignment.center,
                           children: [
-                            Text("Powtórzenia: ${singleSet.repetitions}",
-                                style: TextStyle(fontSize: 16)),
-                            Text("Ciężar: ${singleSet.weight}",
-                                style: TextStyle(fontSize: 16)),
+                            Text(items[index].finishedDateTime.toString().substring(0, 16),
+                                style: TextStyle(
+                                    fontFamily: 'Audiowide',
+                                    fontSize: 17)),
+                            SizedBox(height: 16),
+                            Text(
+                                items[index].name,
+                                style: TextStyle(
+                                    fontFamily: 'Audiowide',
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 25)),
+                            SizedBox(height: 8),
+                            Text(items[index].description,
+                                style: TextStyle(
+                                  //fontFamily: 'Audiowide',
+                                    fontSize: 10)),
+
                           ],
                         ),
-                      SizedBox(height: 16),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            )
+          ],
+        ),
+      ),
+        drawer: Drawer(
+          child: Column(
+            children: [
+              Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Filters',
+                        style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+                      ),
+                      Icon(
+                          Icons.filter_list
+                      )
                     ],
+                  )
+              ),
+              Divider(),
+              ...getIconsMap().keys.map((key) {
+                final IconData? iconData = getIconsMap()[key];
+                final bool isSelected = (key == selectedIconKey);
+
+                return ListTile(
+                  leading: Icon(
+                    iconData,
+                    color: isSelected ? Colors.blue : null, // Koloruj klikniętą ikonę na niebiesko
                   ),
-              ],
-            ),
+                  title: Text('$key'),
+                  onTap: () {
+                    setState(() {
+                      //selectedIconKey = key; // Ustaw wybrany klucz ikony
+                      indexes.clear();
+                      items.clear();
+                      List<MapEntry<DateTime, IconData>> lista = getIconsMap().entries.toList();
+                      //int kaka = lista.indexWhere((element) => (element.key.day == key.day) && (element.key.month == key.month) && (element.key.year == key.year));
+                      //int kaka = lista.indexWhere((element) => element.key.isAfter(key));
+                      lista.asMap().forEach((index, entry) {
+                        if(entry.key.isAfter(key)){
+                          items.add(filteredExercises.values.elementAt(index).elementAt(0));
+                        }
+                      }); //TODO: pozmieniaj daty na inne
+                      //GOODDDD    items = filteredExercises.values.elementAt(kaka);
+                    });
+                  },
+                );
+              }).toList(),
+            ],
           ),
-        );
-      },
+        )
     );
   }
 

@@ -178,6 +178,15 @@ class DatabaseManger {
     return rows.map((json) => ExerciseSet.fromJson(json)).toList();
   }
 
+  // Future<List<ExerciseSet>> selectBodyPartByExerciseID(int id) async {
+  //   final db = await instance.database;
+  //
+  //   final rows = await db.rawQuery(
+  //       "${ExerciseSetDatabaseSetup.selectString} WHERE ${BodyPartDatabaseSetup.tableName}.${BodyPartDatabaseSetup.id} == $id");
+  //
+  //   return rows.map((json) => ExerciseSet.fromJson(json)).toList();
+  // }
+
   Future<List<History>> selectHistoryByTraining(int id) async {
     final db = await instance.database;
 
