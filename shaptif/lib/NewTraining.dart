@@ -210,6 +210,15 @@ class NewTrainingViewState extends State<NewTrainingView> {
                           runSpacing: 8.0,
                             children:[
                               TextField(
+                                maxLength: 20,
+                                onChanged: (value){
+                                  setState(() {
+                                    trainingName = value;
+                                  });
+                                },
+                                decoration:  InputDecoration(hintText: 'Nazwa treningu'),
+                              ),
+                              TextField(
                                 maxLines : 5,
                                 onChanged: (value){
                                   setState(() {
@@ -219,15 +228,6 @@ class NewTrainingViewState extends State<NewTrainingView> {
                                 decoration:  InputDecoration(
                                     hintText: 'Opis treningu'
                                 ),
-                              ),
-                              TextField(
-                                maxLength: 20,
-                                onChanged: (value){
-                                  setState(() {
-                                    trainingName = value;
-                                  });
-                                },
-                                decoration:  InputDecoration(hintText: 'Nazwa treningu'),
                               ),
                             ],
                           ),
