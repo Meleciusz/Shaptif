@@ -9,7 +9,9 @@ import 'db/database_manager.dart';
 //TODO:Przejście do nowego ekrau i okodowanie go
 
 class HistoryView extends StatefulWidget {
-  const HistoryView({Key? key}) : super(key: key);
+  final List<FinishedTraining> finishedTraining;
+  final Map<DateTime, List<FinishedTraining>> filteredExercises;
+  const HistoryView({Key? key , required this.finishedTraining , required this.filteredExercises}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => HistoryViewState();
@@ -17,8 +19,7 @@ class HistoryView extends StatefulWidget {
 
 class HistoryViewState extends State<HistoryView> {
   TextEditingController editingController = TextEditingController();
-  Map<DateTime, List<FinishedTraining>> filteredExercises = {};
-  late List<FinishedTraining> trainings;
+
   bool isLoading = false;
   int ?ID = null;
   int ?i= null;
@@ -30,35 +31,12 @@ class HistoryViewState extends State<HistoryView> {
   @override
   void initState() {
     super.initState();
-    _getData();
+    items = widget.finishedTraining;
   }
 
-  Future initTrainingMap() async
-  {
-    for(var s in trainings) {
-      if(!filteredExercises.containsKey(s.finishedDateTime))
-      {
-        List<FinishedTraining> tempList = [s];
-        filteredExercises[s.finishedDateTime] = tempList;
-      }
-      else
-      {
-        filteredExercises[s.finishedDateTime]!.add(s);
-      }
-    }
-  }
 
-  Future _getData() async {
-    setState(() => isLoading = true);
-    trainings = await DatabaseManger.instance.selectAllFinishedTrainings();
-    for (FinishedTraining el in trainings) {
-      await el.initExerciseMap();
-    }
 
-    await initTrainingMap();
-    items = trainings;
-    setState(() => isLoading = false);
-  }
+
 
   Map<DateTime, IconData> getIconsMap(){
     Map<DateTime, IconData> iconsMap = {
@@ -73,7 +51,7 @@ class HistoryViewState extends State<HistoryView> {
 
   void filterSearchResults(value) {
     setState(() {
-      items = trainings
+      items = widget.finishedTraining
           .where((item) => item.name.toLowerCase().contains(value.toLowerCase()))
           .toList();
     });
@@ -192,7 +170,7 @@ class HistoryViewState extends State<HistoryView> {
                       //int kaka = lista.indexWhere((element) => element.key.isAfter(key));
                       lista.asMap().forEach((index, entry) {
                         if(entry.key.isAfter(key)){
-                          items.add(filteredExercises.values.elementAt(index).elementAt(0));
+                          items.add(widget.filteredExercises.values.elementAt(index).elementAt(0));
                         }
                       }); //TODO: pozmieniaj daty na inne
                       //GOODDDD    items = filteredExercises.values.elementAt(kaka);

@@ -12,6 +12,7 @@ import 'package:shaptif/Styles.dart';
 import 'package:shaptif/TrainingList.dart';
 import 'package:shaptif/db/database_manager.dart';
 import 'package:shaptif/db/exercise.dart';
+import 'package:shaptif/db/finished_training.dart';
 import 'package:shaptif/db/training.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -124,6 +125,8 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   late List<Exercise> exercises;
   late List<Training> trainings = [];
+  late Map<DateTime, List<FinishedTraining>> filteredExercises = {};
+  late List<FinishedTraining> finishedTrainings = [];
   bool isLoading = false;
   bool screensLoaded = false;
   int currentBottomNavBarIndex = 0;
@@ -155,12 +158,20 @@ class _MyHomePageState extends State<MyHomePage> {
       trainings: trainings,
     );
   }
+
+  Widget CreateHistoryView()
+  {
+    return HistoryView(
+      filteredExercises: filteredExercises,
+      finishedTraining: finishedTrainings,
+    );
+  }
   void loadScreens() {
     isLoading = false;
     screens = [
       CreateExerciseView(),
       CreateTrainingListView(),
-      const HistoryView(),
+      CreateHistoryView(),
       const SettingsView(),
       const ShareView(),
     ];
@@ -225,6 +236,23 @@ class _MyHomePageState extends State<MyHomePage> {
 
   }
 
+
+
+  Future initTrainingMap() async
+  {
+    for(var finishedTraining in finishedTrainings) {
+      if(!filteredExercises.containsKey(finishedTraining.finishedDateTime))
+      {
+        List<FinishedTraining> tempList = [finishedTraining];
+        filteredExercises[finishedTraining.finishedDateTime] = tempList;
+      }
+      else
+      {
+        filteredExercises[finishedTraining.finishedDateTime]!.add(finishedTraining);
+      }
+    }
+  }
+
   Future _getData() async {
     //Initialize required variables here
     // \/   \/    \/    \/    \/    \/
@@ -233,6 +261,13 @@ class _MyHomePageState extends State<MyHomePage> {
     trainings = await DatabaseManger.instance.selectAllTrainings();
     for (Training el in trainings) {
       await el.initExerciseMap();
+    }
+
+    finishedTrainings = await DatabaseManger.instance.selectAllFinishedTrainings();
+    for (FinishedTraining el in finishedTrainings) {
+      await el.initExerciseMap();
+
+      await initTrainingMap();
     }
 
     // /\   /\    /\    /\    /\    /\
@@ -252,10 +287,21 @@ class _MyHomePageState extends State<MyHomePage> {
       await el.refreshExerciseMap();
     }
 
-    setState(() {
-      screens![1]=CreateTrainingListView();
-    });
-  }
+    finishedTrainings =
+    await DatabaseManger.instance.selectAllFinishedTrainings();
+    for (FinishedTraining el in finishedTrainings) {
+      await el.initExerciseMap();
+
+      await initTrainingMap();
+    }
+
+
+      setState(() {
+        screens![1] = CreateTrainingListView();
+        screens![2] = CreateHistoryView();
+      });
+    }
+
   @override
   Widget build(BuildContext context) {
     if (!isLoading&& !screensLoaded) _getData();
