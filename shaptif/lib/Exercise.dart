@@ -29,6 +29,7 @@ class ExcerciseViewState extends State<ExcerciseView> {
   void initState() {
     super.initState();
     getCurrentAppTheme();
+    exercisesSize = widget.exercises.length;
   }
 
   void getCurrentAppTheme() async {
