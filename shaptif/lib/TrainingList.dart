@@ -50,11 +50,14 @@ class TrainingListViewState extends State<TrainingListView> {
             setState(() {
               widget.trainings;
             });
-            if(addedSuccessfully){
-              Fluttertoast.showToast(
-                  msg: "Dodano " + widget.trainings.last.name.toLowerCase(),
-              );
-            }
+            if(addedSuccessfully!=null)
+              {
+                if(addedSuccessfully){
+                  Fluttertoast.showToast(
+                    msg: "Dodano " + widget.trainings.last.name.toLowerCase(),
+                  );
+                }
+              }
           });},
         backgroundColor: const Color.fromARGB(255, 58, 183, 89),
         shape: const CircleBorder(),

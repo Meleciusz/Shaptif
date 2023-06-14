@@ -170,25 +170,26 @@ class _TrainingDetailsViewState extends State<TrainingDetailsView> {
                       builder: (context) => const TrainingBuilderView()),
                 );
                 if (result != null) {
-                  Exercise exercise = result;
-                  if (widget.training.exercisesMap.containsKey(exercise.name)) {
-                    Fluttertoast.showToast(
-                        msg: "To ćwiczenie już znajduje się w treningu ");
-                  } else {
-                    List<ExerciseSet> addedSets = [];
-                    for (int i = 0; i < baseSetCount; i++) {
-                      ExerciseSet exerciseSet = ExerciseSet(
-                          trainingID: widget.training.id!,
-                          exerciseID: exercise.id!,
-                          repetitions: baseRepCount,
-                          weight: baseWeight);
-                      exerciseSet = await DatabaseManger.instance
-                          .insert(exerciseSet) as ExerciseSet;
-                      addedSets.add(exerciseSet);
+                  List<Exercise> exercises = result;
+                  for(Exercise exercise in exercises)
+                    {
+                      if (widget.training.exercisesMap.containsKey(exercise.name)) {
+                        Fluttertoast.showToast(
+                            msg: "To ćwiczenie już znajduje się w treningu ");
+                      } else {
+                        List<ExerciseSet> addedSets = [];
+                        for (int i = 0; i < baseSetCount; i++) {
+                          ExerciseSet exerciseSet = ExerciseSet(
+                              trainingID: widget.training.id!,
+                              exerciseID: exercise.id!,
+                              repetitions: baseRepCount,
+                              weight: baseWeight);
+                          exerciseSet = await DatabaseManger.instance
+                              .insert(exerciseSet) as ExerciseSet;
+                          addedSets.add(exerciseSet);
+                        }
+                        widget.training.exercisesMap[exercise.name] = addedSets;
                     }
-                    setState(() {
-                      widget.training.exercisesMap[exercise.name] = addedSets;
-                    });
                   }
                 }
                 setState(() {});
