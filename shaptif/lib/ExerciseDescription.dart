@@ -63,119 +63,109 @@ class DescriptionViewState extends State<Description> {
           automaticallyImplyLeading: false,
         ),
       ),
-      body: Padding(
+      body: ListView(
         padding: const EdgeInsets.all(12.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Stack(
-              alignment: Alignment.topCenter,
-              children: <Widget>[
-                for (var key in images.keys)
-                  ColorFiltered(
-                    colorFilter: images[key]!
-                        ? const ColorFilter.mode(Colors.red, BlendMode.srcATop)
-                        : const ColorFilter.mode(
-                            Colors.transparent, BlendMode.srcATop),
-                    child: Image.asset(
-                      "images/body_parts/" + key + ".png",
-                      fit: BoxFit.contain,
-                      height: 250,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Stack(
+                alignment: Alignment.topCenter,
+                children: <Widget>[
+                  for (var key in images.keys)
+                    ColorFiltered(
+                      colorFilter: images[key]!
+                          ? const ColorFilter.mode(Colors.red, BlendMode.srcATop)
+                          : const ColorFilter.mode(
+                          Colors.transparent, BlendMode.srcATop),
+                      child: Image.asset(
+                        "images/body_parts/" + key + ".png",
+                        fit: BoxFit.contain,
+                        height: 250,
+                      ),
                     ),
-                  ),
-              ],
-            ),
-            if (!isLoading && canBeDeleted)
-              IconButton(
-                icon: Icon(Icons.delete),
-                //color: Colors.black,
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        title: Text("Usuwanie ćwiczenia"),
-                        content: Text("Czy na pewno chcesz usunąć ćwiczenie " +
-                            //exercise.name +
-                            " ?"),
-                        actions: <Widget>[
-                          TextButton(
-                            child: Text("Anuluj"),
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                          ),
-                          TextButton(
-                            child: Text("OK"),
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                              deleteExercise();
-                              // Fluttertoast.showToast(
-                              // msg: "Usunięto "
-                              //+ exercise.name.toLowerCase(),
-                              //);
-                            },
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                },
-              ),
-            if (!isLoading && !widget.exercise.isEmbedded)
-              IconButton(
-                icon: Icon(Icons.mobile_screen_share),
-                //color: Colors.black,
-                onPressed: () {
-                  setState(() {
-                    _showQRCode = !_showQRCode;
-                  });
-                },
-              ),
-            if (_showQRCode)
-              QrImage(
-                data: widget.exercise.toQR(),
-                version: QrVersions.auto,
-                size: 150,
-                backgroundColor: Colors.white,
-                foregroundColor: Colors.black,
-              ),
-            SizedBox(
-              height: 32.0,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Grupa mięśniowa: ',
-                    style: TextStyle(fontSize: 18),
-                    textAlign: TextAlign.left,
-                  ),
-                  Text(
-                    widget.exercise.bodyPartString!,
-                    style: TextStyle(fontSize: 24),
-                    textAlign: TextAlign.right,
-                  ),
                 ],
               ),
-            ),
-            const SizedBox(height: 24.0),
-            Text(
-              'Opis:',
-              style: TextStyle(fontSize: 18),
-              textAlign: TextAlign.left,
-            ),
-            const SizedBox(
-              height: 8.0,
-            ),
-            Expanded(
-              child: Text(
+              if (!isLoading && canBeDeleted)
+                IconButton(
+                  icon: Icon(Icons.delete),
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text("Usuwanie ćwiczenia"),
+                          content: Text("Czy na pewno chcesz usunąć ćwiczenie?"),
+                          actions: <Widget>[
+                            TextButton(
+                              child: Text("Anuluj"),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                            TextButton(
+                              child: Text("OK"),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                                deleteExercise();
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                ),
+              if (!isLoading && !widget.exercise.isEmbedded)
+                IconButton(
+                  icon: Icon(Icons.mobile_screen_share),
+                  onPressed: () {
+                    setState(() {
+                      _showQRCode = !_showQRCode;
+                    });
+                  },
+                ),
+              if (_showQRCode)
+                QrImage(
+                  data: widget.exercise.toQR(),
+                  version: QrVersions.auto,
+                  size: 150,
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.black,
+                ),
+              SizedBox(
+                height: 32.0,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Grupa mięśniowa: ',
+                      style: TextStyle(fontSize: 18),
+                      textAlign: TextAlign.left,
+                    ),
+                    Text(
+                      widget.exercise.bodyPartString!,
+                      style: TextStyle(fontSize: 24),
+                      textAlign: TextAlign.right,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24.0),
+              Text(
+                'Opis:',
+                style: TextStyle(fontSize: 18),
+                textAlign: TextAlign.left,
+              ),
+              const SizedBox(height: 8.0),
+              Text(
                 widget.exercise.description,
                 style: TextStyle(fontSize: 24),
                 textAlign: TextAlign.justify,
               ),
-            ),
-          ],
-        ),
+            ],
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         heroTag: "ReturnButton",
