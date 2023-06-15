@@ -45,7 +45,7 @@ class HistoryViewState extends State<HistoryView> {
 
   Map<DateTime, IconData> getIconsMap(){
     Map<DateTime, IconData> iconsMap = {
-      currentDate : Icons.calendar_today ,
+      currentDate.subtract(Duration(days: 1)) : Icons.calendar_today ,
       currentDate.subtract(Duration(days: 7)) : Icons.calendar_today_outlined ,
       currentDate.subtract(Duration(days: 31)) : Icons.calendar_month_rounded ,
       currentDate.subtract(Duration(days: 186)) : Icons.calendar_month_outlined ,
@@ -53,6 +53,12 @@ class HistoryViewState extends State<HistoryView> {
     return iconsMap;
   }
 
+  List<String> bodyParts = [
+    'Wczoraj',
+    'Tydzień temu',
+    'Miesiąc temu',
+    'Pół roku temu',
+  ];
 
   void filterSearchResults(value) {
     setState(() {
@@ -157,6 +163,7 @@ class HistoryViewState extends State<HistoryView> {
               Divider(),
               ...getIconsMap().keys.map((key) {
                 final IconData? iconData = getIconsMap()[key];
+                int i = getIconsMap().keys.toList().indexOf(key);
                 final bool isSelected = (key == selectedIconKey);
 
                 return ListTile(
@@ -164,21 +171,17 @@ class HistoryViewState extends State<HistoryView> {
                     iconData,
                     color: isSelected ? Colors.blue : null, // Koloruj klikniętą ikonę na niebiesko
                   ),
-                  title: Text('$key'),
+                  title: Text('${bodyParts.elementAt(i)}'),
                   onTap: () {
                     setState(() {
-                      //selectedIconKey = key; // Ustaw wybrany klucz ikony
                       indexes.clear();
-                      items.clear();
+                      items.clear();    //TODO: bug fix - RangeError (index): Index out of range: index should be less than 2: 2
                       List<MapEntry<DateTime, IconData>> lista = getIconsMap().entries.toList();
-                      //int kaka = lista.indexWhere((element) => (element.key.day == key.day) && (element.key.month == key.month) && (element.key.year == key.year));
-                      //int kaka = lista.indexWhere((element) => element.key.isAfter(key));
                       lista.asMap().forEach((index, entry) {
                         if(entry.key.isAfter(key)){
                           items.add(widget.filteredExercises.values.elementAt(index).elementAt(0));
                         }
-                      }); //TODO: pozmieniaj daty na inne
-                      //GOODDDD    items = filteredExercises.values.elementAt(kaka);
+                      });
                     });
                   },
                 );
