@@ -72,17 +72,28 @@ class NewTrainingViewState extends State<NewTrainingView> {
                           ListTile(
                             title: Text('${exercises.elementAt(index).name}'),
                             trailing: SizedBox(
-                              width: 70,
+                              width: 120,
                               height: 100,
-                              child: IconButton(
-                                icon: Icon(Icons.delete),
-                                onPressed: () {
-                                  setState(() {
-                                    exercises
-                                        .remove(exercises.elementAt(index));
-                                  });
-                                },
-                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: Icon(Icons.delete),
+                                    onPressed: () {
+                                      setState(() {
+                                        exercises
+                                            .remove(exercises.elementAt(index));
+                                      });
+                                    },
+                                  ),
+                                  IconButton(
+                                      onPressed: () {
+                                        setState(() => weight[index] =
+                                        0);
+                                      },
+                                      icon: Icon(Icons.not_interested_rounded)),
+                                ],
+                              )
                             ),
                           ),
                           Row(
@@ -95,13 +106,14 @@ class NewTrainingViewState extends State<NewTrainingView> {
                                       children: [
                                         IconButton(
                                             onPressed: () {
-                                              setState(() => series[index]++);
+                                                setState(() => series[index]++);
                                             },
                                             icon: Icon(Icons.add)),
                                         Text('${series[index]}'),
                                         IconButton(
                                             onPressed: () {
-                                              setState(() => series[index]--);
+                                              if(series[index] > 0)
+                                                setState(() => series[index]--);
                                             },
                                             icon: Icon(Icons.remove)),
                                       ],
@@ -122,8 +134,9 @@ class NewTrainingViewState extends State<NewTrainingView> {
                                         Text('${repetitions[index]}'),
                                         IconButton(
                                             onPressed: () {
-                                              setState(
-                                                  () => repetitions[index]--);
+                                              if(repetitions[index] > 0)
+                                                setState(
+                                                    () => repetitions[index]--);
                                             },
                                             icon: Icon(Icons.remove)),
                                       ],

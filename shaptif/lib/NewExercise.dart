@@ -29,6 +29,7 @@ class NewExerciseViewState extends State<NewExercise> {
   bool isLoading = false;
   final exerciseNameController = TextEditingController();
   final descriptionController = TextEditingController();
+  String ?selectedIconKey;
 
   @override
   void initState() {
@@ -80,6 +81,15 @@ class NewExerciseViewState extends State<NewExercise> {
 
     setState(() => isLoading = false);
   }
+
+  Map<String, IconData> iconsMap = {
+    'Plecy' : Icons.person ,
+    'Ręce' : Icons.front_hand_outlined ,
+    'Klata' : Icons.person ,
+    'Barki' : Icons.person ,
+    'Nogi' : Icons.airline_seat_legroom_extra ,
+    'Brzuch' : Icons.person ,
+  };
 
   @override
   void dispose() {
@@ -160,60 +170,85 @@ class NewExerciseViewState extends State<NewExercise> {
                     ),
                 ],
               ),
-              TextField(
-                controller: exerciseNameController,
-                style: const TextStyle(color: Colors.white, fontSize: 20),
-                decoration: const InputDecoration(
-                    labelText: 'Wpisz nazwe ćwiczenia',
-                    labelStyle:
+              Column(
+                children: [
+                  TextField(
+                    controller: exerciseNameController,
+                    style: const TextStyle(color: Colors.white, fontSize: 20),
+                    decoration: const InputDecoration(
+                        labelText: 'Wpisz nazwe ćwiczenia',
+                        labelStyle:
                         TextStyle(color: Color.fromARGB(255, 92, 92, 94)),
-                    enabledBorder: OutlineInputBorder(
-                      //borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(
-                          color: Color.fromARGB(255, 92, 92, 94), width: 3),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      //borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(
-                          color: Color.fromARGB(255, 92, 92, 94), width: 3),
-                    )),
-                maxLength: 20,
-                maxLines: 1,
-              ),
-              const SizedBox(height: 50),
-              isLoading
-                  ? buildProgressIndicator(context)
-                  : DropdownButton<int>(
-                      icon: const Icon(Icons.arrow_downward),
-                      value: selectedBodyPart,
-                      onChanged: (int? value) {
-                        setState(() {
-                          selectedBodyPart = value!;
-                          //dropdownValueController = list.indexOf(value!);
-                        });
-                      },
-                      items: items,
-                    ),
-              const SizedBox(height: 50),
-              TextField(
-                controller: descriptionController,
-                style: const TextStyle(color: Colors.white, fontSize: 20),
-                decoration: const InputDecoration(
-                    labelText: 'Opis',
-                    labelStyle:
+                        enabledBorder: OutlineInputBorder(
+                          //borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide(
+                              color: Color.fromARGB(255, 92, 92, 94), width: 3),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          //borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide(
+                              color: Color.fromARGB(255, 92, 92, 94), width: 3),
+                        )),
+                    maxLength: 20,
+                    maxLines: 1,
+                  ),
+                  const SizedBox(height: 50),
+                  isLoading
+                      ? buildProgressIndicator(context)
+                      : Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: List.generate(6, (index) {
+                      final iconEntry = iconsMap.entries.elementAt(index);
+                      final iconKey = iconEntry.key;
+                      final iconValue = iconEntry.value;
+
+                      return Column(
+                        children: [
+                          IconButton(
+                              onPressed: (){
+                                setState(() {
+                                  selectedBodyPart = index;
+                                });
+                          }, icon: Icon(iconValue),
+                          color: selectedBodyPart == index ? Colors.blue : null,),
+                          Text(iconKey),
+                        ],
+                      );
+                    }),
+                  ),
+                  // : DropdownButton<int>(
+                  //     icon: const Icon(Icons.arrow_downward),
+                  //     value: selectedBodyPart,
+                  //     onChanged: (int? value) {
+                  //       setState(() {
+                  //         selectedBodyPart = value!;
+                  //         //dropdownValueController = list.indexOf(value!);
+                  //       });
+                  //     },
+                  //     items: items,
+                  //   ),
+                  const SizedBox(height: 50),
+                  TextField(
+                    controller: descriptionController,
+                    style: const TextStyle(color: Colors.white, fontSize: 20),
+                    decoration: const InputDecoration(
+                        labelText: 'Opis',
+                        labelStyle:
                         TextStyle(color: Color.fromARGB(255, 92, 92, 94)),
-                    enabledBorder: OutlineInputBorder(
-                      //borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(
-                          color: Color.fromARGB(255, 92, 92, 94), width: 3),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      //borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(
-                          color: Color.fromARGB(255, 92, 92, 94), width: 3),
-                    )),
-                maxLines: 10,
-              ),
+                        enabledBorder: OutlineInputBorder(
+                          //borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide(
+                              color: Color.fromARGB(255, 92, 92, 94), width: 3),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          //borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide(
+                              color: Color.fromARGB(255, 92, 92, 94), width: 3),
+                        )),
+                    maxLines: 10,
+                  ),
+                ],
+              )
             ],
           ),
         ),
