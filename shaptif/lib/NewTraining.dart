@@ -57,7 +57,9 @@ class NewTrainingViewState extends State<NewTrainingView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(),
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+        ),
         body: ListView.builder(
             itemCount: exercises.length,
             itemBuilder: (context, index) {
@@ -157,53 +159,70 @@ class NewTrainingViewState extends State<NewTrainingView> {
         floatingActionButton: Column(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            FloatingActionButton(
-              heroTag: "AddExercise",
-              onPressed: () {
-                Navigator.push(
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                FloatingActionButton(
+                  heroTag: "AddExercise",
+                  onPressed: () {
+                    Navigator.push(
                         context,
                         MaterialPageRoute(
                             builder: (context) => const TrainingBuilderView()))
-                    .then((value) {
-                  if (value != null) {
-                    bool isSame = false;
-                    List<Exercise> givenValues = value;
-                    for (Exercise ex in givenValues) {
-                      isSame = false;
-                      for (Exercise rn in exercises) {
-                        if (rn.name == ex.name) {
-                          isSame = true;
+                        .then((value) {
+                      if (value != null) {
+                        bool isSame = false;
+                        List<Exercise> givenValues = value;
+                        for (Exercise ex in givenValues) {
+                          isSame = false;
+                          for (Exercise rn in exercises) {
+                            if (rn.name == ex.name) {
+                              isSame = true;
+                            }
+                          }
+                          if (isSame == false) {
+                            setState(() {
+                              exercises.add(ex);
+                              series.add(firstSeries);
+                              weight.add(firstWeight);
+                              repetitions.add(firstRepetitions);
+                            });
+                          }
+                        }
+
+                        if (isSame == true) {
+                          Fluttertoast.showToast(
+                            msg: "To ćwiczenie już znajduje się w treningu ",
+                          );
                         }
                       }
-                      if (isSame == false) {
-                        setState(() {
-                          exercises.add(ex);
-                          series.add(firstSeries);
-                          weight.add(firstWeight);
-                          repetitions.add(firstRepetitions);
-                        });
-                      }
-                    }
-
-                    if (isSame == true) {
-                      Fluttertoast.showToast(
-                        msg: "To ćwiczenie już znajduje się w treningu ",
-                      );
-                    }
-                  }
-                });
-              },
-              shape: CircleBorder(),
-              backgroundColor: Colors.green,
-              child: Icon(Icons.add),
+                    });
+                  },
+                  shape: CircleBorder(),
+                  backgroundColor: Colors.green,
+                  child: Icon(Icons.add),
+                ),
+              ],
             ),
-            FloatingActionButton(
-              heroTag: "SaveTraining",
-              onPressed: () {
-                if (exercises.length > 0) {
-                  showDialog(
-                      context: context,
-                      builder: (BuildContext context) => AlertDialog(
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                FloatingActionButton(
+                    heroTag: "Return",
+                    onPressed: (){
+                      Navigator.pop(context);
+                    },
+                    backgroundColor: const Color.fromARGB(255, 157, 45, 63),
+                  shape: const CircleBorder(),
+                  child: const Icon(Icons.arrow_back),
+                    ),
+                FloatingActionButton(
+                  heroTag: "SaveTraining",
+                  onPressed: () {
+                    if (exercises.length > 0) {
+                      showDialog(
+                          context: context,
+                          builder: (BuildContext context) => AlertDialog(
                             title: const Text('Nadaj nazwe'),
                             content: Wrap(
                               runSpacing: 8.0,
@@ -239,10 +258,10 @@ class NewTrainingViewState extends State<NewTrainingView> {
                                   child: const Text('OK'))
                             ],
                           ));
-                } else {
-                  showDialog(
-                      context: context,
-                      builder: (BuildContext context) => AlertDialog(
+                    } else {
+                      showDialog(
+                          context: context,
+                          builder: (BuildContext context) => AlertDialog(
                             title: const Text(
                                 'Trening musi mieć chociaż jedo ćwiczenie!'),
                             actions: <Widget>[
@@ -253,11 +272,13 @@ class NewTrainingViewState extends State<NewTrainingView> {
                                   child: const Text('OK'))
                             ],
                           ));
-                }
-              }, //onPressed end
-              shape: CircleBorder(),
-              backgroundColor: Colors.orangeAccent,
-              child: Icon(Icons.save),
+                    }
+                  }, //onPressed end
+                  shape: CircleBorder(),
+                  backgroundColor: Colors.orangeAccent,
+                  child: Icon(Icons.save),
+                )
+              ],
             )
           ],
         ));

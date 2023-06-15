@@ -11,7 +11,8 @@ import 'db/database_manager.dart';
 class HistoryView extends StatefulWidget {
   final List<FinishedTraining> finishedTraining;
   final Map<DateTime, List<FinishedTraining>> filteredExercises;
-  const HistoryView({Key? key , required this.finishedTraining , required this.filteredExercises}) : super(key: key);
+  const HistoryView({Key? key , required this.finishedTraining ,
+    required this.filteredExercises}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => HistoryViewState();
@@ -24,19 +25,23 @@ class HistoryViewState extends State<HistoryView> {
   int ?ID = null;
   int ?i= null;
   String ?selectedIconKey;
-  late var items = <FinishedTraining>[];
   DateTime currentDate = DateTime.now();
   List<int> indexes = [];
+  var items = <FinishedTraining>[];
 
   @override
   void initState() {
     super.initState();
-    items = widget.finishedTraining;
+    getData();
+    //items = widget.finishedTraining;
   }
 
+  Future getData() async {
+    setState(() => isLoading = true);
+    items = await DatabaseManger.instance.selectAllFinishedTrainings();
 
-
-
+    setState(() => isLoading = false);
+  }
 
   Map<DateTime, IconData> getIconsMap(){
     Map<DateTime, IconData> iconsMap = {
@@ -60,77 +65,77 @@ class HistoryViewState extends State<HistoryView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
-      body: Container(
-        child: Column(
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: TextField(
-                onChanged: (value){
-                  filterSearchResults(value);
-                },
-                controller: editingController,
-                decoration: InputDecoration(
-                    labelText: "Search",
-                    hintText: "Search",
-                    prefixIcon: Icon(Icons.search),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular((25.0)))
-                    )
+        appBar: AppBar(),
+        body: Container(
+          child: Column(
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextField(
+                  onChanged: (value){
+                    filterSearchResults(value);
+                  },
+                  controller: editingController,
+                  decoration: InputDecoration(
+                      labelText: "Search",
+                      hintText: "Search",
+                      prefixIcon: Icon(Icons.search),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular((25.0)))
+                      )
+                  ),
                 ),
               ),
-            ),
-            Expanded(
-              child: isLoading ? notLoaded() : ListView.builder(
-                itemCount: items.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return Card(
-                    margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                    elevation: 4,
-                    child: GestureDetector(
-                      onTap: (){
-                        setState(() {
-                          Navigator.push(context, MaterialPageRoute(
-                              builder: (context) => HistoryDetails(
-                                  ID: items[index].id,
-                                  i: index
-                              )));
-                        });
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          mainAxisAlignment:  MainAxisAlignment.center,
-                          children: [
-                            Text(items[index].finishedDateTime.toString().substring(0, 16),
-                                style: TextStyle(
-                                    fontFamily: 'Audiowide',
-                                    fontSize: 17)),
-                            SizedBox(height: 16),
-                            Text(
-                                items[index].name,
-                                style: TextStyle(
-                                    fontFamily: 'Audiowide',
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 25)),
-                            SizedBox(height: 8),
-                            Text(items[index].description,
-                                style: TextStyle(
-                                  //fontFamily: 'Audiowide',
-                                    fontSize: 10)),
+              Expanded(
+                child: isLoading ? notLoaded() : ListView.builder(
+                  itemCount: items.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return Card(
+                      margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                      elevation: 4,
+                      child: GestureDetector(
+                        onTap: (){
+                          setState(() {
+                            Navigator.push(context, MaterialPageRoute(
+                                builder: (context) => HistoryDetails(
+                                    ID: items[index].id,
+                                    i: index
+                                )));
+                          });
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            mainAxisAlignment:  MainAxisAlignment.center,
+                            children: [
+                              Text(items[index].finishedDateTime.toString().substring(0, 16),
+                                  style: TextStyle(
+                                      fontFamily: 'Audiowide',
+                                      fontSize: 17)),
+                              SizedBox(height: 16),
+                              Text(
+                                  items[index].name,
+                                  style: TextStyle(
+                                      fontFamily: 'Audiowide',
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 25)),
+                              SizedBox(height: 8),
+                              Text(items[index].description,
+                                  style: TextStyle(
+                                    //fontFamily: 'Audiowide',
+                                      fontSize: 10)),
 
-                          ],
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  );
-                },
-              ),
-            )
-          ],
+                    );
+                  },
+                ),
+              )
+            ],
+          ),
         ),
-      ),
         drawer: Drawer(
           child: Column(
             children: [
@@ -178,6 +183,28 @@ class HistoryViewState extends State<HistoryView> {
                   },
                 );
               }).toList(),
+              Row(
+               children: [
+                 IconButton(
+                     onPressed: (){
+                       setState(() {
+                         items.clear();
+                         for(FinishedTraining ft in widget.finishedTraining)
+                         {
+                           items.add(FinishedTraining(name: ft.name,
+                               description: ft.description,
+                               finishedDateTime: ft.finishedDateTime));
+                         }
+                       });
+                     },
+                     icon: Icon(Icons.filter_alt_off)
+                 ),
+                 Text(
+                   'No Filters',
+                   style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+                 ),
+               ],
+              )
             ],
           ),
         )

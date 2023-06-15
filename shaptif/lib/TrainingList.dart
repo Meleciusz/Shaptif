@@ -114,19 +114,23 @@ class TrainingListViewState extends State<TrainingListView> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(widget.trainings[index].name,
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 20)),
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
                       SizedBox(height: 8),
                       Text(widget.trainings[index].description),
                     ],
                   ),
-                  IconButton(
-                    onPressed: () {
-                      _deleteTraining(widget.trainings[index]);
-                    },
-                    icon: Icon(Icons.delete),
+                  Row(
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          _deleteTraining(widget.trainings[index]);
+                        },
+                        icon: Icon(Icons.delete),
+                      ),
+                      SizedBox(width: 8), // Odstęp między ikonami
+                      Icon(Icons.arrow_forward_ios_rounded),
+                    ],
                   ),
-                  Icon(Icons.arrow_forward_ios_rounded),
                 ],
               ),
             ),

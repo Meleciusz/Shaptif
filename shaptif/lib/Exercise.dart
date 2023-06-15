@@ -101,7 +101,7 @@ class ExcerciseViewState extends State<ExcerciseView> {
               decoration: BoxDecoration(
                 border: Border.all(
                   color: Colors.grey,
-                  width: 4,
+                  width: 1,
                 ),
                 borderRadius: BorderRadius.circular(20),
               ),

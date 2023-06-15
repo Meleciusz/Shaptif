@@ -160,16 +160,6 @@ class NewExerciseViewState extends State<NewExercise> {
                     ),
                 ],
               ),
-              for (String item in BodyPartImages.names)
-                CheckboxListTile(
-                  title: Text(item),
-                  value: images[item] ?? false,
-                  onChanged: (bool? value) {
-                    setState(() {
-                      images[item] = value ?? false;
-                    });
-                  },
-                ),
               TextField(
                 controller: exerciseNameController,
                 style: const TextStyle(color: Colors.white, fontSize: 20),
@@ -226,6 +216,26 @@ class NewExerciseViewState extends State<NewExercise> {
               ),
             ],
           ),
+        ),
+        drawer: Drawer(
+          child: ListView(
+            children: [
+              Column(
+                children: [
+                  for (String item in BodyPartImages.names)
+                    CheckboxListTile(
+                      title: Text(item),
+                      value: images[item] ?? false,
+                      onChanged: (bool? value) {
+                        setState(() {
+                          images[item] = value ?? false;
+                        });
+                      },
+                    ),
+                ],
+              ),
+            ],
+          )
         ),
         floatingActionButton:
             Row(mainAxisAlignment: MainAxisAlignment.end, children: [

@@ -109,5 +109,5 @@ class HistoryDatabaseSetup
 
 class BodyPartImages
 {
-  static List<String> names = ["Adductor", "Biceps","Butt","Calf","Chest","CoreAbs","Deltoid","Dorsi","DownAbs","Femoris","Forearm", "Quadriceps","Shoulders","SideAbs","Trapezius","Triceps","UpAbs"];
+  static List<String> names = ["Adductor", "Biceps","Butt","Calf","Chest","CoreAbs","Deltoid","Dorsi","DownAbs","Femoris","Forearm", "Quadriceps","Shoulders","SideAbs","Trapezius","Triceps","UpAbs", "Rest"];
 }

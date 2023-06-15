@@ -50,16 +50,16 @@ class DescriptionViewState extends State<Description> {
                 fontWeight: FontWeight.bold,
                 fontSize: 26),
           ),
-          backgroundColor: const Color.fromARGB(255, 31, 31, 33),
-          shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.only(
-                  bottomRight: Radius.circular(20),
-                  bottomLeft: Radius.circular(20)),
-              side: BorderSide(
-                width: 1,
-                color: Colors.black,
-                //style: BorderStyle.none
-              )),
+          backgroundColor: const Color.fromARGB(255, 28, 27, 27),
+          // shape: const RoundedRectangleBorder(
+          //     borderRadius: BorderRadius.only(
+          //         bottomRight: Radius.circular(20),
+          //         bottomLeft: Radius.circular(20)),
+          //     side: BorderSide(
+          //       width: 1,
+          //       color: Colors.black,
+          //       //style: BorderStyle.none
+          //     )),
           automaticallyImplyLeading: false,
         ),
       ),
@@ -69,22 +69,24 @@ class DescriptionViewState extends State<Description> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Stack(
-                alignment: Alignment.topCenter,
-                children: <Widget>[
-                  for (var key in images.keys)
-                    ColorFiltered(
-                      colorFilter: images[key]!
-                          ? const ColorFilter.mode(Colors.red, BlendMode.srcATop)
-                          : const ColorFilter.mode(
-                          Colors.transparent, BlendMode.srcATop),
-                      child: Image.asset(
-                        "images/body_parts/" + key + ".png",
-                        fit: BoxFit.contain,
-                        height: 250,
+              Center(
+                child: Stack(
+                  alignment: Alignment.topCenter,
+                  children: <Widget>[
+                    for (var key in images.keys)
+                      ColorFiltered(
+                        colorFilter: images[key]!
+                            ? const ColorFilter.mode(Colors.red, BlendMode.srcATop)
+                            : const ColorFilter.mode(
+                            Colors.transparent, BlendMode.srcATop),
+                        child: Image.asset(
+                          "images/body_parts/" + key + ".png",
+                          fit: BoxFit.contain,
+                          height: 250,
+                        ),
                       ),
-                    ),
-                ],
+                  ],
+                ),
               ),
               if (!isLoading && canBeDeleted)
                 IconButton(
@@ -134,33 +136,31 @@ class DescriptionViewState extends State<Description> {
                   foregroundColor: Colors.black,
                 ),
               SizedBox(
-                height: 32.0,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Grupa mięśniowa: ',
-                      style: TextStyle(fontSize: 18),
-                      textAlign: TextAlign.left,
-                    ),
-                    Text(
-                      widget.exercise.bodyPartString!,
-                      style: TextStyle(fontSize: 24),
-                      textAlign: TextAlign.right,
-                    ),
-                  ],
-                ),
+                height: 32,
+              ),
+              Divider(),
+              const SizedBox(height: 24.0),
+              Text(
+                'Main body part : ',
+                style: TextStyle(fontSize: 20),
+                textAlign: TextAlign.left,
+              ),
+             // const SizedBox(height: 24.0),
+              Text(
+                widget.exercise.bodyPartString!,
+                style: TextStyle(fontSize: 20),
+                textAlign: TextAlign.right,
               ),
               const SizedBox(height: 24.0),
               Text(
-                'Opis:',
-                style: TextStyle(fontSize: 18),
+                'Description :',
+                style: TextStyle(fontSize: 20),
                 textAlign: TextAlign.left,
               ),
-              const SizedBox(height: 8.0),
+              //const SizedBox(height: 8.0),
               Text(
                 widget.exercise.description,
-                style: TextStyle(fontSize: 24),
+                style: TextStyle(fontSize: 15),
                 textAlign: TextAlign.justify,
               ),
             ],

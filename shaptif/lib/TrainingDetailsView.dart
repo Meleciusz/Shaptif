@@ -48,17 +48,31 @@ class _TrainingDetailsViewState extends State<TrainingDetailsView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.training.name),
-        automaticallyImplyLeading: false,
+      appBar: PreferredSize(
+        preferredSize: (
+          const Size.fromHeight(60)
+        ),
+        child: AppBar(
+          centerTitle: true,
+          title: Text(widget.training.name,
+          style: const TextStyle(
+            fontFamily: 'Audiowide',
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 26
+            ),
+          ),
+          backgroundColor: const Color.fromARGB(255, 28, 27, 27),
+          automaticallyImplyLeading: false,
+        ),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(widget.training.description),
-          ),
+          // Padding(
+          //   padding: const EdgeInsets.all(8.0),
+          //   child: Text(widget.training.description,),
+          // ),
           Expanded(
               child: ListView.builder(
             itemCount: widget.training.exercisesMap.length,
@@ -335,13 +349,6 @@ class _ExerciseTileState extends State<ExerciseTile> {
                     fontSize: 18,
                   ),
                 ),
-                Text(
-                  _completedSets.toString() + "/" + _maxSets.toString(),
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                  ),
-                ),
               ],
             ),
           ),
@@ -360,39 +367,6 @@ class _ExerciseTileState extends State<ExerciseTile> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    if (_maxSets > 1 && _maxSets > _completedSets)
-                      _removeLastSet();
-                    else if(_maxSets == 1 && _maxSets > _completedSets)
-                      _deleteExercise();
-
-                    widget.onEditWorkout(true);
-                  });
-                },
-                child: Text('Usuń serię'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                ),
-              ),
-              SizedBox(width: 8.0),
-              ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    _addNewSet();
-                    widget.onEditWorkout(true);
-                  });
-                },
-                child: Text('Dodaj serię'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                ),
-              ),
-            ],
-          ),
           ElevatedButton(
             onPressed: canStartWorkout
                 ? () {
@@ -401,10 +375,80 @@ class _ExerciseTileState extends State<ExerciseTile> {
                 : null,
             child: Icon(Icons.play_arrow),
             style: ElevatedButton.styleFrom(
-              backgroundColor: _workoutCompleted ? Colors.grey : Colors.green,
+              backgroundColor: _workoutCompleted ? Colors.grey : const Color.fromARGB(
+                  255, 162, 80, 80),
               shape: CircleBorder(),
               padding: EdgeInsets.all(16.0),
             ),
+          ),
+          Column(
+            children: [
+              Text(
+                'Series',
+                style: TextStyle(fontSize: 20),
+              ),
+              Row(
+                children: [
+                  // ElevatedButton(
+                  //   onPressed: () {
+                  //     setState(() {
+                  //       if (_maxSets > 1 && _maxSets > _completedSets)
+                  //         _removeLastSet();
+                  //       else if(_maxSets == 1 && _maxSets > _completedSets)
+                  //         _deleteExercise();
+                  //
+                  //       widget.onEditWorkout(true);
+                  //     });
+                  //   },
+                  //   child: Icon(Icons.remove),
+                  //   style: ElevatedButton.styleFrom(
+                  //     backgroundColor: Colors.red,
+                  //   ),
+                  // ),
+                  IconButton(
+                      onPressed: () {
+                        setState(() {
+                          if (_maxSets > 1 && _maxSets > _completedSets)
+                            _removeLastSet();
+                          else if(_maxSets == 1 && _maxSets > _completedSets)
+                            _deleteExercise();
+
+                          widget.onEditWorkout(true);
+                        });
+                      },
+                      icon: Icon(Icons.remove)),
+                  SizedBox(width: 8.0),
+                  Text(
+                    _completedSets.toString() + "/" + _maxSets.toString(),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                  SizedBox(width: 8.0),
+                  IconButton(
+                      onPressed: () {
+                        setState(() {
+                          _addNewSet();
+                          widget.onEditWorkout(true);
+                        });
+                      },
+                      icon: Icon(Icons.add)),
+                  // ElevatedButton(
+                  //   onPressed: () {
+                  //     setState(() {
+                  //       _addNewSet();
+                  //       widget.onEditWorkout(true);
+                  //     });
+                  //   },
+                  //   child: Icon(Icons.add),
+                  //   style: ElevatedButton.styleFrom(
+                  //     backgroundColor: Colors.green,
+                  //   ),
+                  // ),
+                ],
+              ),
+            ],
           ),
         ],
       ),

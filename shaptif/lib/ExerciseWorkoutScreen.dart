@@ -54,9 +54,23 @@ class _ExerciseWorkoutScreenState extends State<ExerciseWorkoutScreen> {
     final totalSets = widget.sets.length;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.exerciseName),
-        automaticallyImplyLeading: false,
+      appBar: PreferredSize(
+        preferredSize: (
+            const Size.fromHeight(60)
+        ),
+        child: AppBar(
+          centerTitle: true,
+          title: Text(widget.exerciseName,
+            style: const TextStyle(
+                fontFamily: 'Audiowide',
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 26
+            ),
+          ),
+          backgroundColor: const Color.fromARGB(255, 28, 27, 27),
+          automaticallyImplyLeading: false,
+        ),
       ),
       body: Center(
         child: Column(
@@ -68,7 +82,7 @@ class _ExerciseWorkoutScreenState extends State<ExerciseWorkoutScreen> {
             ),
             SizedBox(height: 16),
             Text(
-              'Powtórzenia:',
+              'Repetitions:',
               style: TextStyle(fontSize: 24),
             ),
             Row(
@@ -98,7 +112,7 @@ class _ExerciseWorkoutScreenState extends State<ExerciseWorkoutScreen> {
             ),
             SizedBox(height: 16),
             Text(
-              'Ciężar:',
+              'Weight:',
               style: TextStyle(fontSize: 24),
             ),
             Row(
