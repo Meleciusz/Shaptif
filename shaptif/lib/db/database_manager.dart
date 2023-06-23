@@ -661,11 +661,26 @@ class DatabaseManger {
     await db.insert(FinishedTraining(
         name: "Historyczny",
         description: "Bardzo dawny trening",
-        finishedDateTime: DateTime(2023, 2, 30, 12, 30, 0)));
+        finishedDateTime: DateTime(2021, 2, 30, 12, 30, 0)));
     await db.insert(FinishedTraining(
         name: "Aktualny",
         description: "Trening zrobiony podczas budowania bazy",
         finishedDateTime: DateTime.now()));
+
+    await db.insert(FinishedTraining(
+        name: "Stary",
+        description: "ponad pół roku",
+        finishedDateTime: DateTime(2022, 12, 30, 12, 30, 0)));
+
+    await db.insert(FinishedTraining(
+        name: "nie tak stary",
+        description: "2 msc temu",
+        finishedDateTime: DateTime(2023, 4, 30, 12, 30, 0)));
+
+    await db.insert(FinishedTraining(
+        name: "wczorajszy",
+        description: "wczoraj",
+        finishedDateTime: DateTime(2023, 6, 13, 12, 30, 0)));
 
     await db.insert(
         History(trainingID: 2, exerciseID: 1, repetitions: 10, weight: 0.0));
@@ -700,6 +715,13 @@ class DatabaseManger {
         History(trainingID: 1, exerciseID: 3, repetitions: 10, weight: 30.0));
     await db.insert(
         History(trainingID: 1, exerciseID: 3, repetitions: 8, weight: 35.0));
+
+    await db.insert(
+        History(trainingID: 3, exerciseID: 1, repetitions: 10, weight: 0.0));
+    await db.insert(
+        History(trainingID: 4, exerciseID: 1, repetitions: 10, weight: 0.0));
+    await db.insert(
+        History(trainingID: 5, exerciseID: 1, repetitions: 10, weight: 0.0));
   }
 
   Future close() async {
