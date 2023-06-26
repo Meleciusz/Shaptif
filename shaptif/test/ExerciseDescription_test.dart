@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:shaptif/NewExercise.dart';
-import 'package:shaptif/db/exercise.dart';
+import 'package:shaptif/ExerciseDescription.dart' as ed;
 import 'package:shaptif/DarkThemeProvider.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
-import 'package:shaptif/db/database_manager.dart';
+import 'package:shaptif/db/exercise.dart';
 
-void main(){
-  testWidgets('NewExercise test', (tester) async {
-    final exercises = <Exercise>[]; // Przykładowa lista ćwiczeń
+void main() {
+
+  final exercises = <Exercise>[];
+  final exercise = Exercise(name: "my_exercise", description: "my_description", bodyPart: 1, isEmbedded: true);
+  exercises.add(exercise);
+
+  testWidgets('Description test', (tester) async {
     await tester.pumpWidget(
       MaterialApp(
         home: MultiProvider(
@@ -20,17 +23,10 @@ void main(){
               create: (_) => ShowEmbeddedProvider(),
             ),
           ],
-          child: NewExercise(
-            exercises: exercises,
-            jsonExercise: null, // Przykładowa wartość jsonExercise
-          ),
+            child : ed.Description(exercise: exercise, exercises: exercises),
         ),
       ),
     );
-//TODO fix this 
-    // Tutaj umieść asercje i testy dla widoku NewExercise
 
   });
-
-
 }

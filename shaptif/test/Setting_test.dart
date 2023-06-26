@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shaptif/settings.dart';
 import 'package:shaptif/DarkThemeProvider.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shaptif/DarkThemeProvider.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter/material.dart';
 
 void main(){
   testWidgets('Switches test', (tester) async {
