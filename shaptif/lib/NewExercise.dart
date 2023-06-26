@@ -53,12 +53,12 @@ class NewExerciseViewState extends State<NewExercise> {
     Exercise newExcercise = await DatabaseManger.instance.insert(Exercise(
         name: exerciseNameController.text,
         description: descriptionController.text,
-        bodyPart: selectedBodyPart,
+        bodyPart: selectedBodyPart+1,
         isEmbedded: false,
         imageHash: imageMapToInt())) as Exercise;
 
     newExcercise.bodyPartString =
-        (await DatabaseManger.instance.selectBodyPart(selectedBodyPart)).name;
+        (await DatabaseManger.instance.selectBodyPart(selectedBodyPart+1)).name;
 
     widget.exercises?.add(newExcercise);
     setState(() {
@@ -84,11 +84,12 @@ class NewExerciseViewState extends State<NewExercise> {
 
   Map<String, IconData> iconsMap = {
     'Plecy' : Icons.person ,
-    'Ręce' : Icons.front_hand_outlined ,
     'Klata' : Icons.person ,
     'Barki' : Icons.person ,
     'Nogi' : Icons.airline_seat_legroom_extra ,
+    'Ręce' : Icons.front_hand_outlined ,
     'Brzuch' : Icons.person ,
+
   };
 
   @override
