@@ -7,7 +7,8 @@ import 'ExerciseDescription.dart';
 import 'NewExercise.dart';
 import 'SharedPreferences.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-
+//TODO: Translate Description to PL
+//TODO: Translate bodyparts to PL
 class ExcerciseView extends StatefulWidget {
   final ValueChanged<bool> onExerciseChanged;
   final List<Exercise> exercises;

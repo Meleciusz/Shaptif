@@ -11,6 +11,7 @@ import 'package:shaptif/db/training.dart';
 import 'package:shaptif/ExerciseWorkoutScreen.dart';
 import 'package:tuple/tuple.dart';
 //TODO :FRONT
+//TODO: Translate labels to PL
 class TrainingDetailsView extends StatefulWidget {
   final Training training;
   FinishedTraining? finishedTraining;
