@@ -68,10 +68,10 @@ class TrainingBuilderViewState extends State<TrainingBuilderView> {
 
   Map<String, IconData> iconsMap = {
     'Plecy' : Icons.person ,
-    'Ręce' : Icons.front_hand_outlined ,
     'Klata' : Icons.person ,
     'Barki' : Icons.person ,
     'Nogi' : Icons.airline_seat_legroom_extra ,
+    'Ręce' : Icons.front_hand_outlined ,
     'Brzuch' : Icons.person ,
   };
 
