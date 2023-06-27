@@ -42,9 +42,9 @@ https://github.com/Meleciusz/Shaptif/assets/72231498/78d15ac3-065e-41a3-b909-88d
 
 * Facilities:
   * Filters while adding exercise to training
-  * Modification of weight, series and repetitions to each exercises
+  * Modification of weight, series and repetitions for each exercise
   * Possibility to save changes during training
-  * When user close appliction during training history is automaticly generated
+  * When user close appliction during training, history is automaticly generated
 
 
 
