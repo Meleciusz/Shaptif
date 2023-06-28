@@ -143,28 +143,50 @@ class _TrainingDetailsViewState extends State<TrainingDetailsView> {
                   });
                 },
                 onAddSet: (value) async {
+                  //TODO fix this
+                  ExerciseSet addedExerciseSet = value;
                   if(toDeleteList.isEmpty)
                     {
-                      
-                      toAddList.add(value);
+                      toAddList.add(addedExerciseSet);
                     }
                   else
                     {
-                      toDeleteList.removeLast();
+                      int foundExerciseSetIndex=-1;
+                      for(int i=0; i<toDeleteList.length;i++)
+                          if(addedExerciseSet.exerciseID == toDeleteList[i].exerciseID)
+                              foundExerciseSetIndex=i;
+                      if(foundExerciseSetIndex>=0)
+                        {
+                          toDeleteList.removeAt(foundExerciseSetIndex);
+
+                        }
+
+                      else
+                          toAddList.add(addedExerciseSet);
+
 
                     }
 
                 },
                 onDeleteSet: (value) async {
+                  ExerciseSet deletedExerciseSet = value;
                   if(toAddList.isEmpty)
                     {
                       toDeleteList.add(value);
-
                     }
                   else {
-                    toAddList.removeLast();
-
+                    int foundExerciseSetIndex=-1;
+                    for(int i=0; i<toAddList.length;i++)
+                      if(deletedExerciseSet.exerciseID == toAddList[i].exerciseID)
+                        foundExerciseSetIndex=i;
+                    if(foundExerciseSetIndex>=0) {
+                     toAddList.removeAt(foundExerciseSetIndex);
+                      }
+                    else {
+                      toDeleteList.add(deletedExerciseSet);
+                    }
                   }
+
                 },
                 onDeleteExercise: (value) async {
                  setState(() {
